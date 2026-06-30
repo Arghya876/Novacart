@@ -65,8 +65,12 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/analytics', analyticsRoutes);
 
 // Base route
+const { getDbStatus } = require('./utils/dbState');
 app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to NovaCart API' });
+  res.json({ 
+    message: 'Welcome to NovaCart API',
+    database: getDbStatus()
+  });
 });
 
 // Centralized error handler
