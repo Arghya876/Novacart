@@ -35,7 +35,10 @@ app.use(helmet());
 // Enable CORS
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173', // Vite default port
+    origin: [
+      'http://localhost:5173',
+      process.env.CLIENT_URL
+    ].filter(Boolean),
     credentials: true,
   })
 );
