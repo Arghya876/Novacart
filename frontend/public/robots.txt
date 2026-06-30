@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Host
+Host: https://novacart.com
+
+# Sitemaps
+Sitemap: https://novacart.com/sitemap.xml

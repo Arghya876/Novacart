@@ -1,0 +1,12 @@
+{
+  "name": "novacart-root",
+  "version": "1.0.0",
+  "description": "Root package for managing NovaCart full-stack application",
+  "scripts": {
+    "install-all": "npm install --prefix backend && npm install --prefix frontend",
+    "seed": "node backend/src/seeder.js",
+    "backend": "npm run dev --prefix backend",
+    "frontend": "npm run dev --prefix frontend",
+    "dev": "npx concurrently \"npm run backend\" \"npm run frontend\""
+  }
+}
