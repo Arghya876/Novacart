@@ -344,75 +344,128 @@ export default function AdminDashboard() {
       )}
 
       {/* Users Management Tab */}
-      {activeTab === 'users' && (
-        <div className="space-y-6">
-          <h2 className="text-lg font-bold text-neutral-900 dark:text-white flex items-center gap-2">
-            <Users className="h-5 w-5 text-violet-600" /> User Accounts
-          </h2>
-
-          {usersLoading ? (
-            <div className="py-12 flex justify-center"><div className="h-6 w-6 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" /></div>
-          ) : userError ? (
-            <div className="p-4 bg-rose-50 dark:bg-rose-950/25 border border-rose-200 text-rose-500 rounded-2xl">{userError}</div>
-          ) : (
-            <div className="border border-neutral-100 dark:border-neutral-850 rounded-3xl bg-white dark:bg-neutral-900 overflow-hidden shadow-sm">
-              <table className="w-full text-left border-collapse text-xs">
-                <thead>
-                  <tr className="bg-neutral-50 dark:bg-neutral-950 text-neutral-450 border-b border-neutral-150 dark:border-neutral-850">
-                    <th className="px-6 py-4 font-bold">User Details</th>
-                    <th className="px-6 py-4 font-bold">Email</th>
-                    <th className="px-6 py-4 font-bold">Role</th>
-                    <th className="px-6 py-4 font-bold">Registered Date</th>
-                    <th className="px-6 py-4 font-bold text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map((item) => (
-                    <tr key={item._id} className="border-b border-neutral-100 dark:border-neutral-850 hover:bg-neutral-50/50 dark:hover:bg-neutral-950/20">
-                      <td className="px-6 py-4 flex items-center gap-3">
-                        {item.avatar ? (
-                          <img src={item.avatar} alt="" className="h-8 w-8 rounded-full object-cover" />
-                        ) : (
-                          <div className="h-8 w-8 rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-600 flex items-center justify-center font-bold">
-                            {item.name.charAt(0).toUpperCase()}
-                          </div>
-                        )}
-                        <span className="font-semibold text-neutral-850 dark:text-neutral-200">{item.name}</span>
-                      </td>
-                      <td className="px-6 py-4 text-neutral-500">{item.email}</td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                          item.role === 'admin'
-                            ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/25'
-                            : item.role === 'seller'
-                            ? 'bg-violet-50 text-violet-600 dark:bg-violet-950/25'
-                            : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/25'
-                        }`}>
-                          {item.role}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-neutral-500">{new Date(item.createdAt).toLocaleDateString()}</td>
-                      <td className="px-6 py-4 text-center">
-                        <button
-                          onClick={() => handleDeleteUser(item._id)}
-                          disabled={item.role === 'admin'}
-                          className={`p-1.5 rounded-lg transition-all ${
-                            item.role === 'admin'
-                              ? 'text-neutral-200 dark:text-neutral-800 cursor-not-allowed'
-                              : 'text-neutral-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/25'
-                          }`}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      {/* Users Management Tab */}
+      {activeTab === 'users' && (() => {
+        const customers = users.filter((u) => u.role === 'customer');
+        const sellers = users.filter((u) => u.role === 'seller');
+        return (
+          <div className="space-y-8">
+            {/* Customers Section */}
+            <div className="space-y-4">
+              <h2 className="text-sm font-bold text-neutral-450 uppercase tracking-wider flex items-center gap-2">
+                <Users className="h-4.5 w-4.5 text-violet-500" /> Customer Accounts ({customers.length})
+              </h2>
+              {usersLoading ? (
+                <div className="py-6 flex justify-center"><div className="h-5 w-5 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" /></div>
+              ) : userError ? (
+                <div className="p-4 bg-rose-50 dark:bg-rose-950/25 border border-rose-200 text-rose-500 rounded-2xl">{userError}</div>
+              ) : (
+                <div className="border border-neutral-100 dark:border-neutral-850 rounded-3xl bg-white dark:bg-neutral-900 overflow-hidden shadow-sm">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="bg-neutral-50 dark:bg-neutral-950 text-neutral-450 border-b border-neutral-150 dark:border-neutral-850">
+                        <th className="px-6 py-4 font-bold">Customer Details</th>
+                        <th className="px-6 py-4 font-bold">Email</th>
+                        <th className="px-6 py-4 font-bold">Registered Date</th>
+                        <th className="px-6 py-4 font-bold text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {customers.length === 0 ? (
+                        <tr>
+                          <td colSpan="4" className="px-6 py-8 text-center text-neutral-400">No customers registered</td>
+                        </tr>
+                      ) : (
+                        customers.map((item) => (
+                          <tr key={item._id} className="border-b border-neutral-100 dark:border-neutral-850 hover:bg-neutral-50/50 dark:hover:bg-neutral-950/20">
+                            <td className="px-6 py-4 flex items-center gap-3">
+                              {item.avatar ? (
+                                <img src={item.avatar} alt="" className="h-8 w-8 rounded-full object-cover" />
+                              ) : (
+                                <div className="h-8 w-8 rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-600 flex items-center justify-center font-bold">
+                                  {item.name.charAt(0).toUpperCase()}
+                                </div>
+                              )}
+                              <span className="font-semibold text-neutral-850 dark:text-neutral-200">{item.name}</span>
+                            </td>
+                            <td className="px-6 py-4 text-neutral-500">{item.email}</td>
+                            <td className="px-6 py-4 text-neutral-500">{new Date(item.createdAt).toLocaleDateString()}</td>
+                            <td className="px-6 py-4 text-center">
+                              <button
+                                onClick={() => handleDeleteUser(item._id)}
+                                className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/25 transition-all cursor-pointer"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      )}
+
+            {/* Sellers Section */}
+            <div className="space-y-4">
+              <h2 className="text-sm font-bold text-neutral-450 uppercase tracking-wider flex items-center gap-2">
+                <Users className="h-4.5 w-4.5 text-emerald-500" /> Seller Accounts ({sellers.length})
+              </h2>
+              {usersLoading ? (
+                <div className="py-6 flex justify-center"><div className="h-5 w-5 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" /></div>
+              ) : userError ? (
+                <div className="p-4 bg-rose-50 dark:bg-rose-950/25 border border-rose-200 text-rose-500 rounded-2xl">{userError}</div>
+              ) : (
+                <div className="border border-neutral-100 dark:border-neutral-850 rounded-3xl bg-white dark:bg-neutral-900 overflow-hidden shadow-sm">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="bg-neutral-50 dark:bg-neutral-950 text-neutral-450 border-b border-neutral-150 dark:border-neutral-850">
+                        <th className="px-6 py-4 font-bold">Seller Details</th>
+                        <th className="px-6 py-4 font-bold">Email</th>
+                        <th className="px-6 py-4 font-bold">Registered Date</th>
+                        <th className="px-6 py-4 font-bold text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sellers.length === 0 ? (
+                        <tr>
+                          <td colSpan="4" className="px-6 py-8 text-center text-neutral-400">No sellers registered</td>
+                        </tr>
+                      ) : (
+                        sellers.map((item) => (
+                          <tr key={item._id} className="border-b border-neutral-100 dark:border-neutral-850 hover:bg-neutral-50/50 dark:hover:bg-neutral-950/20">
+                            <td className="px-6 py-4 flex items-center gap-3">
+                              {item.avatar ? (
+                                <img src={item.avatar} alt="" className="h-8 w-8 rounded-full object-cover" />
+                              ) : (
+                                <div className="h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 flex items-center justify-center font-bold">
+                                  {item.name.charAt(0).toUpperCase()}
+                                </div>
+                              )}
+                              <span className="font-semibold text-neutral-850 dark:text-neutral-200">{item.name}</span>
+                            </td>
+                            <td className="px-6 py-4 text-neutral-500">{item.email}</td>
+                            <td className="px-6 py-4 text-neutral-500">{new Date(item.createdAt).toLocaleDateString()}</td>
+                            <td className="px-6 py-4 text-center">
+                              <button
+                                onClick={() => handleDeleteUser(item._id)}
+                                className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/25 transition-all cursor-pointer"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Products Management Tab */}
       {activeTab === 'products' && (

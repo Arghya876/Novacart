@@ -1,8 +1,9 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Provider, useSelector } from 'react-redux';
 import { HelmetProvider } from 'react-helmet-async';
 import { motion } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
 import { store } from './store';
 
 // Layouts
@@ -49,6 +50,24 @@ function ShopLayout() {
   );
 }
 
+// Global Back Button Component (Universal navigation helper)
+function GlobalBackButton() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Hide the back button on the storefront homepage
+  if (location.pathname === '/') return null;
+
+  return (
+    <button
+      onClick={() => navigate(-1)}
+      className="fixed bottom-6 left-6 z-[100] flex items-center gap-1.5 px-4.5 py-2.5 rounded-full bg-white/90 dark:bg-neutral-900/90 text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-800 shadow-xl backdrop-blur-md hover:scale-105 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all cursor-pointer text-xs font-bold"
+    >
+      <ArrowLeft className="h-4 w-4" /> Back
+    </button>
+  );
+}
+
 // Protected Route for Shoppers/Customers
 function CustomerProtectedRoute({ children }) {
   const { user } = useSelector((state) => state.auth);
@@ -65,11 +84,20 @@ function SellerProtectedRoute({ children }) {
   return children;
 }
 
+// Protected Route for checkout (allows both customers and sellers to place orders)
+function OrderingProtectedRoute({ children }) {
+  const { user } = useSelector((state) => state.auth);
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role !== 'customer' && user.role !== 'seller') return <Navigate to="/" replace />;
+  return children;
+}
+
 export default function App() {
   return (
     <Provider store={store}>
       <HelmetProvider>
         <Router>
+          <GlobalBackButton />
           <Routes>
             {/* Shop Layout (Includes public header & footer) */}
             <Route element={<ShopLayout />}>
@@ -95,15 +123,17 @@ export default function App() {
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
 
-              {/* Protected Customer Routes */}
+              {/* Protected Ordering Route (Allows both customers and sellers to order) */}
               <Route
                 path="/checkout"
                 element={
-                  <CustomerProtectedRoute>
+                  <OrderingProtectedRoute>
                     <Checkout />
-                  </CustomerProtectedRoute>
+                  </OrderingProtectedRoute>
                 }
               />
+              
+              {/* Protected Customer dashboard */}
               <Route
                 path="/customer"
                 element={
@@ -113,7 +143,7 @@ export default function App() {
                 }
               />
 
-              {/* Protected Seller Routes */}
+              {/* Protected Seller dashboard */}
               <Route
                 path="/seller"
                 element={
@@ -138,4 +168,4 @@ export default function App() {
     </Provider>
   );
 }
-export { CustomerProtectedRoute, SellerProtectedRoute };
+export { CustomerProtectedRoute, SellerProtectedRoute, OrderingProtectedRoute };
