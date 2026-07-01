@@ -177,23 +177,17 @@ export default function Header() {
                       <p className="text-[10px] text-neutral-400 truncate">{user.email}</p>
                     </div>
 
-                    <Link to="/dashboard" onClick={() => setUserDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-xs text-neutral-700 dark:text-neutral-350 hover:bg-neutral-50 dark:hover:bg-neutral-850 transition-colors">
+                    <Link to="/customer" onClick={() => setUserDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-xs text-neutral-700 dark:text-neutral-350 hover:bg-neutral-50 dark:hover:bg-neutral-850 transition-colors">
                       <User className="h-4 w-4 text-neutral-400" /> My Profile
                     </Link>
 
-                    <Link to="/dashboard?tab=orders" onClick={() => setUserDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-xs text-neutral-700 dark:text-neutral-350 hover:bg-neutral-50 dark:hover:bg-neutral-850 transition-colors">
+                    <Link to="/customer?tab=orders" onClick={() => setUserDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-xs text-neutral-700 dark:text-neutral-350 hover:bg-neutral-50 dark:hover:bg-neutral-850 transition-colors">
                       <Package className="h-4 w-4 text-neutral-400" /> My Orders
                     </Link>
 
                     {user.role === 'seller' && (
                       <Link to="/seller" onClick={() => setUserDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-xs text-neutral-700 dark:text-neutral-350 hover:bg-neutral-50 dark:hover:bg-neutral-850 transition-colors">
                         <Sparkles className="h-4 w-4 text-violet-500" /> Seller Dashboard
-                      </Link>
-                    )}
-
-                    {user.role === 'admin' && (
-                      <Link to="/admin" onClick={() => setUserDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-xs text-neutral-700 dark:text-neutral-350 hover:bg-neutral-50 dark:hover:bg-neutral-850 transition-colors">
-                        <Sparkles className="h-4 w-4 text-violet-500" /> Admin Dashboard
                       </Link>
                     )}
 
@@ -253,20 +247,15 @@ export default function Header() {
                 <div className="px-3 py-1 text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
                   Account ({user.name})
                 </div>
-                <Link to="/dashboard?tab=orders" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-350 hover:bg-neutral-50 dark:hover:bg-neutral-850 rounded-xl flex items-center gap-2">
+                <Link to="/customer?tab=orders" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-350 hover:bg-neutral-50 dark:hover:bg-neutral-850 rounded-xl flex items-center gap-2">
                   <Package className="h-4 w-4 text-neutral-400" /> My Orders
                 </Link>
-                <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-350 hover:bg-neutral-50 dark:hover:bg-neutral-850 rounded-xl flex items-center gap-2">
+                <Link to="/customer" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-355 hover:bg-neutral-50 dark:hover:bg-neutral-850 rounded-xl flex items-center gap-2">
                   <User className="h-4 w-4 text-neutral-400" /> My Profile
                 </Link>
                 {user.role === 'seller' && (
                   <Link to="/seller" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-350 hover:bg-neutral-50 dark:hover:bg-neutral-850 rounded-xl flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-violet-500" /> Seller Dashboard
-                  </Link>
-                )}
-                {user.role === 'admin' && (
-                  <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-350 hover:bg-neutral-50 dark:hover:bg-neutral-850 rounded-xl flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-violet-500" /> Admin Dashboard
                   </Link>
                 )}
                 <button

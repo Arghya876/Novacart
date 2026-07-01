@@ -105,7 +105,7 @@ export default function App() {
                 }
               />
               <Route
-                path="/dashboard"
+                path="/customer"
                 element={
                   <CustomerProtectedRoute>
                     <UserDashboard />

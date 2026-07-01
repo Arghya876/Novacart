@@ -45,7 +45,7 @@ export default function Login() {
       if (redirect) {
         navigate(`/${redirect}`);
       } else {
-        navigate(user.role === 'seller' ? '/seller' : '/');
+        navigate(user.role === 'seller' ? '/seller' : '/customer');
       }
     }
   }, [user, role, isValidRole, navigate, redirect, dispatch]);
