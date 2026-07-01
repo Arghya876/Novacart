@@ -102,7 +102,7 @@ export default function Checkout() {
 
       if (res.data.success) {
         dispatch(clearCart());
-        navigate(`/customer?tab=orders&success=true&orderId=${res.data.data._id}`);
+        navigate(`/profile?tab=orders&success=true&orderId=${res.data.data._id}`);
       }
     } catch (err) {
       setCheckoutError(err.response?.data?.error || 'Failed to place order. Try again.');

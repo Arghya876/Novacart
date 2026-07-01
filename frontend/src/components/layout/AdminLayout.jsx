@@ -1,13 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navigate, Outlet, Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Shield, LogOut } from 'lucide-react';
+import { Shield, LogOut, Sun, Moon } from 'lucide-react';
 import { logoutUser } from '../../store/authSlice';
 
 export default function AdminLayout() {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const [darkMode, setDarkMode] = useState(
+    localStorage.getItem('theme') === 'dark' ||
+    (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)
+  );
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [darkMode]);
 
   if (!user) {
     return <Navigate to="/admin/login" replace />;
@@ -63,6 +78,14 @@ export default function AdminLayout() {
         </div>
 
         <div className="flex items-center gap-4">
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className="h-9 w-9 rounded-full bg-neutral-800 hover:bg-neutral-750 flex items-center justify-center text-neutral-450 transition-colors cursor-pointer"
+            title="Toggle Theme"
+          >
+            {darkMode ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4" />}
+          </button>
+
           <div className="text-right hidden sm:block">
             <p className="text-xs font-semibold text-neutral-200">{user.name}</p>
             <p className="text-[10px] text-neutral-500">{user.email}</p>

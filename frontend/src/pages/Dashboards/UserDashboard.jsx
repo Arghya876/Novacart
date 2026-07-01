@@ -11,7 +11,9 @@ export default function UserDashboard() {
 
   const { user, token } = useSelector((state) => state.auth);
 
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'orders');
+  const [activeTab, setActiveTab] = useState(
+    searchParams.get('tab') || (user?.role === 'seller' ? 'profile' : 'orders')
+  );
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
 
@@ -115,7 +117,7 @@ export default function UserDashboard() {
         {/* Sidebar Nav */}
         <div className="md:col-span-1 space-y-2">
           {[
-            { id: 'orders', name: 'My Orders', icon: Package },
+            ...(user?.role === 'customer' ? [{ id: 'orders', name: 'My Orders', icon: Package }] : []),
             { id: 'addresses', name: 'Addresses', icon: MapPin },
             { id: 'profile', name: 'Profile Settings', icon: Settings },
           ].map((tab) => (
@@ -125,7 +127,7 @@ export default function UserDashboard() {
               className={`w-full h-11 px-4 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition-colors ${
                 activeTab === tab.id
                   ? 'bg-violet-600 text-white'
-                  : 'text-neutral-600 dark:text-neutral-350 hover:bg-neutral-100 dark:hover:bg-neutral-850'
+                  : 'text-neutral-600 dark:text-neutral-355 hover:bg-neutral-100 dark:hover:bg-neutral-850'
               }`}
             >
               <tab.icon className="h-4 w-4" /> {tab.name}

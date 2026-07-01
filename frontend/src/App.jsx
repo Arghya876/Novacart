@@ -55,8 +55,8 @@ function GlobalBackButton() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Hide the back button on the storefront homepage
-  if (location.pathname === '/') return null;
+  // Hide the back button on the storefront homepage or home view
+  if (location.pathname === '/' || location.pathname === '/home') return null;
 
   return (
     <button
@@ -92,6 +92,14 @@ function OrderingProtectedRoute({ children }) {
   return children;
 }
 
+// Protected Route for Profile/Account details (allows both customers and sellers)
+function UserProtectedRoute({ children }) {
+  const { user } = useSelector((state) => state.auth);
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role !== 'customer' && user.role !== 'seller') return <Navigate to="/" replace />;
+  return children;
+}
+
 export default function App() {
   return (
     <Provider store={store}>
@@ -103,6 +111,7 @@ export default function App() {
             <Route element={<ShopLayout />}>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
+              <Route path="/home" element={<Home />} />
               <Route path="/products" element={<ProductListing />} />
               <Route path="/search" element={<ProductListing />} />
               <Route path="/product/:slug" element={<ProductDetails />} />
@@ -133,25 +142,29 @@ export default function App() {
                 }
               />
               
-              {/* Protected Customer dashboard */}
+              {/* Protected Profile Route for both Customer & Seller */}
               <Route
-                path="/customer"
+                path="/profile"
                 element={
-                  <CustomerProtectedRoute>
+                  <UserProtectedRoute>
                     <UserDashboard />
-                  </CustomerProtectedRoute>
+                  </UserProtectedRoute>
                 }
               />
 
-              {/* Protected Seller dashboard */}
+              {/* Protected Seller dashboard (my-products) */}
               <Route
-                path="/seller"
+                path="/my-products"
                 element={
                   <SellerProtectedRoute>
                     <SellerDashboard />
                   </SellerProtectedRoute>
                 }
               />
+
+              {/* Legacy Redirections for Compatibility */}
+              <Route path="/customer" element={<Navigate to="/profile" replace />} />
+              <Route path="/seller" element={<Navigate to="/my-products" replace />} />
             </Route>
 
             {/* Separate Admin Routes (No storefront header & footer) */}
@@ -168,4 +181,4 @@ export default function App() {
     </Provider>
   );
 }
-export { CustomerProtectedRoute, SellerProtectedRoute, OrderingProtectedRoute };
+export { CustomerProtectedRoute, SellerProtectedRoute, OrderingProtectedRoute, UserProtectedRoute };
