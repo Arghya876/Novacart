@@ -58,9 +58,17 @@ export default function Home() {
         <div className="mx-auto max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center py-12">
           {/* Hero Left: Text Content */}
           <div ref={heroTextRef} className="space-y-6">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-100 dark:bg-violet-900/45 px-3 py-1 text-xs font-semibold text-violet-600 dark:text-violet-400">
-              <Zap className="h-3.5 w-3.5 fill-violet-600 dark:fill-violet-400" /> Discover the Future of Shopping
-            </span>
+            <div className="flex items-center gap-3">
+              <img 
+                src="/favicon.png" 
+                alt="NovaCart Logo" 
+                className="h-10 w-10 rounded-xl shadow-md border border-violet-500/20 object-cover animate-bounce" 
+                style={{ animationDuration: '3s' }}
+              />
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-100 dark:bg-violet-900/45 px-3 py-1 text-xs font-semibold text-violet-600 dark:text-violet-400">
+                <Zap className="h-3.5 w-3.5 fill-violet-600 dark:fill-violet-400" /> Discover the Future of Shopping
+              </span>
+            </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-neutral-900 dark:text-white leading-[1.1]">
               Elevate Your Lifestyle With{' '}
               <span className="bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400 bg-clip-text text-transparent">
@@ -73,7 +81,7 @@ export default function Home() {
             <div className="flex flex-wrap gap-4 pt-2">
               <Link
                 to="/products"
-                className="inline-flex items-center justify-center h-12 px-6 rounded-full text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600 transition-all hover:scale-105 shadow-md shadow-violet-500/10"
+                className="inline-flex items-center justify-center h-12 px-6 rounded-full text-sm font-medium text-white bg-violet-600 hover:bg-violet-750 dark:bg-violet-500 dark:hover:bg-violet-600 transition-all hover:scale-105 shadow-md shadow-violet-500/10"
               >
                 Shop Catalog <ShoppingBag className="ml-2 h-4 w-4" />
               </Link>
@@ -113,7 +121,13 @@ export default function Home() {
       </section>
 
       {/* Trust Badges */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <motion.section 
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-50px' }}
+        transition={{ duration: 0.6 }}
+        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
+      >
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-8 rounded-3xl border border-neutral-100 dark:border-neutral-900 bg-white/40 dark:bg-neutral-950/45 backdrop-blur-md">
           <div className="flex flex-col items-center text-center space-y-2">
             <div className="p-3 bg-violet-100 dark:bg-violet-950/40 rounded-2xl text-violet-600 dark:text-violet-400">
@@ -144,10 +158,16 @@ export default function Home() {
             <p className="text-xs text-neutral-400">24/7 dedicated assistance</p>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Categories Grid */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
+      <motion.section 
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-100px' }}
+        transition={{ duration: 0.6 }}
+        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6"
+      >
         <div className="flex justify-between items-baseline">
           <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">Shop by Category</h2>
           <Link to="/products" className="text-xs font-semibold text-violet-600 dark:text-violet-400 hover:underline">
@@ -178,10 +198,16 @@ export default function Home() {
             </Link>
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* Featured Products */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
+      <motion.section 
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-100px' }}
+        transition={{ duration: 0.6 }}
+        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6"
+      >
         <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">Featured Products</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {isLoading ? (
@@ -190,11 +216,17 @@ export default function Home() {
             products.map((product) => <ProductCard key={product._id} product={product} />)
           )}
         </div>
-      </section>
+      </motion.section>
 
       {/* AI Personalized Recommendations */}
       {recommendations.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
+        <motion.section 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-100px' }}
+          transition={{ duration: 0.6 }}
+          className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6"
+        >
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-violet-500 animate-pulse" />
             <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">Recommended For You</h2>
@@ -204,7 +236,7 @@ export default function Home() {
               <ProductCard key={product._id} product={product} />
             ))}
           </div>
-        </section>
+        </motion.section>
       )}
     </div>
   );

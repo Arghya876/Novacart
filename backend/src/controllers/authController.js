@@ -54,6 +54,16 @@ const sendTokenResponse = async (user, statusCode, res) => {
 exports.register = async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
+
+    // Strong Password Policy Validation (Min 8 chars, 1 uppercase, 1 lowercase, 1 digit, 1 special char)
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Password must be at least 8 characters long, and contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&).',
+      });
+    }
+
     const useFallback = shouldUseFallbackData();
     if (useFallback) {
       const fallbackUser = authenticateFallbackUser(email, password);
@@ -172,6 +182,8 @@ exports.logout = async (req, res, next) => {
     res.cookie('refreshToken', 'none', {
       expires: new Date(Date.now() + 10 * 1000),
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
     });
 
     res.status(200).json({

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Trash2, Shield, ArrowRight, Tag, X } from 'lucide-react';
+import { Trash2, Shield, ArrowRight, Tag, X, ShoppingCart } from 'lucide-react';
 import { removeFromCart, updateCartQty, saveForLater, moveToCart, applyCoupon, removeCoupon } from '../store/cartSlice';
 import axios from 'axios';
 

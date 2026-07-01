@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { shouldUseFallbackData } = require('../utils/dbState');
+const { getFallbackUserById } = require('../utils/fallbackData');
 
 // Protect routes
 const protect = async (req, res, next) => {
@@ -25,8 +27,13 @@ const protect = async (req, res, next) => {
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_jwt_secret');
 
-    // Attach user to request
-    req.user = await User.findById(decoded.id).select('-password');
+    // Attach user to request (supporting fallback mode)
+    if (shouldUseFallbackData()) {
+      req.user = getFallbackUserById(decoded.id);
+    } else {
+      req.user = await User.findById(decoded.id).select('-password');
+    }
+
     if (!req.user) {
       return res.status(401).json({
         success: false,
