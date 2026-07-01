@@ -64,35 +64,35 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-neutral-900 text-neutral-100">
+    <div className="min-h-screen flex flex-col bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50 transition-colors duration-300">
       {/* Admin Header */}
-      <header className="h-16 border-b border-neutral-850 bg-neutral-950 flex items-center justify-between px-6 shrink-0">
+      <header className="h-16 border-b border-neutral-200 dark:border-neutral-850 bg-white dark:bg-neutral-900 flex items-center justify-between px-6 shrink-0 transition-colors duration-300">
         <div className="flex items-center gap-3">
           <div className="h-9 w-9 rounded-xl bg-violet-600 flex items-center justify-center font-bold text-white shadow-md shadow-violet-500/25">
             A
           </div>
           <div>
-            <h1 className="text-sm font-bold tracking-wide">NOVACART</h1>
-            <p className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Admin Control Panel</p>
+            <h1 className="text-sm font-bold tracking-wide text-neutral-850 dark:text-white">NOVACART</h1>
+            <p className="text-[10px] text-violet-600 dark:text-violet-400 font-bold uppercase tracking-wider">Admin Control Panel</p>
           </div>
         </div>
 
         <div className="flex items-center gap-4">
           <button
             onClick={() => setDarkMode(!darkMode)}
-            className="h-9 w-9 rounded-full bg-neutral-800 hover:bg-neutral-750 flex items-center justify-center text-neutral-450 transition-colors cursor-pointer"
+            className="p-2 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-850 rounded-full transition-colors cursor-pointer"
             title="Toggle Theme"
           >
-            {darkMode ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4" />}
+            {darkMode ? <Sun className="h-5 w-5 text-amber-400" /> : <Moon className="h-5 w-5" />}
           </button>
 
           <div className="text-right hidden sm:block">
-            <p className="text-xs font-semibold text-neutral-200">{user.name}</p>
-            <p className="text-[10px] text-neutral-500">{user.email}</p>
+            <p className="text-xs font-semibold text-neutral-800 dark:text-neutral-200">{user.name}</p>
+            <p className="text-[10px] text-neutral-400 dark:text-neutral-500">{user.email}</p>
           </div>
           <button
             onClick={handleLogout}
-            className="h-9 w-9 rounded-full bg-neutral-800 hover:bg-rose-950/30 hover:text-rose-500 flex items-center justify-center text-neutral-400 transition-colors cursor-pointer"
+            className="h-9 w-9 rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-500 flex items-center justify-center text-neutral-600 dark:text-neutral-400 transition-colors cursor-pointer"
             title="Log Out"
           >
             <LogOut className="h-4 w-4" />
@@ -101,7 +101,7 @@ export default function AdminLayout() {
       </header>
 
       {/* Main Dashboard Content */}
-      <main className="flex-1 overflow-auto bg-neutral-950">
+      <main className="flex-1 overflow-auto bg-neutral-50 dark:bg-neutral-950 transition-colors duration-300">
         <Outlet />
       </main>
     </div>
