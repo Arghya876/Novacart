@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Mail, Lock, AlertTriangle, Loader2, ArrowLeft, Check } from 'lucide-react';
+import { Mail, Lock, AlertTriangle, Loader2, ArrowLeft } from 'lucide-react';
 import { loginUser, clearError, logoutUser } from '../../store/authSlice';
 
 export default function Login() {
@@ -9,7 +9,6 @@ export default function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
-  const location = useLocation();
 
   const isValidRole = role === 'customer' || role === 'seller';
 
@@ -100,13 +99,6 @@ export default function Login() {
           <div className="p-3 bg-rose-50 dark:bg-rose-950/25 border border-rose-200 dark:border-rose-900/30 text-rose-500 rounded-xl flex items-start gap-2 text-xs">
             <AlertTriangle className="h-4.5 w-4.5 shrink-0 mt-0.5" /> 
             <span>{displayError}</span>
-          </div>
-        )}
-
-        {location.state?.message && !displayError && (
-          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/25 border border-emerald-200 dark:border-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-start gap-2 text-xs">
-            <Check className="h-4.5 w-4.5 shrink-0 mt-0.5 text-emerald-500" />
-            <span>{location.state.message}</span>
           </div>
         )}
 

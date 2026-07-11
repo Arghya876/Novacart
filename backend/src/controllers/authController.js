@@ -79,21 +79,43 @@ exports.register = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'User already exists' });
     }
 
-    // Create user - automatically verified to bypass email checks
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const crypto = require('crypto');
+    const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+
+    // Create user
     const user = await User.create({
       name,
       email,
       password,
       role: role || 'customer',
-      isVerified: true,
+      emailVerificationOtp: hashedOtp,
+      emailVerificationOtpExpire: Date.now() + 60 * 60 * 1000, // 1 hour
+      isVerified: false,
     });
+
+    // Send verification email
+    const sendEmail = require('../utils/sendEmail');
+    const message = `Welcome to NovaCart, ${user.name}!\n\nPlease verify your email to log in and activate your account. Your 6-digit verification OTP is:\n\n${otp}\n\nThis OTP is valid for 1 hour.`;
+
+    let mailInfo = null;
+    try {
+      mailInfo = await sendEmail({
+        email: user.email,
+        subject: 'NovaCart Email Verification OTP',
+        message,
+      });
+    } catch (err) {
+      console.error('Failed to send verification email on register:', err.message);
+    }
 
     res.status(201).json({
       success: true,
-      isVerified: true,
+      isVerified: false,
       email: user.email,
-      message: 'Registration successful!',
-      previewUrl: null,
+      message: 'Registration successful! A verification OTP has been sent to your email.',
+      previewUrl: mailInfo?.previewUrl || null,
     });
   } catch (error) {
     next(error);
@@ -132,10 +154,39 @@ exports.login = async (req, res, next) => {
       return res.status(401).json({ success: false, error: 'Invalid credentials' });
     }
 
-    // Auto-verify user to bypass email verification checks
+    // Block unverified users & send verification OTP
     if (!user.isVerified) {
-      user.isVerified = true;
+      // Generate 6-digit OTP
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const crypto = require('crypto');
+      const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+
+      user.emailVerificationOtp = hashedOtp;
+      user.emailVerificationOtpExpire = Date.now() + 60 * 60 * 1000; // 1 hour
       await user.save({ validateBeforeSave: false });
+
+      // Send email
+      const sendEmail = require('../utils/sendEmail');
+      const message = `Please verify your email to log in and activate your account. Your 6-digit verification OTP is:\n\n${otp}\n\nThis OTP is valid for 1 hour.`;
+
+      let mailInfo = null;
+      try {
+        mailInfo = await sendEmail({
+          email: user.email,
+          subject: 'NovaCart Email Verification OTP',
+          message,
+        });
+      } catch (err) {
+        console.error('Failed to send verification email on login:', err.message);
+      }
+
+      return res.status(403).json({
+        success: false,
+        isVerified: false,
+        email: user.email,
+        error: 'Your email address is not verified. A verification OTP has been sent to your email.',
+        previewUrl: mailInfo?.previewUrl || null,
+      });
     }
 
     sendTokenResponse(user, 200, res);
@@ -427,12 +478,12 @@ exports.forgotPassword = async (req, res, next) => {
         previewUrl: mailInfo?.previewUrl || null
       });
     } catch (err) {
-      console.warn('Failed to send password reset email. Exposing OTP directly for demo mode:', err.message);
-      return res.status(200).json({ 
-        success: true, 
-        message: `[Demo Mode] OTP sent to email. OTP is: ${otp}`,
-        otp: otp
-      });
+      console.error(err);
+      user.resetPasswordOtp = undefined;
+      user.resetPasswordOtpExpire = undefined;
+      await user.save({ validateBeforeSave: false });
+
+      return res.status(500).json({ success: false, error: 'Email could not be sent' });
     }
   } catch (error) {
     next(error);
