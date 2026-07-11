@@ -1,6 +1,56 @@
 const nodemailer = require('nodemailer');
+const https = require('https');
 
 const sendEmail = async (options) => {
+  // Option 1: Use Resend HTTP API (Recommended for production on Render Free tier where SMTP is blocked)
+  if (process.env.RESEND_API_KEY) {
+    return new Promise((resolve, reject) => {
+      const postData = JSON.stringify({
+        from: `${process.env.FROM_NAME || 'NovaCart'} <${process.env.FROM_EMAIL || 'onboarding@resend.dev'}>`,
+        to: options.email,
+        subject: options.subject,
+        text: options.message,
+        html: options.html || `<p>${options.message.replace(/\n/g, '<br>')}</p>`,
+      });
+
+      const req = https.request({
+        hostname: 'api.resend.com',
+        path: '/emails',
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(postData)
+        }
+      }, (res) => {
+        let body = '';
+        res.on('data', (chunk) => body += chunk);
+        res.on('end', () => {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            try {
+              const data = JSON.parse(body);
+              console.log(`Email sent via Resend API successfully: ${data.id}`);
+              resolve({ messageId: data.id });
+            } catch (e) {
+              resolve({ messageId: 'resend_success' });
+            }
+          } else {
+            console.error(`Resend API Error: Status ${res.statusCode}, Body: ${body}`);
+            reject(new Error(`Resend API returned status code ${res.statusCode}`));
+          }
+        });
+      });
+
+      req.on('error', (err) => {
+        console.error('Resend Request Error:', err.message);
+        reject(err);
+      });
+
+      req.write(postData);
+      req.end();
+    });
+  }
+
   let transporter;
 
   // Check if SMTP is configured in env variables
