@@ -1,11 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import api from '../utils/api';
 
 export const fetchProducts = createAsyncThunk(
   'products/fetchAll',
   async (queryParams = {}, thunkAPI) => {
     try {
-      const response = await axios.get('/api/products', { params: queryParams });
+      const response = await api.get('/api/products', { params: queryParams });
       return response.data;
     } catch (error) {
       const message = error.response?.data?.error || error.message || 'Failed to fetch products';
@@ -18,7 +18,7 @@ export const fetchProductDetails = createAsyncThunk(
   'products/fetchDetails',
   async (idOrSlug, thunkAPI) => {
     try {
-      const response = await axios.get(`/api/products/${idOrSlug}`);
+      const response = await api.get(`/api/products/${idOrSlug}`);
       return response.data.data;
     } catch (error) {
       const message = error.response?.data?.error || error.message || 'Failed to fetch product details';
@@ -31,7 +31,7 @@ export const fetchCategories = createAsyncThunk(
   'products/fetchCategories',
   async (_, thunkAPI) => {
     try {
-      const response = await axios.get('/api/categories');
+      const response = await api.get('/api/categories');
       return response.data.data;
     } catch (error) {
       const message = error.response?.data?.error || error.message || 'Failed to fetch categories';
@@ -44,7 +44,7 @@ export const fetchRecommendations = createAsyncThunk(
   'products/fetchRecommendations',
   async ({ recentlyViewedIds, limit }, thunkAPI) => {
     try {
-      const response = await axios.post('/api/products/recommendations', {
+      const response = await api.post('/api/products/recommendations', {
         recentlyViewedIds,
         limit,
       });

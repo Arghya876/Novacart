@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { User, Package, MapPin, Settings, Plus, Trash2, CheckCircle2, AlertTriangle } from 'lucide-react';
-import { updateUserDetails, addUserAddress, deleteUserAddress } from '../../store/authSlice';
+import { updateUserDetails, addUserAddress, deleteUserAddress, deleteAccount, requestDeleteOtp } from '../../store/authSlice';
 import axios from 'axios';
 
 export default function UserDashboard() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const { user, token } = useSelector((state) => state.auth);
@@ -24,6 +25,13 @@ export default function UserDashboard() {
     phoneNumber: user?.phoneNumber || '',
   });
   const [profileSuccess, setProfileSuccess] = useState('');
+
+  // Account Deletion States
+  const [showDeleteOtpField, setShowDeleteOtpField] = useState(false);
+  const [deleteOtp, setDeleteOtp] = useState('');
+  const [deleteSuccessMsg, setDeleteSuccessMsg] = useState('');
+  const [deletePreviewUrl, setDeletePreviewUrl] = useState('');
+  const [deleteLocalError, setDeleteLocalError] = useState('');
 
   // Address Form States
   const [showAddressForm, setShowAddressForm] = useState(false);
@@ -100,6 +108,46 @@ export default function UserDashboard() {
 
   const handleDeleteAddress = (id) => {
     dispatch(deleteUserAddress(id));
+  };
+
+  const handleRequestDeleteOtp = () => {
+    setDeleteLocalError('');
+    setDeleteSuccessMsg('');
+    setDeletePreviewUrl('');
+    
+    dispatch(requestDeleteOtp()).then((res) => {
+      if (res.meta.requestStatus === 'fulfilled') {
+        setShowDeleteOtpField(true);
+        setDeleteSuccessMsg('A 6-digit deletion OTP has been sent to your email.');
+        if (res.payload?.previewUrl) {
+          setDeletePreviewUrl(res.payload.previewUrl);
+        }
+      } else {
+        setDeleteLocalError(res.payload || 'Failed to send OTP.');
+      }
+    });
+  };
+
+  const handleDeleteAccount = (e) => {
+    e.preventDefault();
+    setDeleteLocalError('');
+    setDeleteSuccessMsg('');
+
+    if (deleteOtp.length !== 6 || isNaN(deleteOtp)) {
+      setDeleteLocalError('OTP must be a 6-digit number');
+      return;
+    }
+
+    if (window.confirm('WARNING: Are you sure you want to permanently delete your account? This action is irreversible.')) {
+      dispatch(deleteAccount(deleteOtp)).then((res) => {
+        if (res.meta.requestStatus === 'fulfilled') {
+          alert('Account deleted successfully. We are sorry to see you go!');
+          navigate('/login');
+        } else {
+          setDeleteLocalError(res.payload || 'Failed to delete account.');
+        }
+      });
+    }
   };
 
   const isOrderSuccess = searchParams.get('success') === 'true';
@@ -391,6 +439,90 @@ export default function UserDashboard() {
                   Save Changes
                 </button>
               </form>
+
+              {/* Danger Zone */}
+              <div className="p-6 border border-rose-200 dark:border-rose-900/30 bg-rose-50/10 dark:bg-rose-950/5 rounded-3xl space-y-4 shadow-sm max-w-lg">
+                <div className="space-y-1">
+                  <h3 className="text-xs font-bold text-rose-550 dark:text-rose-400 uppercase tracking-wider">Danger Zone</h3>
+                  <p className="text-[11px] text-neutral-450 dark:text-neutral-400">
+                    Permanently delete your account and all associated data. This action is irreversible and requires OTP verification.
+                  </p>
+                </div>
+
+                {deleteSuccessMsg && (
+                  <div className="p-3 text-[11px] bg-emerald-50 dark:bg-emerald-950/25 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/30 rounded-xl">
+                    {deleteSuccessMsg}
+                  </div>
+                )}
+
+                {deletePreviewUrl && (
+                  <div className="p-3 text-[11px] bg-emerald-50 dark:bg-emerald-950/25 border border-emerald-200 dark:border-emerald-900 rounded-xl space-y-2">
+                    <p className="font-semibold text-emerald-700 dark:text-emerald-350">
+                      [Dev Mode] Email sent! Open Ethereal inbox to copy deletion OTP:
+                    </p>
+                    <a 
+                      href={deletePreviewUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="inline-block px-3 py-1 bg-emerald-600 text-white rounded-lg font-bold underline text-[10px]"
+                    >
+                      View OTP Email ↗
+                    </a>
+                  </div>
+                )}
+
+                {deleteLocalError && (
+                  <div className="p-3 text-[11px] bg-rose-50 dark:bg-rose-950/25 text-rose-500 border border-rose-200 dark:border-rose-900/30 rounded-xl">
+                    {deleteLocalError}
+                  </div>
+                )}
+
+                {!showDeleteOtpField ? (
+                  <button
+                    type="button"
+                    onClick={handleRequestDeleteOtp}
+                    className="h-10 px-5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold cursor-pointer transition-colors shadow-sm"
+                  >
+                    Request Deletion OTP
+                  </button>
+                ) : (
+                  <form onSubmit={handleDeleteAccount} className="space-y-3.5">
+                    <div className="space-y-1.5 text-xs">
+                      <label className="text-[10px] font-bold text-neutral-400 uppercase">Enter Deletion OTP</label>
+                      <input
+                        type="text"
+                        maxLength={6}
+                        required
+                        value={deleteOtp}
+                        onChange={(e) => setDeleteOtp(e.target.value.replace(/\D/g, ''))}
+                        className="w-full h-10 px-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 font-mono text-center tracking-[0.2em]"
+                        placeholder="123456"
+                      />
+                    </div>
+                    <div className="flex gap-2.5">
+                      <button
+                        type="submit"
+                        className="h-10 px-5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold cursor-pointer transition-colors shadow-sm"
+                      >
+                        Confirm Delete Account
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowDeleteOtpField(false);
+                          setDeleteOtp('');
+                          setDeleteLocalError('');
+                          setDeleteSuccessMsg('');
+                          setDeletePreviewUrl('');
+                        }}
+                        className="h-10 px-4 rounded-xl border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-900 text-xs font-semibold cursor-pointer transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
             </div>
           )}
 

@@ -50,10 +50,21 @@ export default function Login() {
     }
   }, [user, role, isValidRole, navigate, redirect, dispatch]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLocalError(null);
-    dispatch(loginUser({ email, password }));
+    dispatch(clearError());
+    
+    const result = await dispatch(loginUser({ email, password }));
+    if (loginUser.rejected.match(result)) {
+      const payload = result.payload;
+      if (payload && payload.isVerified === false) {
+        const url = `/verify-email?email=${encodeURIComponent(payload.email)}${
+          payload.previewUrl ? `&previewUrl=${encodeURIComponent(payload.previewUrl)}` : ''
+        }`;
+        navigate(url);
+      }
+    }
   };
 
   if (!isValidRole) return null;
@@ -119,6 +130,14 @@ export default function Login() {
                 className="w-full h-10 pl-10 pr-4 rounded-xl border border-neutral-200 dark:border-neutral-850 bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-white focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all outline-none"
               />
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+            </div>
+            <div className="flex justify-end pt-0.5">
+              <Link 
+                to="/forgot-password" 
+                className="text-[10px] font-bold text-neutral-450 dark:text-neutral-450 hover:text-violet-600 dark:hover:text-violet-400 hover:underline transition-colors"
+              >
+                Forgot password?
+              </Link>
             </div>
           </div>
 

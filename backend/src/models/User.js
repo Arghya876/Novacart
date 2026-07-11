@@ -50,6 +50,30 @@ const UserSchema = new mongoose.Schema(
       type: String,
       select: false,
     },
+    resetPasswordOtp: {
+      type: String,
+      select: false,
+    },
+    resetPasswordOtpExpire: {
+      type: Date,
+      select: false,
+    },
+    emailVerificationOtp: {
+      type: String,
+      select: false,
+    },
+    emailVerificationOtpExpire: {
+      type: Date,
+      select: false,
+    },
+    deleteAccountOtp: {
+      type: String,
+      select: false,
+    },
+    deleteAccountOtpExpire: {
+      type: Date,
+      select: false,
+    },
     isVerified: {
       type: Boolean,
       default: false,

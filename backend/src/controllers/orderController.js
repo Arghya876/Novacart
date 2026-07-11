@@ -88,6 +88,79 @@ exports.createOrder = async (req, res, next) => {
       });
     }
 
+    // Send Invoice Email (fired asynchronously so it doesn't block response)
+    const User = require('../models/User');
+    User.findById(req.user.id)
+      .then(async (user) => {
+        if (!user) return;
+        const sendEmail = require('../utils/sendEmail');
+        
+        const itemsHtml = order.orderItems
+          .map(
+            (item) => `
+            <tr>
+              <td style="padding: 10px; border-bottom: 1px solid #eee; font-size: 13px; color: #333;">${item.title}</td>
+              <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center; font-size: 13px; color: #333;">${item.quantity}</td>
+              <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right; font-size: 13px; color: #333;">$${item.price.toFixed(2)}</td>
+              <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right; font-size: 13px; color: #333;">$${(item.price * item.quantity).toFixed(2)}</td>
+            </tr>
+          `
+          )
+          .join('');
+
+        const invoiceHtml = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 25px; border: 1px solid #e5e7eb; border-radius: 16px; background-color: #ffffff;">
+            <div style="text-align: center; margin-bottom: 25px;">
+              <h1 style="color: #6d28d9; margin: 0; font-size: 26px; font-weight: 800;">NovaCart</h1>
+              <p style="color: #6b7280; font-size: 12px; margin-top: 5px;">Order Invoice & Confirmation</p>
+            </div>
+            
+            <p style="font-size: 14px; color: #374151; margin-bottom: 20px;">Dear <strong>${user.name}</strong>,</p>
+            <p style="font-size: 14px; color: #4b5563; line-height: 1.5;">Thank you for shopping with us! Your order has been placed successfully. Below is your detailed purchase invoice:</p>
+            
+            <div style="margin: 25px 0; padding: 20px; background-color: #f9fafb; border-radius: 12px; border-left: 4px solid #6d28d9; font-size: 13px; line-height: 1.6; color: #374151;">
+              <strong>Order ID:</strong> #${order._id}<br>
+              <strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}<br>
+              <strong>Payment Method:</strong> ${order.paymentMethod}<br>
+              <strong>Payment Status:</strong> ${order.paymentStatus}
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse; margin-top: 25px;">
+              <thead>
+                <tr style="background-color: #6d28d9; color: white;">
+                  <th style="padding: 12px 10px; text-align: left; font-size: 12px; font-weight: bold; border-top-left-radius: 8px;">Product</th>
+                  <th style="padding: 12px 10px; text-align: center; font-size: 12px; font-weight: bold;">Qty</th>
+                  <th style="padding: 12px 10px; text-align: right; font-size: 12px; font-weight: bold;">Price</th>
+                  <th style="padding: 12px 10px; text-align: right; font-size: 12px; font-weight: bold; border-top-right-radius: 8px;">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsHtml}
+              </tbody>
+            </table>
+
+            <div style="margin-top: 25px; text-align: right; line-height: 1.8; font-size: 13px; color: #4b5563; padding-right: 10px;">
+              <strong>Shipping Price:</strong> $${order.shippingPrice.toFixed(2)}<br>
+              <strong>Tax:</strong> $${order.taxPrice.toFixed(2)}<br>
+              <span style="font-size: 16px; color: #6d28d9;"><strong>Total Amount Paid:</strong> $${order.totalPrice.toFixed(2)}</span>
+            </div>
+
+            <div style="margin-top: 35px; padding-top: 20px; border-top: 1px solid #f3f4f6; text-align: center; font-size: 11px; color: #9ca3af; line-height: 1.5;">
+              <p>For any inquiries regarding your purchase, please contact our support desk.</p>
+              <p>&copy; ${new Date().getFullYear()} NovaCart. All rights reserved.</p>
+            </div>
+          </div>
+        `;
+
+        await sendEmail({
+          email: user.email,
+          subject: `NovaCart Order Invoice - #${order._id}`,
+          message: `Thank you for your order! Your total is $${order.totalPrice.toFixed(2)}.`,
+          html: invoiceHtml,
+        });
+      })
+      .catch((err) => console.error('Failed to send invoice email:', err.message));
+
     res.status(201).json({
       success: true,
       data: order,
@@ -225,7 +298,8 @@ exports.getOrders = async (req, res, next) => {
 exports.updateOrderStatus = async (req, res, next) => {
   try {
     const { status, trackingNumber } = req.body;
-    const order = await Order.findById(req.params.id);
+    // Populate user profile to get email/name
+    const order = await Order.findById(req.params.id).populate('user', 'name email');
 
     if (!order) {
       return res.status(404).json({ success: false, error: 'Order not found' });
@@ -242,6 +316,48 @@ exports.updateOrderStatus = async (req, res, next) => {
     }
 
     await order.save();
+
+    // Send email update notifications
+    if (order.user && order.user.email) {
+      const sendEmail = require('../utils/sendEmail');
+      const statusHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 25px; border: 1px solid #e5e7eb; border-radius: 16px; background-color: #ffffff;">
+          <div style="text-align: center; margin-bottom: 25px;">
+            <h1 style="color: #6d28d9; margin: 0; font-size: 26px; font-weight: 800;">NovaCart</h1>
+            <p style="color: #6b7280; font-size: 12px; margin-top: 5px;">Order Tracking Status</p>
+          </div>
+
+          <p style="font-size: 14px; color: #374151; margin-bottom: 20px;">Dear <strong>${order.user.name}</strong>,</p>
+          <p style="font-size: 14px; color: #4b5563; line-height: 1.5;">The processing status for your order <strong>#${order._id}</strong> has been updated to:</p>
+          
+          <div style="margin: 25px 0; padding: 20px; background-color: #f9fafb; border-radius: 12px; border-left: 4px solid #6d28d9; font-size: 18px; font-weight: 800; text-align: center; color: #6d28d9; letter-spacing: 0.05em; text-transform: uppercase;">
+            ${status}
+          </div>
+
+          ${
+            trackingNumber
+              ? `<div style="margin: 20px 0; padding: 15px; border: 1px dashed #6d28d9; border-radius: 8px; font-size: 13px; color: #374151;">
+                  <strong>Tracking/Consignment Number:</strong> <span style="font-family: monospace; font-size: 14px; color: #6d28d9; font-weight: bold;">${trackingNumber}</span>
+                 </div>`
+              : ''
+          }
+
+          <p style="font-size: 14px; color: #4b5563; line-height: 1.5; margin-top: 20px;">You can view detailed consignment progress inside your Shopper Dashboard under "My Orders".</p>
+
+          <div style="margin-top: 35px; padding-top: 20px; border-top: 1px solid #f3f4f6; text-align: center; font-size: 11px; color: #9ca3af;">
+            <p>Thank you for buying premium goods on NovaCart!</p>
+            <p>&copy; ${new Date().getFullYear()} NovaCart. All rights reserved.</p>
+          </div>
+        </div>
+      `;
+
+      sendEmail({
+        email: order.user.email,
+        subject: `NovaCart Order #${order._id} Status: ${status}`,
+        message: `Your order status has been updated to: ${status}`,
+        html: statusHtml,
+      }).catch((err) => console.error('Failed to send status update email:', err.message));
+    }
 
     res.status(200).json({
       success: true,

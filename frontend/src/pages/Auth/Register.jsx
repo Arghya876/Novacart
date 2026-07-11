@@ -55,10 +55,19 @@ export default function Register() {
     return 'bg-emerald-500';
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isPasswordValid) return;
-    dispatch(registerUser({ name, email, password, role }));
+    dispatch(clearError());
+    
+    const result = await dispatch(registerUser({ name, email, password, role }));
+    if (registerUser.fulfilled.match(result)) {
+      const payload = result.payload;
+      const url = `/verify-email?email=${encodeURIComponent(email)}${
+        payload.previewUrl ? `&previewUrl=${encodeURIComponent(payload.previewUrl)}` : ''
+      }`;
+      navigate(url);
+    }
   };
 
   if (!isValidRole) return null;

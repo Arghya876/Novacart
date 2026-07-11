@@ -11,6 +11,11 @@ const {
   deleteAddress,
   getUsers,
   deleteUser,
+  forgotPassword,
+  resetPassword,
+  verifyEmail,
+  deleteMe,
+  requestDeleteOtp,
 } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 const { authorize } = require('../middleware/role');
@@ -18,7 +23,12 @@ const { authorize } = require('../middleware/role');
 router.post('/register', register);
 router.post('/login', login);
 router.post('/refresh', refreshToken);
+router.post('/forgotpassword', forgotPassword);
+router.post('/resetpassword', resetPassword);
+router.post('/verifyemail', verifyEmail);
 router.post('/logout', protect, logout);
+router.post('/request-delete-otp', protect, requestDeleteOtp);
+router.delete('/deleteme', protect, deleteMe);
 router.get('/me', protect, getMe);
 router.put('/updatedetails', protect, updateDetails);
 router.post('/address', protect, addAddress);

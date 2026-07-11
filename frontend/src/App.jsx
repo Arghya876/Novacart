@@ -22,6 +22,9 @@ import LoginPortal from './pages/Auth/LoginPortal';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import AdminLogin from './pages/Auth/AdminLogin';
+import ForgotPassword from './pages/Auth/ForgotPassword';
+import ResetPassword from './pages/Auth/ResetPassword';
+import VerifyEmail from './pages/Auth/VerifyEmail';
 
 // Dashboards
 import UserDashboard from './pages/Dashboards/UserDashboard';
@@ -124,6 +127,9 @@ export default function App() {
               {/* Specialized Auth Flows */}
               <Route path="/login/:role" element={<Login />} />
               <Route path="/register/:role" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/verify-email" element={<VerifyEmail />} />
               
               {/* Static Pages */}
               <Route path="/about" element={<About />} />
