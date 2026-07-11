@@ -62,11 +62,7 @@ export default function Register() {
     
     const result = await dispatch(registerUser({ name, email, password, role }));
     if (registerUser.fulfilled.match(result)) {
-      const payload = result.payload;
-      const url = `/verify-email?email=${encodeURIComponent(email)}${
-        payload.previewUrl ? `&previewUrl=${encodeURIComponent(payload.previewUrl)}` : ''
-      }`;
-      navigate(url);
+      navigate(`/login/${role}`, { state: { message: 'Registration successful! Please log in.' } });
     }
   };
 
