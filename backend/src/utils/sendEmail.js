@@ -5,8 +5,17 @@ const sendEmail = async (options) => {
   // Option 1: Use Resend HTTP API (Recommended for production on Render Free tier where SMTP is blocked)
   if (process.env.RESEND_API_KEY) {
     return new Promise((resolve, reject) => {
+      let fromEmail = process.env.FROM_EMAIL || 'onboarding@resend.dev';
+
+      // Safety check: Resend blocks sending from public domains like gmail.com unless verified.
+      // Force fallback to onboarding@resend.dev if a public domain is specified.
+      const publicDomains = ['@gmail.com', '@yahoo.com', '@hotmail.com', '@outlook.com', '@live.com', '@icloud.com'];
+      if (publicDomains.some(domain => fromEmail.toLowerCase().includes(domain))) {
+        fromEmail = 'onboarding@resend.dev';
+      }
+
       const postData = JSON.stringify({
-        from: `${process.env.FROM_NAME || 'NovaCart'} <${process.env.FROM_EMAIL || 'onboarding@resend.dev'}>`,
+        from: `${process.env.FROM_NAME || 'NovaCart'} <${fromEmail}>`,
         to: options.email,
         subject: options.subject,
         text: options.message,
