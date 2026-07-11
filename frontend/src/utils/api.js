@@ -37,7 +37,13 @@ axios.interceptors.response.use(
     const originalRequest = error.config;
 
     // Check if error is 401 and not already retried
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const isAuthRequest = 
+      originalRequest.url?.includes('/api/auth/login') || 
+      originalRequest.url?.includes('/api/auth/refresh') || 
+      originalRequest.url?.includes('/api/auth/register') ||
+      originalRequest.url?.includes('/api/auth/verifyemail');
+
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthRequest) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
