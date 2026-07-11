@@ -18,6 +18,9 @@ const analyticsRoutes = require('./routes/analyticsRoutes');
 
 const app = express();
 
+// Trust proxy (required for rate limiting behind reverse proxies like Render/Heroku)
+app.set('trust proxy', 1);
+
 // Body parser
 app.use(express.json());
 
