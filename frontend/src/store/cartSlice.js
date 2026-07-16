@@ -124,6 +124,23 @@ const cartSlice = createSlice({
       localStorage.removeItem('coupon');
       calculateTotals(state);
     },
+    removeFromSaved: (state, action) => {
+      state.savedForLater = state.savedForLater.filter((x) => x.product !== action.payload);
+      localStorage.setItem('savedForLater', JSON.stringify(state.savedForLater));
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase('auth/logout/fulfilled', (state) => {
+      state.cartItems = [];
+      state.savedForLater = [];
+      state.coupon = null;
+      state.shippingPrice = 0;
+      state.taxPrice = 0;
+      state.totalPrice = 0;
+      localStorage.removeItem('cartItems');
+      localStorage.removeItem('savedForLater');
+      localStorage.removeItem('coupon');
+    });
   },
 });
 
@@ -139,6 +156,7 @@ export const {
   applyCoupon,
   removeCoupon,
   clearCart,
+  removeFromSaved,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

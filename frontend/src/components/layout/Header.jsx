@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Search, ShoppingCart, Heart, User, Sun, Moon, LogOut, Menu, X, ChevronDown, Sparkles, Package } from 'lucide-react';
 import { logoutUser } from '../../store/authSlice';
+import { motion } from 'framer-motion';
 import axios from 'axios';
 
 export default function Header() {
@@ -10,12 +11,33 @@ export default function Header() {
   const navigate = useNavigate();
 
   const { user } = useSelector((state) => state.auth);
-  const { items: cartItems = [] } = useSelector((state) => state.cart || {});
-  const { items: wishlistItems = [] } = useSelector((state) => state.wishlist || {});
+  const { cartItems = [] } = useSelector((state) => state.cart || {});
+  const { wishlistItems = [] } = useSelector((state) => state.wishlist || {});
+
+  const [animateCart, setAnimateCart] = useState(false);
+  const [animateWishlist, setAnimateWishlist] = useState(false);
+
+  const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+  const wishlistCount = wishlistItems.length;
+
+  useEffect(() => {
+    if (cartCount > 0) {
+      setAnimateCart(true);
+      const timer = setTimeout(() => setAnimateCart(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [cartCount]);
+
+  useEffect(() => {
+    if (wishlistCount > 0) {
+      setAnimateWishlist(true);
+      const timer = setTimeout(() => setAnimateWishlist(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [wishlistCount]);
 
   const [darkMode, setDarkMode] = useState(
-    localStorage.getItem('theme') === 'dark' ||
-    (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    localStorage.getItem('theme') === 'dark'
   );
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
@@ -70,8 +92,6 @@ export default function Header() {
     setMobileMenuOpen(false);
     navigate('/');
   };
-
-  const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-neutral-100 dark:border-neutral-900 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-md transition-colors duration-300">
@@ -135,10 +155,12 @@ export default function Header() {
               to="/wishlist"
               className="p-2 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-850 rounded-full relative transition-colors"
             >
-              <Heart className="h-5 w-5" />
-              {wishlistItems.length > 0 && (
+              <motion.div animate={animateWishlist ? { scale: [1, 1.25, 1], rotate: [0, -10, 10, 0] } : {}} transition={{ duration: 0.3 }}>
+                <Heart className="h-5 w-5" />
+              </motion.div>
+              {wishlistCount > 0 && (
                 <span className="absolute top-1 right-1 h-4 min-w-4 px-1 rounded-full bg-rose-500 text-[9px] font-bold text-white flex items-center justify-center">
-                  {wishlistItems.length}
+                  {wishlistCount}
                 </span>
               )}
             </Link>
@@ -147,9 +169,11 @@ export default function Header() {
               to="/cart"
               className="p-2 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-850 rounded-full relative transition-colors mr-1"
             >
-              <ShoppingCart className="h-5 w-5" />
+              <motion.div animate={animateCart ? { scale: [1, 1.25, 1], y: [0, -4, 0] } : {}} transition={{ duration: 0.3 }}>
+                <ShoppingCart className="h-5 w-5" />
+              </motion.div>
               {cartCount > 0 && (
-                <span className="absolute top-1 right-1 h-4 min-w-4 px-1 rounded-full bg-violet-600 text-[9px] font-bold text-white flex items-center justify-center animate-bounce">
+                <span className="absolute top-1 right-1 h-4 min-w-4 px-1 rounded-full bg-violet-600 text-[9px] font-bold text-white flex items-center justify-center animate-pulse">
                   {cartCount}
                 </span>
               )}

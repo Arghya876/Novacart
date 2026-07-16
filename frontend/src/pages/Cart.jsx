@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Trash2, Shield, ArrowRight, Tag, X, ShoppingCart } from 'lucide-react';
-import { removeFromCart, updateCartQty, saveForLater, moveToCart, applyCoupon, removeCoupon } from '../store/cartSlice';
+import { removeFromCart, updateCartQty, saveForLater, moveToCart, applyCoupon, removeCoupon, removeFromSaved } from '../store/cartSlice';
+import { showToast } from '../store/toastSlice';
 import axios from 'axios';
 
 export default function Cart() {
@@ -126,15 +127,21 @@ export default function Cart() {
                         </select>
 
                         <button
-                          onClick={() => dispatch(saveForLater(item.product))}
-                          className="text-xs text-neutral-450 dark:text-neutral-500 hover:text-violet-600 font-semibold"
+                          onClick={() => {
+                            dispatch(saveForLater(item.product));
+                            dispatch(showToast({ message: `Saved "${item.title}" for later.`, type: 'success' }));
+                          }}
+                          className="text-xs text-neutral-450 dark:text-neutral-500 hover:text-violet-650 font-semibold"
                         >
                           Save for later
                         </button>
                       </div>
 
                       <button
-                        onClick={() => dispatch(removeFromCart(item.product))}
+                        onClick={() => {
+                          dispatch(removeFromCart(item.product));
+                          dispatch(showToast({ message: `Removed "${item.title}" from cart.`, type: 'info' }));
+                        }}
                         className="text-neutral-400 hover:text-rose-500 p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/25 transition-all"
                       >
                         <Trash2 className="h-4.5 w-4.5" />
@@ -168,13 +175,19 @@ export default function Cart() {
                       </div>
                       <div className="flex gap-3 mt-2">
                         <button
-                          onClick={() => dispatch(moveToCart(item.product))}
+                          onClick={() => {
+                            dispatch(moveToCart(item.product));
+                            dispatch(showToast({ message: `Moved "${item.title}" to active cart.`, type: 'success' }));
+                          }}
                           className="text-[10px] font-bold text-violet-600 dark:text-violet-400 hover:underline"
                         >
                           Move to Cart
                         </button>
                         <button
-                          onClick={() => dispatch(moveToCart(item.product))} // Actually remove, but wait we need a removeSaved action. Moving to cart and removing is fine, or we can just filter it.
+                          onClick={() => {
+                            dispatch(removeFromSaved(item.product));
+                            dispatch(showToast({ message: `Removed "${item.title}" from saved items.`, type: 'info' }));
+                          }}
                           className="text-[10px] font-bold text-rose-500 hover:underline"
                         >
                           Remove

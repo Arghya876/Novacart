@@ -1,9 +1,112 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { User, Package, MapPin, Settings, Plus, Trash2, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { User, Package, MapPin, Settings, Plus, Trash2, CheckCircle2, AlertTriangle, Truck } from 'lucide-react';
 import { updateUserDetails, addUserAddress, deleteUserAddress, deleteAccount, requestDeleteOtp } from '../../store/authSlice';
 import axios from 'axios';
+
+const OrderProgressTracker = ({ status, trackingNumber, deliveredAt, createdAt }) => {
+  if (status === 'Cancelled') {
+    return (
+      <div className="p-4 bg-rose-55/40 dark:bg-rose-950/10 rounded-2xl border border-rose-100 dark:border-rose-950/20 flex items-center gap-3">
+        <div className="p-2 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-500">
+          <AlertTriangle className="h-5 w-5 animate-pulse" />
+        </div>
+        <div>
+          <h5 className="text-xs font-bold text-rose-600 dark:text-rose-400">Order Cancelled</h5>
+          <p className="text-[10px] text-neutral-450 dark:text-neutral-500 mt-0.5">This order has been cancelled and will not be delivered.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const steps = [
+    { label: 'Ordered', statusKey: 'Processing' },
+    { label: 'Processing', statusKey: 'Processing' },
+    { label: 'Shipped', statusKey: 'Shipped' },
+    { label: 'Delivered', statusKey: 'Delivered' },
+  ];
+
+  const getStatusIndex = (currentStatus) => {
+    switch (currentStatus) {
+      case 'Processing': return 1;
+      case 'Shipped': return 2;
+      case 'Delivered': return 3;
+      default: return 0;
+    }
+  };
+
+  const currentIndex = getStatusIndex(status);
+
+  return (
+    <div className="p-5 bg-neutral-50 dark:bg-neutral-950/30 rounded-3xl border border-neutral-100 dark:border-neutral-850/50 space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 pb-3 border-b border-neutral-100 dark:border-neutral-850/40">
+        <h5 className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider flex items-center gap-1.5">
+          <Truck className="h-4 w-4 text-violet-500 animate-pulse" /> Delivery Progress
+        </h5>
+        {trackingNumber && (
+          <p className="text-[10px] text-neutral-450 dark:text-neutral-400">
+            Tracking Number: <span className="font-bold text-neutral-700 dark:text-neutral-200 select-all">{trackingNumber}</span>
+          </p>
+        )}
+      </div>
+
+      <div className="relative flex items-center justify-between w-full max-w-xl mx-auto px-4 py-2">
+        {/* Connection Line */}
+        <div className="absolute left-8 right-8 top-1/2 -translate-y-1/2 h-1 bg-neutral-200 dark:bg-neutral-800 rounded-full z-0">
+          <div 
+            className="h-full bg-violet-600 transition-all duration-500 ease-out rounded-full" 
+            style={{ width: `${(currentIndex / (steps.length - 1)) * 100}%` }}
+          />
+        </div>
+
+        {/* Steps */}
+        {steps.map((step, idx) => {
+          const isCompleted = idx <= currentIndex;
+          
+          return (
+            <div key={idx} className="relative flex flex-col items-center z-10">
+              {/* Circle indicator */}
+              <div 
+                className={`w-7.5 h-7.5 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
+                  isCompleted 
+                    ? 'bg-violet-600 border-violet-600 text-white shadow-md shadow-violet-500/20' 
+                    : 'bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-805 text-neutral-400'
+                }`}
+              >
+                {isCompleted ? (
+                  <CheckCircle2 className="h-4.5 w-4.5 stroke-[3px]" />
+                ) : (
+                  <span className="text-[10px] font-bold">{idx + 1}</span>
+                )}
+              </div>
+
+              {/* Label */}
+              <div className="absolute top-9 flex flex-col items-center min-w-[70px] text-center">
+                <span className={`text-[10px] font-bold ${isCompleted ? 'text-neutral-800 dark:text-neutral-200' : 'text-neutral-400'}`}>
+                  {step.label}
+                </span>
+                {idx === 0 && (
+                  <span className="text-[8px] text-neutral-450 dark:text-neutral-500 whitespace-nowrap mt-0.5">
+                    {new Date(createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                  </span>
+                )}
+                {idx === 3 && status === 'Delivered' && deliveredAt && (
+                  <span className="text-[8px] text-emerald-500 dark:text-emerald-400 whitespace-nowrap mt-0.5">
+                    {new Date(deliveredAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      
+      {/* Spacer to account for absolute labels */}
+      <div className="h-5" />
+    </div>
+  );
+};
 
 export default function UserDashboard() {
   const dispatch = useDispatch();
@@ -258,12 +361,13 @@ export default function UserDashboard() {
                         ))}
                       </div>
 
-                      {/* Shipping Tracking */}
-                      {order.trackingNumber && (
-                        <div className="p-3 bg-neutral-50 dark:bg-neutral-950/45 rounded-2xl border border-neutral-200 dark:border-neutral-850 text-[10px] text-neutral-400">
-                          Tracking Number: <span className="font-bold text-neutral-800 dark:text-neutral-200">{order.trackingNumber}</span>
-                        </div>
-                      )}
+                      {/* Shipping Progress Tracker */}
+                      <OrderProgressTracker 
+                        status={order.orderStatus} 
+                        trackingNumber={order.trackingNumber} 
+                        deliveredAt={order.deliveredAt} 
+                        createdAt={order.createdAt} 
+                      />
 
                       {(order.orderStatus === 'Pending' || order.orderStatus === 'Processing') && (
                         <div className="pt-2 border-t border-neutral-150 dark:border-neutral-850 flex justify-end">

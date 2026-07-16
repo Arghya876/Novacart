@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 import { ShoppingCart, Heart, Star, ShieldCheck, Truck, RotateCcw, AlertTriangle } from 'lucide-react';
 import { fetchProductDetails, clearCurrentProduct, fetchRecommendations } from '../store/productSlice';
 import { addToCart } from '../store/cartSlice';
 import { toggleWishlist } from '../store/wishlistSlice';
+import { showToast } from '../store/toastSlice';
 import ProductCard from '../components/common/ProductCard';
 import SkeletonLoader from '../components/common/SkeletonLoader';
 import axios from 'axios';
@@ -13,6 +14,9 @@ import axios from 'axios';
 export default function ProductDetails() {
   const { slug } = useParams();
   const dispatch = useDispatch();
+
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const { currentProduct, detailsLoading, recommendations } = useSelector((state) => state.products);
   const { wishlistItems } = useSelector((state) => state.wishlist);
@@ -29,6 +33,7 @@ export default function ProductDetails() {
   // Fetch product details
   useEffect(() => {
     dispatch(fetchProductDetails(slug));
+    window.scrollTo({ top: 0, behavior: 'instant' });
 
     return () => {
       dispatch(clearCurrentProduct());
@@ -65,6 +70,11 @@ export default function ProductDetails() {
 
   const handleAddToCart = () => {
     if (!currentProduct) return;
+    if (!user) {
+      const redirectPath = location.pathname.substring(1) + location.search;
+      navigate(`/login/customer?redirect=${encodeURIComponent(redirectPath)}`);
+      return;
+    }
     dispatch(
       addToCart({
         product: currentProduct._id,
@@ -75,11 +85,31 @@ export default function ProductDetails() {
         stock: currentProduct.stock,
       })
     );
+    dispatch(
+      showToast({
+        message: `Added "${currentProduct.title}" to cart!`,
+        type: 'success',
+      })
+    );
   };
 
   const handleWishlistToggle = () => {
     if (!currentProduct) return;
+    if (!user) {
+      const redirectPath = location.pathname.substring(1) + location.search;
+      navigate(`/login/customer?redirect=${encodeURIComponent(redirectPath)}`);
+      return;
+    }
+    const isInWishlist = wishlistItems.some((item) => item._id === currentProduct._id);
     dispatch(toggleWishlist(currentProduct));
+    dispatch(
+      showToast({
+        message: isInWishlist
+          ? `Removed "${currentProduct.title}" from wishlist.`
+          : `Added "${currentProduct.title}" to wishlist!`,
+        type: isInWishlist ? 'info' : 'success',
+      })
+    );
   };
 
   const handleReviewSubmit = async (e) => {

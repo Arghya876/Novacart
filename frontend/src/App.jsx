@@ -8,6 +8,7 @@ import { store } from './store';
 
 // Layouts
 import Header from './components/layout/Header';
+import Toast from './components/common/Toast';
 import Footer from './components/layout/Footer';
 import AdminLayout from './components/layout/AdminLayout';
 
@@ -109,6 +110,7 @@ export default function App() {
       <HelmetProvider>
         <Router>
           <GlobalBackButton />
+          <Toast />
           <Routes>
             {/* Shop Layout (Includes public header & footer) */}
             <Route element={<ShopLayout />}>
@@ -119,7 +121,14 @@ export default function App() {
               <Route path="/search" element={<ProductListing />} />
               <Route path="/product/:slug" element={<ProductDetails />} />
               <Route path="/cart" element={<Cart />} />
-              <Route path="/wishlist" element={<Wishlist />} />
+              <Route
+                path="/wishlist"
+                element={
+                  <UserProtectedRoute>
+                    <Wishlist />
+                  </UserProtectedRoute>
+                }
+              />
               
               {/* Portal Selector */}
               <Route path="/login" element={<LoginPortal />} />

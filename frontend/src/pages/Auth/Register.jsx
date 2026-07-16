@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Mail, Lock, User, AlertTriangle, Loader2, Check, X, ArrowLeft } from 'lucide-react';
 import { registerUser, clearError } from '../../store/authSlice';
@@ -8,6 +8,8 @@ export default function Register() {
   const { role } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
+  const redirect = searchParams.get('redirect') || '';
 
   const isValidRole = role === 'customer' || role === 'seller';
 
@@ -65,7 +67,7 @@ export default function Register() {
       const payload = result.payload;
       const url = `/verify-email?email=${encodeURIComponent(email)}${
         payload.previewUrl ? `&previewUrl=${encodeURIComponent(payload.previewUrl)}` : ''
-      }`;
+      }${redirect ? `&redirect=${encodeURIComponent(redirect)}` : ''}`;
       navigate(url);
     }
   };
@@ -218,7 +220,7 @@ export default function Register() {
         <p className="text-center text-xs text-neutral-450 dark:text-neutral-500">
           Already have an account?{' '}
           <Link 
-            to={`/login/${role}`} 
+            to={`/login/${role}${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ''}`} 
             className={`font-bold hover:underline ${
               isSeller ? 'text-emerald-600 dark:text-emerald-400' : 'text-violet-600 dark:text-violet-400'
             }`}

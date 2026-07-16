@@ -1,15 +1,24 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Trash2, ShoppingCart, Heart } from 'lucide-react';
 import { removeFromWishlist } from '../store/wishlistSlice';
 import { addToCart } from '../store/cartSlice';
+import { showToast } from '../store/toastSlice';
 
 export default function Wishlist() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { wishlistItems } = useSelector((state) => state.wishlist);
+  const { user } = useSelector((state) => state.auth);
 
   const handleMoveToCart = (product) => {
+    if (!user) {
+      const redirectPath = location.pathname.substring(1) + location.search;
+      navigate(`/login/customer?redirect=${encodeURIComponent(redirectPath)}`);
+      return;
+    }
     dispatch(
       addToCart({
         product: product._id,
@@ -21,6 +30,12 @@ export default function Wishlist() {
       })
     );
     dispatch(removeFromWishlist(product._id));
+    dispatch(
+      showToast({
+        message: `Moved "${product.title}" to cart!`,
+        type: 'success',
+      })
+    );
   };
 
   if (wishlistItems.length === 0) {
@@ -61,7 +76,15 @@ export default function Wishlist() {
               <Link to={`/product/${product.slug}`} className="relative block aspect-square w-full overflow-hidden bg-neutral-50">
                 <img src={product.images[0]} alt={product.title} className="h-full w-full object-cover object-center" />
                 <button
-                  onClick={() => dispatch(removeFromWishlist(product._id))}
+                  onClick={() => {
+                    dispatch(removeFromWishlist(product._id));
+                    dispatch(
+                      showToast({
+                        message: `Removed "${product.title}" from wishlist.`,
+                        type: 'info',
+                      })
+                    );
+                  }}
                   className="absolute right-3 top-3 p-2 rounded-full bg-white/80 dark:bg-neutral-900/80 text-neutral-650 dark:text-neutral-300 hover:text-rose-500 transition-colors shadow-sm z-10"
                 >
                   <Trash2 className="h-4 w-4" />

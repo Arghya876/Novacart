@@ -157,7 +157,7 @@ export default function Login() {
         <p className="text-center text-xs text-neutral-450 dark:text-neutral-500">
           Don't have an account?{' '}
           <Link 
-            to={`/register/${role}`} 
+            to={`/register/${role}${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ''}`} 
             className={`font-bold hover:underline ${
               isSeller ? 'text-emerald-600 dark:text-emerald-400' : 'text-violet-600 dark:text-violet-400'
             }`}

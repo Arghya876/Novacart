@@ -1,25 +1,47 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Heart, ShoppingCart, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toggleWishlist } from '../../store/wishlistSlice';
 import { addToCart } from '../../store/cartSlice';
+import { showToast } from '../../store/toastSlice';
 
 export default function ProductCard({ product }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
   const wishlistItems = useSelector((state) => state.wishlist.wishlistItems);
+  const { user } = useSelector((state) => state.auth);
   const isInWishlist = wishlistItems.some((item) => item._id === product._id);
 
   const handleWishlistToggle = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!user) {
+      const redirectPath = location.pathname.substring(1) + location.search;
+      navigate(`/login/customer?redirect=${encodeURIComponent(redirectPath)}`);
+      return;
+    }
     dispatch(toggleWishlist(product));
+    dispatch(
+      showToast({
+        message: isInWishlist
+          ? `Removed "${product.title}" from wishlist.`
+          : `Added "${product.title}" to wishlist!`,
+        type: isInWishlist ? 'info' : 'success',
+      })
+    );
   };
 
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!user) {
+      const redirectPath = location.pathname.substring(1) + location.search;
+      navigate(`/login/customer?redirect=${encodeURIComponent(redirectPath)}`);
+      return;
+    }
     dispatch(
       addToCart({
         product: product._id,
@@ -28,6 +50,12 @@ export default function ProductCard({ product }) {
         image: product.images[0],
         quantity: 1,
         stock: product.stock,
+      })
+    );
+    dispatch(
+      showToast({
+        message: `Added "${product.title}" to cart!`,
+        type: 'success',
       })
     );
   };

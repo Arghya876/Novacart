@@ -13,6 +13,7 @@ export default function VerifyEmail() {
 
   const emailParam = searchParams.get('email') || '';
   const initialPreviewUrl = searchParams.get('previewUrl') || '';
+  const redirect = searchParams.get('redirect') || '';
   
   const [email, setEmail] = useState(emailParam);
   const [otp, setOtp] = useState('');
@@ -43,7 +44,11 @@ export default function VerifyEmail() {
       setSuccessMsg('Email verified successfully! Logging you in...');
       setTimeout(() => {
         const role = result.payload.user?.role || 'customer';
-        navigate(role === 'seller' ? '/my-products' : '/home');
+        if (redirect) {
+          navigate(`/${redirect}`);
+        } else {
+          navigate(role === 'seller' ? '/my-products' : '/home');
+        }
       }, 2000);
     }
   };

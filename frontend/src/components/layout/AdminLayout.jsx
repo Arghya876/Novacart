@@ -10,8 +10,7 @@ export default function AdminLayout() {
   const navigate = useNavigate();
 
   const [darkMode, setDarkMode] = useState(
-    localStorage.getItem('theme') === 'dark' ||
-    (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    localStorage.getItem('theme') === 'dark'
   );
 
   useEffect(() => {

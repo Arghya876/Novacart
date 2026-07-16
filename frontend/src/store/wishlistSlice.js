@@ -35,6 +35,12 @@ const wishlistSlice = createSlice({
       localStorage.setItem('wishlistItems', JSON.stringify(state.wishlistItems));
     },
   },
+  extraReducers: (builder) => {
+    builder.addCase('auth/logout/fulfilled', (state) => {
+      state.wishlistItems = [];
+      localStorage.removeItem('wishlistItems');
+    });
+  },
 });
 
 export const { addToWishlist, removeFromWishlist, toggleWishlist } = wishlistSlice.actions;
