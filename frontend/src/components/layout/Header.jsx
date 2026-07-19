@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Search, ShoppingCart, Heart, User, Sun, Moon, LogOut, Menu, X, ChevronDown, Sparkles, Package } from 'lucide-react';
+import { Search, ShoppingCart, Heart, User, Sun, Moon, LogOut, Sparkles, Package, ShoppingBag } from 'lucide-react';
 import { logoutUser } from '../../store/authSlice';
 import { motion } from 'framer-motion';
 import axios from 'axios';
@@ -45,7 +45,6 @@ export default function Header() {
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   const [suggestions, setSuggestions] = useState([]);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const autocompleteRef = useRef(null);
   const userDropdownRef = useRef(null);
@@ -101,43 +100,43 @@ export default function Header() {
     if (searchQuery.trim()) {
       navigate(`/products?q=${encodeURIComponent(searchQuery.trim())}`);
       setSuggestions([]);
-      setMobileMenuOpen(false);
     }
   };
 
   const handleLogout = () => {
     dispatch(logoutUser());
     setUserDropdownOpen(false);
-    setMobileMenuOpen(false);
     navigate('/');
   };
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-neutral-100 dark:border-neutral-900 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-md transition-colors duration-300">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between gap-4">
+        <div className="flex h-16 items-center justify-between gap-3">
           
-          <Link to="/" className="flex items-center gap-2 font-bold text-xl text-neutral-900 dark:text-white shrink-0 group">
-            <div className="rounded-full bg-violet-100 dark:bg-violet-900/40 p-2 shadow-sm">
-              <Sparkles className="h-5 w-5 text-violet-600 dark:text-violet-400 transition-transform group-hover:rotate-12" />
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2 font-bold text-lg sm:text-xl text-neutral-900 dark:text-white shrink-0 group">
+            <div className="rounded-full bg-violet-100 dark:bg-violet-900/40 p-1.5 sm:p-2 shadow-xs">
+              <Sparkles className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-violet-600 dark:text-violet-400 transition-transform group-hover:rotate-12" />
             </div>
             <span className="bg-linear-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400 bg-clip-text text-transparent">
               NovaCart
             </span>
           </Link>
 
-          <div ref={autocompleteRef} className="hidden md:block flex-1 max-w-md relative">
+          {/* Search Input Bar (Visible on all mobile & desktop screens) */}
+          <div ref={autocompleteRef} className="flex-1 max-w-xs sm:max-w-md relative mx-1">
             <form onSubmit={handleSearchSubmit}>
               <div className="relative w-full">
                 <input
                   type="text"
-                  placeholder="Search products, brands, categories..."
+                  placeholder="Search products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-10 pl-4 pr-10 rounded-full border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-violet-500/25 focus:border-violet-500 text-xs text-neutral-950 dark:text-white transition-all"
+                  className="w-full h-9 sm:h-10 pl-3.5 pr-9 rounded-full border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-violet-500/25 focus:border-violet-500 text-xs text-neutral-950 dark:text-white transition-all"
                 />
-                <button type="submit" className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 transition-colors">
-                  <Search className="h-4 w-4" />
+                <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 transition-colors">
+                  <Search className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </button>
               </div>
             </form>
@@ -155,21 +154,17 @@ export default function Header() {
                     className="w-full text-left px-4 py-2 text-xs text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-850 flex items-center gap-2.5 transition-colors"
                   >
                     <Search className="h-3.5 w-3.5 text-neutral-400" />
-                    <span>{item.title}</span>
+                    <span className="line-clamp-1">{item.title}</span>
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="p-2 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-850 rounded-full transition-colors"
-            >
-              {darkMode ? <Sun className="h-5 w-5 text-amber-400" /> : <Moon className="h-5 w-5" />}
-            </button>
-
+          {/* Action Navigation Icons */}
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            
+            {/* Wishlist Icon Button */}
             <Link
               to="/wishlist"
               className="p-2 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-850 rounded-full relative transition-colors"
@@ -184,9 +179,10 @@ export default function Header() {
               )}
             </Link>
 
+            {/* Cart Icon Button */}
             <Link
               to="/cart"
-              className="p-2 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-850 rounded-full relative transition-colors mr-1"
+              className="p-2 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-850 rounded-full relative transition-colors"
             >
               <motion.div animate={animateCart ? { scale: [1, 1.25, 1], y: [0, -4, 0] } : {}} transition={{ duration: 0.3 }}>
                 <ShoppingCart className="h-5 w-5" />
@@ -198,138 +194,136 @@ export default function Header() {
               )}
             </Link>
 
-            {user ? (
-              <div ref={userDropdownRef} className="relative">
-                <button
-                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex items-center gap-1.5 p-1 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-850 rounded-full transition-all ring-2 ring-violet-500/20"
+            {/* Rounded Profile Avatar Dropdown Button (Contains All Navigation & Functions) */}
+            <div ref={userDropdownRef} className="relative ml-0.5">
+              <button
+                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                className="flex items-center justify-center h-9 w-9 rounded-full border-2 border-violet-500/40 dark:border-violet-400/40 bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-300 overflow-hidden hover:scale-105 transition-all shadow-xs cursor-pointer"
+                title="Account Menu"
+              >
+                {user?.avatar ? (
+                  <img 
+                    src={user.avatar} 
+                    alt={user.name} 
+                    className="h-full w-full rounded-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div 
+                  style={{ display: user?.avatar ? 'none' : 'flex' }}
+                  className="h-full w-full rounded-full items-center justify-center font-bold text-xs"
                 >
-                  {user.avatar ? (
-                    <img 
-                      src={user.avatar} 
-                      alt={user.name} 
-                      className="h-8 w-8 rounded-full object-cover border border-violet-500/30 dark:border-violet-400/40 shadow-xs hover:scale-105 transition-transform"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'flex';
-                      }}
-                    />
-                  ) : null}
-                  <div 
-                    style={{ display: user.avatar ? 'none' : 'flex' }}
-                    className="h-8 w-8 rounded-full bg-linear-to-tr from-violet-600 to-indigo-600 text-white items-center justify-center font-bold text-xs shadow-xs"
-                  >
-                    {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                  </div>
-                </button>
+                  {user?.name ? user.name.charAt(0).toUpperCase() : <User className="h-4.5 w-4.5" />}
+                </div>
+              </button>
 
-                {userDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-xl py-2 z-50">
+              {/* Combined Dropdown Menu with ALL Functions */}
+              {userDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-xl py-2 z-50">
+                  {user ? (
                     <div className="px-4 py-2 border-b border-neutral-100 dark:border-neutral-850">
-                      <p className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 truncate">{user.name}</p>
+                      <p className="text-xs font-bold text-neutral-850 dark:text-neutral-100 truncate">{user.name}</p>
                       <p className="text-[10px] text-neutral-400 truncate">{user.email}</p>
+                      <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400">
+                        {user.role} Account
+                      </span>
                     </div>
+                  ) : (
+                    <div className="px-4 py-2 border-b border-neutral-100 dark:border-neutral-850">
+                      <p className="text-xs font-bold text-neutral-800 dark:text-neutral-200">Welcome Guest</p>
+                      <p className="text-[10px] text-neutral-400">Sign in to access your dashboard</p>
+                    </div>
+                  )}
 
-                    <Link to="/profile" onClick={() => setUserDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-xs text-neutral-700 dark:text-neutral-355 hover:bg-neutral-50 dark:hover:bg-neutral-850 transition-colors">
-                      <User className="h-4 w-4 text-neutral-400" /> My Profile
-                    </Link>
+                  {/* Catalog Navigation */}
+                  <Link 
+                    to="/products" 
+                    onClick={() => setUserDropdownOpen(false)} 
+                    className="flex items-center gap-2.5 px-4 py-2.5 text-xs text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-850 transition-colors"
+                  >
+                    <ShoppingBag className="h-4 w-4 text-violet-500" /> Shop Catalog
+                  </Link>
 
-                    {user.role === 'customer' && (
-                      <Link to="/profile?tab=orders" onClick={() => setUserDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-xs text-neutral-700 dark:text-neutral-350 hover:bg-neutral-50 dark:hover:bg-neutral-850 transition-colors">
-                        <Package className="h-4 w-4 text-neutral-400" /> My Orders
+                  {user ? (
+                    <>
+                      <Link 
+                        to="/profile" 
+                        onClick={() => setUserDropdownOpen(false)} 
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-xs text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-850 transition-colors"
+                      >
+                        <User className="h-4 w-4 text-neutral-400" /> My Profile
                       </Link>
-                    )}
 
-                    {user.role === 'seller' && (
-                      <Link to="/seller/dashboard" onClick={() => setUserDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-xs text-neutral-700 dark:text-neutral-350 hover:bg-neutral-50 dark:hover:bg-neutral-850 transition-colors">
-                        <Sparkles className="h-4 w-4 text-violet-500" /> Seller Dashboard
-                      </Link>
-                    )}
+                      {user.role === 'customer' && (
+                        <Link 
+                          to="/profile?tab=orders" 
+                          onClick={() => setUserDropdownOpen(false)} 
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-xs text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-850 transition-colors"
+                        >
+                          <Package className="h-4 w-4 text-neutral-400" /> My Orders
+                        </Link>
+                      )}
 
+                      {user.role === 'seller' && (
+                        <Link 
+                          to="/seller/dashboard" 
+                          onClick={() => setUserDropdownOpen(false)} 
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-xs text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-850 transition-colors"
+                        >
+                          <Sparkles className="h-4 w-4 text-emerald-500" /> Seller Dashboard
+                        </Link>
+                      )}
+
+                      {user.role === 'admin' && (
+                        <Link 
+                          to="/admin" 
+                          onClick={() => setUserDropdownOpen(false)} 
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-xs text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-850 transition-colors"
+                        >
+                          <Sparkles className="h-4 w-4 text-violet-500" /> Admin Console
+                        </Link>
+                      )}
+                    </>
+                  ) : null}
+
+                  {/* Dark Mode Toggle inside Profile Dropdown */}
+                  <button
+                    onClick={() => setDarkMode(!darkMode)}
+                    className="w-full flex items-center justify-between px-4 py-2.5 text-xs text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-850 transition-colors border-t border-neutral-100 dark:border-neutral-850 mt-1 cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2.5">
+                      {darkMode ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-neutral-400" />} 
+                      {darkMode ? 'Light Theme' : 'Dark Theme'}
+                    </span>
+                    <span className="text-[10px] text-neutral-400 uppercase font-bold">{darkMode ? 'On' : 'Off'}</span>
+                  </button>
+
+                  {/* Auth Actions */}
+                  {user ? (
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center gap-2 px-4 py-2.5 text-xs text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/25 transition-colors border-t border-neutral-100 dark:border-neutral-850 mt-1"
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/25 transition-colors border-t border-neutral-100 dark:border-neutral-850 mt-1 cursor-pointer"
                     >
                       <LogOut className="h-4 w-4" /> Log Out
                     </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <Link
-                to="/login"
-                className="hidden sm:inline-flex items-center justify-center h-9 px-4 rounded-full text-xs font-medium text-white bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600 transition-colors shadow-sm"
-              >
-                Sign In
-              </Link>
-            )}
-
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 md:hidden text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-850 rounded-full"
-            >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
+                  ) : (
+                    <Link
+                      to="/login"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950/30 transition-colors border-t border-neutral-100 dark:border-neutral-850 mt-1"
+                    >
+                      <User className="h-4 w-4" /> Sign In / Register
+                    </Link>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
-
-      {mobileMenuOpen && (
-        <div className="md:hidden border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-4 py-4 space-y-3 shadow-lg">
-          <form onSubmit={handleSearchSubmit} className="w-full">
-            <div className="relative w-full">
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-10 pl-4 pr-10 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-white"
-              />
-              <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400">
-                <Search className="h-4 w-4" />
-              </button>
-            </div>
-          </form>
-
-          <div className="flex flex-col gap-2">
-            <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-850 rounded-xl">
-              Shop Catalog
-            </Link>
-            
-            {user ? (
-              <>
-                <div className="border-t border-neutral-150 dark:border-neutral-800 my-2" />
-                <div className="px-3 py-1 text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
-                  Account ({user.name})
-                </div>
-                <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-355 hover:bg-neutral-50 dark:hover:bg-neutral-850 rounded-xl flex items-center gap-2">
-                  <User className="h-4 w-4 text-neutral-400" /> My Profile
-                </Link>
-                {user.role === 'customer' && (
-                  <Link to="/profile?tab=orders" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-350 hover:bg-neutral-50 dark:hover:bg-neutral-850 rounded-xl flex items-center gap-2">
-                    <Package className="h-4 w-4 text-neutral-400" /> My Orders
-                  </Link>
-                )}
-                {user.role === 'seller' && (
-                  <Link to="/my-products" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-355 hover:bg-neutral-50 dark:hover:bg-neutral-850 rounded-xl flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-violet-500" /> My Products
-                  </Link>
-                )}
-                <button
-                  onClick={handleLogout}
-                  className="w-full text-left px-3 py-2 text-sm font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/25 rounded-xl flex items-center gap-2"
-                >
-                  <LogOut className="h-4 w-4" /> Log Out
-                </button>
-              </>
-            ) : (
-              <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="mx-3 mt-2 h-10 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold flex items-center justify-center">
-                Sign In
-              </Link>
-            )}
-          </div>
-        </div>
-      )}
     </header>
   );
 }
