@@ -3,7 +3,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { ShieldAlert, Mail, Lock, AlertTriangle, Loader2, Home } from 'lucide-react';
 import { loginUser, clearError, logoutUser } from '../../store/authSlice';
-import GoogleAuthButton from '../../components/common/GoogleAuthButton';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -120,15 +119,6 @@ export default function AdminLogin() {
             {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Authenticate Console'}
           </button>
         </form>
-
-        <div className="relative flex items-center justify-center my-4">
-          <div className="border-t border-neutral-800 w-full" />
-          <span className="bg-neutral-900 px-3 text-[10px] font-bold text-neutral-500 uppercase tracking-widest shrink-0 absolute">
-            OR
-          </span>
-        </div>
-
-        <GoogleAuthButton role="admin" buttonText="Sign in as Admin with Google" />
 
         <div className="text-center pt-2 text-[10px] text-neutral-500">
           This system is restricted to authorized users. Fixed ID: <span className="text-neutral-400">admin@novacart.com</span>
