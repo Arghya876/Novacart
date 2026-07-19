@@ -430,9 +430,9 @@ export default function SellerDashboard() {
                   />
                 </div>
                 <div className="sm:col-span-3 space-y-2">
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center flex-wrap gap-2">
                     <label className="text-[10px] font-bold text-neutral-400 uppercase">Product Images</label>
-                    <label className="cursor-pointer text-[11px] font-bold text-violet-600 dark:text-violet-400 hover:underline flex items-center gap-1">
+                    <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-50 hover:bg-violet-100 dark:bg-violet-950/40 dark:hover:bg-violet-900/60 text-violet-700 dark:text-violet-300 text-xs font-semibold border border-violet-200/70 dark:border-violet-800/60 shadow-sm transition-all duration-200 active:scale-95 hover:shadow">
                       📁 Pick Image Files from Device (Mobile/PC)
                       <input type="file" accept="image/*" multiple onChange={handleImageFileUpload} className="hidden" />
                     </label>
@@ -449,9 +449,9 @@ export default function SellerDashboard() {
                 </div>
 
                 <div className="sm:col-span-3 space-y-2">
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center flex-wrap gap-2">
                     <label className="text-[10px] font-bold text-neutral-400 uppercase">Product Videos (Optional MP4 / Youtube / Device Files)</label>
-                    <label className="cursor-pointer text-[11px] font-bold text-violet-600 dark:text-violet-400 hover:underline flex items-center gap-1">
+                    <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-50 hover:bg-violet-100 dark:bg-violet-950/40 dark:hover:bg-violet-900/60 text-violet-700 dark:text-violet-300 text-xs font-semibold border border-violet-200/70 dark:border-violet-800/60 shadow-sm transition-all duration-200 active:scale-95 hover:shadow">
                       🎥 Pick Video Files from Device (Mobile/PC)
                       <input type="file" accept="video/*" multiple onChange={handleVideoFileUpload} className="hidden" />
                     </label>
