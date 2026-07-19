@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Plus, Package, ShoppingBag, DollarSign, Trash2, Loader2 } from 'lucide-react';
+import { Plus, Package, ShoppingBag, DollarSign, Trash2, Loader2, UploadCloud, ImagePlus, Video, X, Sparkles, Film } from 'lucide-react';
 import axios from 'axios';
 import { formatPrice } from '../../utils/formatCurrency';
 
@@ -429,40 +429,118 @@ export default function SellerDashboard() {
                     className="w-full h-10 px-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950"
                   />
                 </div>
-                <div className="sm:col-span-3 space-y-2">
+                <div className="sm:col-span-3 space-y-3 p-4 rounded-2xl border border-violet-100 dark:border-violet-900/30 bg-violet-50/30 dark:bg-violet-950/10">
                   <div className="flex justify-between items-center flex-wrap gap-2">
-                    <label className="text-[10px] font-bold text-neutral-400 uppercase">Product Images</label>
-                    <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-50 hover:bg-violet-100 dark:bg-violet-950/40 dark:hover:bg-violet-900/60 text-violet-700 dark:text-violet-300 text-xs font-semibold border border-violet-200/70 dark:border-violet-800/60 shadow-sm transition-all duration-200 active:scale-95 hover:shadow">
-                      📁 Pick Image Files from Device (Mobile/PC)
+                    <div>
+                      <label className="text-[11px] font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider flex items-center gap-1.5">
+                        <ImagePlus className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+                        Product Images
+                      </label>
+                      <p className="text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5">Upload image files or paste image URLs</p>
+                    </div>
+
+                    <label className="group relative cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-md shadow-violet-500/20 hover:shadow-lg hover:shadow-violet-500/30 transition-all duration-300 active:scale-95 border border-violet-400/30">
+                      <UploadCloud className="w-4 h-4 text-violet-100 group-hover:scale-110 transition-transform duration-200" />
+                      <span>📁 Pick Image Files from Device (Mobile/PC)</span>
                       <input type="file" accept="image/*" multiple onChange={handleImageFileUpload} className="hidden" />
                     </label>
                   </div>
+
                   <textarea
                     required
                     rows={2}
                     value={productForm.imagesInput}
                     onChange={(e) => setProductForm({ ...productForm, imagesInput: e.target.value })}
-                    placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg or upload from device..."
-                    className="w-full p-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 font-mono text-[11px]"
+                    placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg or click button above to pick from device..."
+                    className="w-full p-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 font-mono text-[11px] focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all"
                   />
-                  <p className="text-[10px] text-violet-600 dark:text-violet-400 font-semibold">✨ Note: Device images are automatically compressed into WebP format (80% quality) for high speed loading.</p>
+
+                  {/* Image Previews */}
+                  {productForm.imagesInput.split(',').map(s => s.trim()).filter(Boolean).length > 0 && (
+                    <div className="space-y-1.5">
+                      <p className="text-[10px] font-bold text-neutral-400 uppercase">Uploaded Image Previews ({productForm.imagesInput.split(',').map(s => s.trim()).filter(Boolean).length})</p>
+                      <div className="flex flex-wrap gap-2.5 max-h-36 overflow-y-auto p-1">
+                        {productForm.imagesInput.split(',').map(s => s.trim()).filter(Boolean).map((imgUrl, idx) => (
+                          <div key={idx} className="relative group/img w-16 h-16 rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900 shadow-sm">
+                            <img src={imgUrl} alt={`Upload ${idx+1}`} className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-200" />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const list = productForm.imagesInput.split(',').map(s => s.trim()).filter(Boolean);
+                                list.splice(idx, 1);
+                                setProductForm({ ...productForm, imagesInput: list.join(', ') });
+                              }}
+                              className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 hover:bg-rose-600 text-white flex items-center justify-center transition-colors shadow-md"
+                              title="Remove image"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-1.5 text-[10px] text-violet-600 dark:text-violet-400 font-semibold bg-violet-100/50 dark:bg-violet-950/40 px-3 py-1.5 rounded-lg w-fit">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Device images auto-compress to WebP (80% quality) for lightning fast loading.</span>
+                  </div>
                 </div>
 
-                <div className="sm:col-span-3 space-y-2">
+                <div className="sm:col-span-3 space-y-3 p-4 rounded-2xl border border-purple-100 dark:border-purple-900/30 bg-purple-50/30 dark:bg-purple-950/10">
                   <div className="flex justify-between items-center flex-wrap gap-2">
-                    <label className="text-[10px] font-bold text-neutral-400 uppercase">Product Videos (Optional MP4 / Youtube / Device Files)</label>
-                    <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-50 hover:bg-violet-100 dark:bg-violet-950/40 dark:hover:bg-violet-900/60 text-violet-700 dark:text-violet-300 text-xs font-semibold border border-violet-200/70 dark:border-violet-800/60 shadow-sm transition-all duration-200 active:scale-95 hover:shadow">
-                      🎥 Pick Video Files from Device (Mobile/PC)
+                    <div>
+                      <label className="text-[11px] font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider flex items-center gap-1.5">
+                        <Film className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                        Product Videos (Optional MP4 / YouTube / Device Files)
+                      </label>
+                      <p className="text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5">Upload video files or paste video URLs</p>
+                    </div>
+
+                    <label className="group relative cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-semibold shadow-md shadow-purple-500/20 hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300 active:scale-95 border border-purple-400/30">
+                      <Video className="w-4 h-4 text-purple-100 group-hover:scale-110 transition-transform duration-200" />
+                      <span>🎥 Pick Video Files from Device (Mobile/PC)</span>
                       <input type="file" accept="video/*" multiple onChange={handleVideoFileUpload} className="hidden" />
                     </label>
                   </div>
+
                   <input
                     type="text"
                     value={productForm.videosInput}
                     onChange={(e) => setProductForm({ ...productForm, videosInput: e.target.value })}
-                    placeholder="https://example.com/demo.mp4 or pick video files from device..."
-                    className="w-full h-10 px-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 font-mono text-[11px]"
+                    placeholder="https://example.com/demo.mp4 or click button above to pick video files from device..."
+                    className="w-full h-10 px-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 font-mono text-[11px] focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
                   />
+
+                  {/* Video Previews */}
+                  {productForm.videosInput.split(',').map(s => s.trim()).filter(Boolean).length > 0 && (
+                    <div className="space-y-1.5">
+                      <p className="text-[10px] font-bold text-neutral-400 uppercase">Uploaded Video Previews ({productForm.videosInput.split(',').map(s => s.trim()).filter(Boolean).length})</p>
+                      <div className="flex flex-wrap gap-2.5 max-h-36 overflow-y-auto p-1">
+                        {productForm.videosInput.split(',').map(s => s.trim()).filter(Boolean).map((vidUrl, idx) => (
+                          <div key={idx} className="relative group/vid w-28 h-16 rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-neutral-900 shadow-sm flex items-center justify-center">
+                            {vidUrl.startsWith('data:video') || vidUrl.endsWith('.mp4') || vidUrl.endsWith('.webm') ? (
+                              <video src={vidUrl} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="text-[9px] text-white p-1 truncate text-center font-mono">{vidUrl}</div>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const list = productForm.videosInput.split(',').map(s => s.trim()).filter(Boolean);
+                                list.splice(idx, 1);
+                                setProductForm({ ...productForm, videosInput: list.join(', ') });
+                              }}
+                              className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 hover:bg-rose-600 text-white flex items-center justify-center transition-colors shadow-md"
+                              title="Remove video"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="sm:col-span-3 space-y-1.5">
