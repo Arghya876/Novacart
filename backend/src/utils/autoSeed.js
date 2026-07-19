@@ -8,10 +8,20 @@ const Order = require('../models/Order');
 
 const autoSeed = async () => {
   try {
-    // Check if we already seeded the new products to avoid infinite loop / redundant seeding on every restart
+    // Check and update existing admin user if database is already seeded
+    const existingAdmin = await User.findOne({ role: 'admin' });
+    if (existingAdmin) {
+      if (existingAdmin.email !== 'novacart876admin@gmail.com') {
+        existingAdmin.email = 'novacart876admin@gmail.com';
+        existingAdmin.password = 'xeyeyxrd7q';
+        await existingAdmin.save();
+        console.log('[Auto-Seeder] Admin email & password updated to novacart876admin@gmail.com');
+      }
+    }
+
     const hasNewProduct = await Product.findOne({ title: 'Sony Alpha 7 IV Mirrorless Camera' });
     if (hasNewProduct) {
-      console.log('[Auto-Seeder] Database already contains new products. Skipping seeding.');
+      console.log('[Auto-Seeder] Database already contains new products. Skipping full seeding.');
       return;
     }
 
@@ -27,13 +37,10 @@ const autoSeed = async () => {
     console.log('[Auto-Seeder] Existing data cleared.');
 
     // Create Users
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash('password123', salt);
-
     const admin = await User.create({
       name: 'Nova Admin',
-      email: 'admin@novacart.com',
-      password: 'password123',
+      email: 'novacart876admin@gmail.com',
+      password: 'xeyeyxrd7q',
       role: 'admin',
       isVerified: true,
     });

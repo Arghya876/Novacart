@@ -89,7 +89,7 @@ export default function AdminLogin() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@novacart.com"
+                placeholder="admin@example.com"
                 className="w-full h-10 pl-10 pr-4 rounded-xl border border-neutral-800 bg-neutral-950 text-white placeholder-neutral-600 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all outline-none"
               />
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />

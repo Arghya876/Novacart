@@ -182,7 +182,7 @@ exports.createOrder = async (req, res, next) => {
         }
 
         // 3. Email Admin
-        const adminEmail = process.env.ADMIN_EMAIL || 'admin@novacart.com';
+        const adminEmail = process.env.ADMIN_EMAIL || 'novacart876admin@gmail.com';
         await sendEmail({
           email: adminEmail,
           subject: `[Admin Digest] New Order Placed - #${order._id}`,
@@ -414,7 +414,7 @@ exports.updateOrderStatus = async (req, res, next) => {
         }
 
         // 3. Email Admin
-        const adminEmail = process.env.ADMIN_EMAIL || 'admin@novacart.com';
+        const adminEmail = process.env.ADMIN_EMAIL || 'novacart876admin@gmail.com';
         await sendEmail({
           email: adminEmail,
           subject: `[Admin Update] Order #${order._id} Status: ${status}`,

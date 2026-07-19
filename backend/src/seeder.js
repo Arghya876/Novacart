@@ -33,8 +33,8 @@ const seedData = async () => {
 
     const admin = await User.create({
       name: 'Nova Admin',
-      email: 'admin@novacart.com',
-      password: 'password123', // Schema pre-save will hash it, but let's make sure it's set
+      email: 'novacart876admin@gmail.com',
+      password: 'xeyeyxrd7q',
       role: 'admin',
       isVerified: true,
     });
