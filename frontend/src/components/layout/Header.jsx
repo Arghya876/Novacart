@@ -1,12 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Search, ShoppingCart, Heart, User, Sun, Moon, LogOut, Sparkles, Package, ShoppingBag } from 'lucide-react';
+import { Search, ShoppingCart, Heart, User, Sun, Moon, LogOut, Sparkles, Package, ShoppingBag, X, TrendingUp, ArrowRight } from 'lucide-react';
 import { logoutUser } from '../../store/authSlice';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
 import useDebounce from '../../hooks/useDebounce';
+import { formatPrice } from '../../utils/formatCurrency';
+
+const POPULAR_SEARCHES = [
+  'iPhone 15 Pro',
+  'MacBook Pro',
+  'Wireless Earphones',
+  'Nike Air Max',
+  'Smart Watch',
+  'Leather Jacket',
+];
 
 export default function Header() {
   const dispatch = useDispatch();
@@ -45,8 +55,10 @@ export default function Header() {
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   const [suggestions, setSuggestions] = useState([]);
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const autocompleteRef = useRef(null);
+
+  const searchInputRef = useRef(null);
   const userDropdownRef = useRef(null);
 
   // Auto-close dropdown popups when clicking outside
@@ -54,9 +66,6 @@ export default function Header() {
     const handleClickOutside = (e) => {
       if (userDropdownRef.current && !userDropdownRef.current.contains(e.target)) {
         setUserDropdownOpen(false);
-      }
-      if (autocompleteRef.current && !autocompleteRef.current.contains(e.target)) {
-        setSuggestions([]);
       }
     };
 
@@ -67,6 +76,26 @@ export default function Header() {
       document.removeEventListener('touchstart', handleClickOutside);
     };
   }, []);
+
+  // Handle ESC key to close search modal
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setSearchModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Focus input when search modal opens
+  useEffect(() => {
+    if (searchModalOpen) {
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 100);
+    }
+  }, [searchModalOpen]);
 
   useEffect(() => {
     if (darkMode) {
@@ -100,6 +129,7 @@ export default function Header() {
     if (searchQuery.trim()) {
       navigate(`/products?q=${encodeURIComponent(searchQuery.trim())}`);
       setSuggestions([]);
+      setSearchModalOpen(false);
     }
   };
 
@@ -124,46 +154,29 @@ export default function Header() {
             </span>
           </Link>
 
-          {/* Search Input Bar (Visible on all mobile & desktop screens) */}
-          <div ref={autocompleteRef} className="flex-1 max-w-xs sm:max-w-md relative mx-1">
-            <form onSubmit={handleSearchSubmit}>
-              <div className="relative w-full">
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-9 sm:h-10 pl-3.5 pr-9 rounded-full border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-violet-500/25 focus:border-violet-500 text-xs text-neutral-950 dark:text-white transition-all"
-                />
-                <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 transition-colors">
-                  <Search className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                </button>
-              </div>
-            </form>
-
-            {suggestions.length > 0 && (
-              <div className="absolute left-0 right-0 mt-2 bg-white/95 dark:bg-neutral-900/95 border border-neutral-200 dark:border-neutral-850 rounded-2xl shadow-xl z-50 overflow-hidden py-1.5 backdrop-blur">
-                {suggestions.map((item) => (
-                  <button
-                    key={item.slug}
-                    onClick={() => {
-                      navigate(`/product/${item.slug}`);
-                      setSuggestions([]);
-                      setSearchQuery('');
-                    }}
-                    className="w-full text-left px-4 py-2 text-xs text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-850 flex items-center gap-2.5 transition-colors"
-                  >
-                    <Search className="h-3.5 w-3.5 text-neutral-400" />
-                    <span className="line-clamp-1">{item.title}</span>
-                  </button>
-                ))}
-              </div>
-            )}
+          {/* Desktop Search Bar Input Trigger */}
+          <div className="hidden sm:block flex-1 max-w-md relative mx-2">
+            <button
+              onClick={() => setSearchModalOpen(true)}
+              className="w-full h-10 pl-4 pr-10 rounded-full border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 text-left text-xs text-neutral-400 dark:text-neutral-500 hover:border-violet-400 dark:hover:border-violet-600 transition-all flex items-center justify-between cursor-pointer"
+            >
+              <span>Search products, categories, brands...</span>
+              <Search className="h-4 w-4 text-neutral-400 shrink-0" />
+            </button>
           </div>
 
           {/* Action Navigation Icons */}
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             
+            {/* Mobile Search Button (Triggers Floating Search Modal on Phones) */}
+            <button
+              onClick={() => setSearchModalOpen(true)}
+              className="p-2 sm:hidden text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-850 rounded-full transition-colors"
+              title="Search Products"
+            >
+              <Search className="h-5 w-5" />
+            </button>
+
             {/* Wishlist Icon Button */}
             <Link
               to="/wishlist"
@@ -324,6 +337,118 @@ export default function Header() {
           </div>
         </div>
       </div>
+
+      {/* Animated Floating Search Overlay Modal */}
+      <AnimatePresence>
+        {searchModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 sm:pt-20 px-4">
+            {/* Dark Overlay Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSearchModalOpen(false)}
+              className="fixed inset-0 bg-neutral-950/60 backdrop-blur-sm"
+            />
+
+            {/* Floating Glassmorphic Search Container */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -20 }}
+              transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+              className="relative w-full max-w-xl bg-white/95 dark:bg-neutral-900/95 border border-neutral-200/80 dark:border-neutral-800 rounded-3xl shadow-2xl overflow-hidden backdrop-blur-xl z-10"
+            >
+              {/* Top Form Input Header */}
+              <form onSubmit={handleSearchSubmit} className="p-4 border-b border-neutral-150 dark:border-neutral-850 flex items-center gap-3">
+                <Search className="h-5 w-5 text-violet-600 dark:text-violet-400 shrink-0 ml-1" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  placeholder="Search products, brands, categories..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="flex-1 bg-transparent text-sm sm:text-base text-neutral-900 dark:text-white placeholder-neutral-400 outline-none font-medium"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="p-1 rounded-full text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setSearchModalOpen(false)}
+                  className="p-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </form>
+
+              {/* Suggestions / Available Items Body */}
+              <div className="p-5 max-h-[65vh] overflow-y-auto space-y-5">
+                {suggestions.length > 0 ? (
+                  <div className="space-y-2">
+                    <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider px-2">Matching Products</div>
+                    <div className="grid grid-cols-1 gap-1.5">
+                      {suggestions.map((item) => (
+                        <button
+                          key={item.slug}
+                          onClick={() => {
+                            navigate(`/product/${item.slug}`);
+                            setSuggestions([]);
+                            setSearchQuery('');
+                            setSearchModalOpen(false);
+                          }}
+                          className="w-full text-left p-3 rounded-2xl hover:bg-neutral-100 dark:hover:bg-neutral-850 flex items-center justify-between gap-3 transition-all group cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3">
+                            <img src={item.images?.[0]} alt="" className="w-10 h-10 rounded-xl object-cover bg-neutral-50" />
+                            <div>
+                              <h4 className="font-semibold text-xs text-neutral-900 dark:text-neutral-100 group-hover:text-violet-600 dark:group-hover:text-violet-400 line-clamp-1 transition-colors">
+                                {item.title}
+                              </h4>
+                              <p className="text-[10px] text-neutral-400 capitalize">{item.category?.name || item.brand}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="font-bold text-xs text-neutral-900 dark:text-white">{formatPrice(item.discountPrice > 0 ? item.discountPrice : item.price)}</span>
+                            <ArrowRight className="h-3.5 w-3.5 text-neutral-400 group-hover:translate-x-0.5 transition-transform" />
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-neutral-400 uppercase tracking-wider">
+                      <TrendingUp className="h-4 w-4 text-violet-500" /> Popular Catalog Searches
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {POPULAR_SEARCHES.map((term) => (
+                        <button
+                          key={term}
+                          onClick={() => {
+                            setSearchQuery(term);
+                            navigate(`/products?q=${encodeURIComponent(term)}`);
+                            setSearchModalOpen(false);
+                          }}
+                          className="px-3.5 py-1.5 rounded-full bg-neutral-100 dark:bg-neutral-850 hover:bg-violet-100 dark:hover:bg-violet-900/40 text-neutral-700 dark:text-neutral-300 hover:text-violet-600 dark:hover:text-violet-400 text-xs font-medium transition-all cursor-pointer"
+                        >
+                          {term}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
