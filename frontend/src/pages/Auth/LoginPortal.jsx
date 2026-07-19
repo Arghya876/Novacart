@@ -41,16 +41,16 @@ export default function LoginPortal() {
                 </p>
               </div>
 
-              <div className="pt-4 flex flex-col sm:flex-row gap-3 w-full">
+              <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3 w-full">
                 <Link
                   to="/login/customer"
-                  className="flex-1 h-14 px-5 rounded-2xl bg-violet-600 hover:bg-violet-700 text-white text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-violet-600/20 hover:shadow-violet-600/30 active:scale-[0.98]"
+                  className="w-[92%] sm:w-full sm:flex-1 h-16 sm:h-11 px-5 rounded-2xl bg-violet-600 hover:bg-violet-700 text-white text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-violet-600/20 hover:shadow-violet-600/30 active:scale-[0.98] mx-auto sm:mx-0"
                 >
                   Customer Login <ArrowRight className="h-4.5 w-4.5" />
                 </Link>
                 <Link
                   to="/register/customer"
-                  className="flex-1 h-14 px-5 rounded-2xl border-2 border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-neutral-900/50 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-100 text-sm font-bold flex items-center justify-center transition-all active:scale-[0.98]"
+                  className="w-[92%] sm:w-full sm:flex-1 h-16 sm:h-11 px-5 rounded-2xl border-2 border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-neutral-900/50 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-100 text-sm font-bold flex items-center justify-center transition-all active:scale-[0.98] mx-auto sm:mx-0"
                 >
                   Create Account
                 </Link>
@@ -76,16 +76,16 @@ export default function LoginPortal() {
                 </p>
               </div>
 
-              <div className="pt-4 flex flex-col sm:flex-row gap-3 w-full">
+              <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3 w-full">
                 <Link
                   to="/login/seller"
-                  className="flex-1 h-14 px-5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 active:scale-[0.98]"
+                  className="w-[92%] sm:w-full sm:flex-1 h-16 sm:h-11 px-5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 active:scale-[0.98] mx-auto sm:mx-0"
                 >
                   Merchant Login <ArrowRight className="h-4.5 w-4.5" />
                 </Link>
                 <Link
                   to="/register/seller"
-                  className="flex-1 h-14 px-5 rounded-2xl border-2 border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-neutral-900/50 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-100 text-sm font-bold flex items-center justify-center transition-all active:scale-[0.98]"
+                  className="w-[92%] sm:w-full sm:flex-1 h-16 sm:h-11 px-5 rounded-2xl border-2 border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-neutral-900/50 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-100 text-sm font-bold flex items-center justify-center transition-all active:scale-[0.98] mx-auto sm:mx-0"
                 >
                   Register Shop
                 </Link>
