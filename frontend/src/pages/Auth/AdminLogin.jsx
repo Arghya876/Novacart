@@ -121,7 +121,7 @@ export default function AdminLogin() {
         </form>
 
         <div className="text-center pt-2 text-[10px] text-neutral-500">
-          This system is restricted to authorized users. Fixed ID: <span className="text-neutral-400">admin@novacart.com</span>
+          This system is restricted to authorized administrative personnel only.
         </div>
       </div>
     </div>

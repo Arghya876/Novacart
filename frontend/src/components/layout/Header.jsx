@@ -48,6 +48,26 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const autocompleteRef = useRef(null);
+  const userDropdownRef = useRef(null);
+
+  // Auto-close dropdown popups when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (userDropdownRef.current && !userDropdownRef.current.contains(e.target)) {
+        setUserDropdownOpen(false);
+      }
+      if (autocompleteRef.current && !autocompleteRef.current.contains(e.target)) {
+        setSuggestions([]);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     if (darkMode) {
@@ -179,18 +199,28 @@ export default function Header() {
             </Link>
 
             {user ? (
-              <div className="relative">
+              <div ref={userDropdownRef} className="relative">
                 <button
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex items-center gap-1 p-1.5 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-850 rounded-full transition-colors"
+                  className="flex items-center gap-1.5 p-1 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-850 rounded-full transition-all ring-2 ring-violet-500/20"
                 >
                   {user.avatar ? (
-                    <img src={user.avatar} alt={user.name} className="h-7 w-7 rounded-full object-cover border border-neutral-200" />
-                  ) : (
-                    <div className="h-7 w-7 rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 flex items-center justify-center font-semibold text-xs">
-                      {user.name.charAt(0).toUpperCase()}
-                    </div>
-                  )}
+                    <img 
+                      src={user.avatar} 
+                      alt={user.name} 
+                      className="h-8 w-8 rounded-full object-cover border border-violet-500/30 dark:border-violet-400/40 shadow-xs hover:scale-105 transition-transform"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <div 
+                    style={{ display: user.avatar ? 'none' : 'flex' }}
+                    className="h-8 w-8 rounded-full bg-linear-to-tr from-violet-600 to-indigo-600 text-white items-center justify-center font-bold text-xs shadow-xs"
+                  >
+                    {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                  </div>
                 </button>
 
                 {userDropdownOpen && (
