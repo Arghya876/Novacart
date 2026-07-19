@@ -44,13 +44,13 @@ export default function LoginPortal() {
               <div className="pt-4 flex flex-col sm:flex-row gap-3">
                 <Link
                   to="/login/customer"
-                  className="flex-1 h-11 sm:h-10 rounded-xl bg-violet-600 hover:bg-violet-750 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shadow-xs"
+                  className="flex-1 h-12 rounded-2xl bg-violet-600 hover:bg-violet-750 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md shadow-violet-500/10 active:scale-95"
                 >
-                  Customer Login <ArrowRight className="h-3.5 w-3.5" />
+                  Customer Login <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
                   to="/register/customer"
-                  className="flex-1 h-11 sm:h-10 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-transparent hover:bg-neutral-50 dark:hover:bg-neutral-850 text-neutral-800 dark:text-neutral-200 text-xs font-semibold flex items-center justify-center transition-all"
+                  className="flex-1 h-12 rounded-2xl border border-neutral-250 dark:border-neutral-800 bg-transparent hover:bg-neutral-50 dark:hover:bg-neutral-850 text-neutral-800 dark:text-neutral-200 text-xs font-bold flex items-center justify-center transition-all active:scale-95"
                 >
                   Create Account
                 </Link>
@@ -79,13 +79,13 @@ export default function LoginPortal() {
               <div className="pt-4 flex flex-col sm:flex-row gap-3">
                 <Link
                   to="/login/seller"
-                  className="flex-1 h-11 sm:h-10 rounded-xl bg-emerald-600 hover:bg-emerald-705 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shadow-xs"
+                  className="flex-1 h-12 rounded-2xl bg-emerald-600 hover:bg-emerald-705 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md shadow-emerald-500/10 active:scale-95"
                 >
-                  Merchant Login <ArrowRight className="h-3.5 w-3.5" />
+                  Merchant Login <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
                   to="/register/seller"
-                  className="flex-1 h-11 sm:h-10 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-transparent hover:bg-neutral-50 dark:hover:bg-neutral-850 text-neutral-800 dark:text-neutral-200 text-xs font-semibold flex items-center justify-center transition-all"
+                  className="flex-1 h-12 rounded-2xl border border-neutral-250 dark:border-neutral-800 bg-transparent hover:bg-neutral-50 dark:hover:bg-neutral-850 text-neutral-800 dark:text-neutral-200 text-xs font-bold flex items-center justify-center transition-all active:scale-95"
                 >
                   Register Shop
                 </Link>

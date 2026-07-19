@@ -79,7 +79,7 @@ export default function GoogleAuthButton({ role = 'customer', buttonText = 'Cont
       <button
         type="button"
         onClick={handleFallbackClick}
-        className="w-full h-11 px-4 rounded-full border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-850 text-neutral-700 dark:text-neutral-200 text-xs font-semibold flex items-center justify-center gap-3 transition-all shadow-xs cursor-pointer group"
+        className="w-full h-12 px-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-850 text-neutral-800 dark:text-neutral-200 text-xs sm:text-sm font-bold flex items-center justify-center gap-3 transition-all shadow-xs cursor-pointer group active:scale-[0.98]"
       >
         <svg className="h-4.5 w-4.5 shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
           <path

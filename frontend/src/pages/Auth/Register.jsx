@@ -206,15 +206,15 @@ export default function Register() {
           <button
             type="submit"
             disabled={isLoading || !isPasswordValid}
-            className={`w-full h-11 rounded-full text-white text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer ${
+            className={`w-full h-12 rounded-2xl text-white text-sm font-bold transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer ${
               !isPasswordValid 
                 ? 'bg-neutral-300 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-500 cursor-not-allowed shadow-none' 
                 : isSeller
-                  ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/10'
-                  : 'bg-violet-600 hover:bg-violet-750 shadow-violet-500/10'
+                  ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/15'
+                  : 'bg-violet-600 hover:bg-violet-750 shadow-violet-500/15'
             }`}
           >
-            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Create Account'}
+            {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Create Account'}
           </button>
         </form>
 
