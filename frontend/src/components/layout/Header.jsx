@@ -59,13 +59,21 @@ export default function Header() {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
   const searchInputRef = useRef(null);
+  const searchModalRef = useRef(null);
   const userDropdownRef = useRef(null);
 
-  // Auto-close dropdown popups when clicking outside
+  // Auto-close dropdown & search modal popups when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (userDropdownRef.current && !userDropdownRef.current.contains(e.target)) {
         setUserDropdownOpen(false);
+      }
+      if (
+        searchModalRef.current && 
+        !searchModalRef.current.contains(e.target) &&
+        !e.target.closest('.search-trigger')
+      ) {
+        setSearchModalOpen(false);
       }
     };
 
@@ -140,7 +148,7 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-neutral-100 dark:border-neutral-900 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-md transition-colors duration-300">
+    <header className="sticky top-0 z-40 w-full border-b border-neutral-100 dark:border-neutral-900 bg-white/95 dark:bg-neutral-950/95 backdrop-blur-md transition-colors duration-300">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-3">
           
@@ -154,11 +162,11 @@ export default function Header() {
             </span>
           </Link>
 
-          {/* Desktop Search Bar Input Trigger */}
+          {/* Desktop Search Bar Trigger */}
           <div className="hidden sm:block flex-1 max-w-md relative mx-2">
             <button
-              onClick={() => setSearchModalOpen(true)}
-              className="w-full h-10 pl-4 pr-10 rounded-full border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 text-left text-xs text-neutral-400 dark:text-neutral-500 hover:border-violet-400 dark:hover:border-violet-600 transition-all flex items-center justify-between cursor-pointer"
+              onClick={() => setSearchModalOpen(!searchModalOpen)}
+              className="search-trigger w-full h-10 pl-4 pr-10 rounded-full border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 text-left text-xs text-neutral-400 dark:text-neutral-500 hover:border-violet-400 dark:hover:border-violet-600 transition-all flex items-center justify-between cursor-pointer"
             >
               <span>Search products, categories, brands...</span>
               <Search className="h-4 w-4 text-neutral-400 shrink-0" />
@@ -168,10 +176,10 @@ export default function Header() {
           {/* Action Navigation Icons */}
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             
-            {/* Mobile Search Button (Triggers Floating Search Modal on Phones) */}
+            {/* Mobile Search Button (Triggers Search Floating Popup on Phones) */}
             <button
-              onClick={() => setSearchModalOpen(true)}
-              className="p-2 sm:hidden text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-850 rounded-full transition-colors"
+              onClick={() => setSearchModalOpen(!searchModalOpen)}
+              className="search-trigger p-2 sm:hidden text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-850 rounded-full transition-colors"
               title="Search Products"
             >
               <Search className="h-5 w-5" />
@@ -338,61 +346,59 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Animated Floating Search Overlay Modal */}
+      {/* Floating Clean Search Panel Popup (Navbar stays 100% visible & bright!) */}
       <AnimatePresence>
         {searchModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 sm:pt-20 px-4">
-            {/* Dark Overlay Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+          <div className="absolute top-16 left-0 right-0 z-50 px-4 pt-2 pb-6">
+            {/* Transparent backdrop for outside clicks */}
+            <div 
               onClick={() => setSearchModalOpen(false)}
-              className="fixed inset-0 bg-neutral-950/60 backdrop-blur-sm"
+              className="fixed inset-0 top-16 z-40 bg-transparent" 
             />
 
-            {/* Floating Glassmorphic Search Container */}
+            {/* Floating Glassmorphic Search Card */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: -20 }}
+              ref={searchModalRef}
+              initial={{ opacity: 0, scale: 0.96, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -20 }}
-              transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-              className="relative w-full max-w-xl bg-white/95 dark:bg-neutral-900/95 border border-neutral-200/80 dark:border-neutral-800 rounded-3xl shadow-2xl overflow-hidden backdrop-blur-xl z-10"
+              exit={{ opacity: 0, scale: 0.96, y: -10 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+              className="relative max-w-xl mx-auto bg-white/95 dark:bg-neutral-900/95 border border-neutral-200/90 dark:border-neutral-800 rounded-3xl shadow-2xl overflow-hidden backdrop-blur-xl z-50"
             >
-              {/* Top Form Input Header */}
-              <form onSubmit={handleSearchSubmit} className="p-4 border-b border-neutral-150 dark:border-neutral-850 flex items-center gap-3">
-                <Search className="h-5 w-5 text-violet-600 dark:text-violet-400 shrink-0 ml-1" />
+              {/* Form Input Header with ONLY ONE single X clear button */}
+              <form onSubmit={handleSearchSubmit} className="p-3.5 sm:p-4 border-b border-neutral-150 dark:border-neutral-850 flex items-center gap-3">
+                <Search className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-violet-600 dark:text-violet-400 shrink-0 ml-1" />
                 <input
                   ref={searchInputRef}
                   type="text"
                   placeholder="Search products, brands, categories..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 bg-transparent text-sm sm:text-base text-neutral-900 dark:text-white placeholder-neutral-400 outline-none font-medium"
+                  className="flex-1 bg-transparent text-xs sm:text-sm text-neutral-900 dark:text-white placeholder-neutral-400 outline-none font-medium"
                 />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery('')}
-                    className="p-1 rounded-full text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                )}
+                
+                {/* Single X button: clears typed search text if present, or closes modal if empty */}
                 <button
                   type="button"
-                  onClick={() => setSearchModalOpen(false)}
-                  className="p-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors"
+                  onClick={() => {
+                    if (searchQuery) {
+                      setSearchQuery('');
+                    } else {
+                      setSearchModalOpen(false);
+                    }
+                  }}
+                  className="p-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer"
+                  title="Clear search text / Close"
                 >
                   <X className="h-4 w-4" />
                 </button>
               </form>
 
-              {/* Suggestions / Available Items Body */}
-              <div className="p-5 max-h-[65vh] overflow-y-auto space-y-5">
+              {/* Suggestions / Available Catalog Items Body */}
+              <div className="p-4 sm:p-5 max-h-[60vh] overflow-y-auto space-y-4">
                 {suggestions.length > 0 ? (
                   <div className="space-y-2">
-                    <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider px-2">Matching Products</div>
+                    <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider px-2">Matching Catalog Items</div>
                     <div className="grid grid-cols-1 gap-1.5">
                       {suggestions.map((item) => (
                         <button
@@ -403,10 +409,10 @@ export default function Header() {
                             setSearchQuery('');
                             setSearchModalOpen(false);
                           }}
-                          className="w-full text-left p-3 rounded-2xl hover:bg-neutral-100 dark:hover:bg-neutral-850 flex items-center justify-between gap-3 transition-all group cursor-pointer"
+                          className="w-full text-left p-2.5 rounded-2xl hover:bg-neutral-100 dark:hover:bg-neutral-850 flex items-center justify-between gap-3 transition-all group cursor-pointer"
                         >
                           <div className="flex items-center gap-3">
-                            <img src={item.images?.[0]} alt="" className="w-10 h-10 rounded-xl object-cover bg-neutral-50" />
+                            <img src={item.images?.[0]} alt="" className="w-9 h-9 rounded-xl object-cover bg-neutral-50" />
                             <div>
                               <h4 className="font-semibold text-xs text-neutral-900 dark:text-neutral-100 group-hover:text-violet-600 dark:group-hover:text-violet-400 line-clamp-1 transition-colors">
                                 {item.title}
@@ -423,9 +429,9 @@ export default function Header() {
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-neutral-400 uppercase tracking-wider">
-                      <TrendingUp className="h-4 w-4 text-violet-500" /> Popular Catalog Searches
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
+                      <TrendingUp className="h-3.5 w-3.5 text-violet-500" /> Popular Catalog Searches
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {POPULAR_SEARCHES.map((term) => (
