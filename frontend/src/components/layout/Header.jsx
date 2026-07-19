@@ -6,6 +6,8 @@ import { logoutUser } from '../../store/authSlice';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 
+import useDebounce from '../../hooks/useDebounce';
+
 export default function Header() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -40,8 +42,9 @@ export default function Header() {
     localStorage.getItem('theme') === 'dark'
   );
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
   const [suggestions, setSuggestions] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const autocompleteRef = useRef(null);
@@ -58,24 +61,20 @@ export default function Header() {
 
   useEffect(() => {
     const fetchSuggestions = async () => {
-      if (searchQuery.trim().length < 2) {
+      if (debouncedSearchQuery.trim().length < 2) {
         setSuggestions([]);
         return;
       }
       try {
-        const res = await axios.get(`/api/products/autocomplete?q=${searchQuery}`);
+        const res = await axios.get(`/api/products/autocomplete?q=${debouncedSearchQuery}`);
         setSuggestions(res.data.data);
       } catch (err) {
         console.error(err);
       }
     };
 
-    const delayDebounce = setTimeout(() => {
-      fetchSuggestions();
-    }, 300);
-
-    return () => clearTimeout(delayDebounce);
-  }, [searchQuery]);
+    fetchSuggestions();
+  }, [debouncedSearchQuery]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -212,8 +211,8 @@ export default function Header() {
                     )}
 
                     {user.role === 'seller' && (
-                      <Link to="/my-products" onClick={() => setUserDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-xs text-neutral-700 dark:text-neutral-350 hover:bg-neutral-50 dark:hover:bg-neutral-850 transition-colors">
-                        <Sparkles className="h-4 w-4 text-violet-500" /> My Products
+                      <Link to="/seller/dashboard" onClick={() => setUserDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-xs text-neutral-700 dark:text-neutral-350 hover:bg-neutral-50 dark:hover:bg-neutral-850 transition-colors">
+                        <Sparkles className="h-4 w-4 text-violet-500" /> Seller Dashboard
                       </Link>
                     )}
 

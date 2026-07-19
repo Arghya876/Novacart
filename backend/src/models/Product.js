@@ -34,6 +34,10 @@ const ProductSchema = new mongoose.Schema(
       type: [String],
       required: [true, 'Please upload at least one image'],
     },
+    videos: {
+      type: [String],
+      default: [],
+    },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Category',

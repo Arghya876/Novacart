@@ -172,6 +172,8 @@ exports.getProduct = async (req, res, next) => {
   }
 };
 
+const { processImages } = require('../utils/imageProcessor');
+
 // @desc    Create product
 // @route   POST /api/products
 // @access  Private (Seller/Admin)
@@ -184,6 +186,11 @@ exports.createProduct = async (req, res, next) => {
     const category = await Category.findById(req.body.category);
     if (!category) {
       return res.status(400).json({ success: false, error: 'Invalid category ID' });
+    }
+
+    // Automatically convert all product images to WebP format
+    if (req.body.images) {
+      req.body.images = processImages(req.body.images);
     }
 
     const product = await Product.create(req.body);
@@ -214,6 +221,11 @@ exports.updateProduct = async (req, res, next) => {
         success: false,
         error: `User ${req.user.id} is not authorized to update this product`,
       });
+    }
+
+    // Automatically convert all product images to WebP format
+    if (req.body.images) {
+      req.body.images = processImages(req.body.images);
     }
 
     product = await Product.findByIdAndUpdate(req.params.id, req.body, {

@@ -55,6 +55,23 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+export const googleLoginUser = createAsyncThunk(
+  'auth/googleLogin',
+  async ({ credential, role }, thunkAPI) => {
+    try {
+      const response = await api.post(`${API_URL}/google`, { credential, role });
+      if (response.data.success) {
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        localStorage.setItem('accessToken', response.data.accessToken);
+      }
+      return response.data;
+    } catch (error) {
+      const message = error.response?.data?.error || error.message || 'Google Sign-In failed';
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 export const logoutUser = createAsyncThunk(
   'auth/logout',
   async (_, thunkAPI) => {
@@ -247,6 +264,20 @@ const authSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = typeof action.payload === 'object' ? action.payload.message : action.payload;
+      })
+      // Google Login
+      .addCase(googleLoginUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(googleLoginUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload.user || action.payload.data || null;
+        state.token = action.payload.accessToken || null;
+      })
+      .addCase(googleLoginUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
       })
       // Logout
       .addCase(logoutUser.fulfilled, (state) => {

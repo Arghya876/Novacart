@@ -32,6 +32,8 @@ import UserDashboard from './pages/Dashboards/UserDashboard';
 import SellerDashboard from './pages/Dashboards/SellerDashboard';
 import AdminDashboard from './pages/Dashboards/AdminDashboard';
 
+import NotFound from './pages/NotFound';
+
 // Static
 import { About, Contact, FAQ, Privacy, Terms } from './pages/Static/StaticPages';
 
@@ -157,6 +159,16 @@ export default function App() {
                 }
               />
               
+              {/* Protected Customer Home Route */}
+              <Route
+                path="/customer/home"
+                element={
+                  <CustomerProtectedRoute>
+                    <Home />
+                  </CustomerProtectedRoute>
+                }
+              />
+
               {/* Protected Profile Route for both Customer & Seller */}
               <Route
                 path="/profile"
@@ -167,7 +179,15 @@ export default function App() {
                 }
               />
 
-              {/* Protected Seller dashboard (my-products) */}
+              {/* Protected Seller Dashboard Routes */}
+              <Route
+                path="/seller/dashboard"
+                element={
+                  <SellerProtectedRoute>
+                    <SellerDashboard />
+                  </SellerProtectedRoute>
+                }
+              />
               <Route
                 path="/my-products"
                 element={
@@ -178,8 +198,8 @@ export default function App() {
               />
 
               {/* Legacy Redirections for Compatibility */}
-              <Route path="/customer" element={<Navigate to="/profile" replace />} />
-              <Route path="/seller" element={<Navigate to="/my-products" replace />} />
+              <Route path="/customer" element={<Navigate to="/customer/home" replace />} />
+              <Route path="/seller" element={<Navigate to="/seller/dashboard" replace />} />
             </Route>
 
             {/* Separate Admin Routes (No storefront header & footer) */}
@@ -188,8 +208,8 @@ export default function App() {
               <Route index element={<AdminDashboard />} />
             </Route>
 
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            {/* Meaningful 404 Fallback Page */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Router>
       </HelmetProvider>

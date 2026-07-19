@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux';
 import { Mail, Lock, User, AlertTriangle, Loader2, Check, X, ArrowLeft } from 'lucide-react';
 import { registerUser, clearError } from '../../store/authSlice';
+import GoogleAuthButton from '../../components/common/GoogleAuthButton';
 
 export default function Register() {
   const { role } = useParams();
@@ -28,7 +29,7 @@ export default function Register() {
 
   useEffect(() => {
     if (user && isValidRole) {
-      navigate(user.role === 'seller' ? '/seller' : '/');
+      navigate(user.role === 'seller' ? '/seller/dashboard' : '/customer/home');
     }
   }, [user, isValidRole, navigate]);
 
@@ -216,6 +217,15 @@ export default function Register() {
             {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Create Account'}
           </button>
         </form>
+
+        <div className="relative flex items-center justify-center my-4">
+          <div className="border-t border-neutral-200 dark:border-neutral-800 w-full" />
+          <span className="bg-white dark:bg-neutral-900 px-3 text-[10px] font-bold text-neutral-400 uppercase tracking-widest shrink-0 absolute">
+            OR
+          </span>
+        </div>
+
+        <GoogleAuthButton role={role} buttonText={`Sign up as ${isSeller ? 'Merchant' : 'Customer'} with Google`} />
 
         <p className="text-center text-xs text-neutral-450 dark:text-neutral-500">
           Already have an account?{' '}

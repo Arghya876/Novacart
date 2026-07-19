@@ -6,6 +6,8 @@ import { removeFromCart, updateCartQty, saveForLater, moveToCart, applyCoupon, r
 import { showToast } from '../store/toastSlice';
 import axios from 'axios';
 
+import { formatPrice } from '../utils/formatCurrency';
+
 export default function Cart() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -55,11 +57,39 @@ export default function Cart() {
 
   const handleCheckout = () => {
     if (!user) {
-      navigate('/login?redirect=checkout');
+      navigate('/login/customer?redirect=checkout');
     } else {
       navigate('/checkout');
     }
   };
+
+  if (!user) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-16 text-center space-y-5">
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400">
+          <ShoppingCart className="h-10 w-10" />
+        </div>
+        <h2 className="text-2xl font-bold text-neutral-950 dark:text-white">Sign In to View Your Cart</h2>
+        <p className="text-sm text-neutral-400 max-w-md mx-auto">
+          Please sign in to your account to access your cart, apply coupons, and complete your purchases securely.
+        </p>
+        <div className="flex justify-center gap-3 pt-2">
+          <Link
+            to="/login/customer?redirect=cart"
+            className="inline-flex items-center justify-center h-11 px-6 rounded-full bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/10"
+          >
+            Sign In to Account
+          </Link>
+          <Link
+            to="/products"
+            className="inline-flex items-center justify-center h-11 px-6 rounded-full border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-900 text-xs font-semibold transition-all"
+          >
+            Browse Catalog
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (cartItems.length === 0 && savedItems.length === 0) {
     return (
@@ -107,7 +137,7 @@ export default function Cart() {
                         <Link to={`/product/${item.product}`} className="font-semibold text-sm text-neutral-850 dark:text-neutral-100 hover:text-violet-650 transition-colors line-clamp-2">
                           {item.title}
                         </Link>
-                        <span className="font-bold text-sm text-neutral-950 dark:text-white">${item.price}</span>
+                        <span className="font-bold text-sm text-neutral-950 dark:text-white">{formatPrice(item.price)}</span>
                       </div>
                     </div>
 
@@ -210,14 +240,14 @@ export default function Cart() {
             <div className="space-y-3 text-xs">
               <div className="flex justify-between text-neutral-500">
                 <span>Subtotal</span>
-                <span className="font-semibold text-neutral-800 dark:text-neutral-200">${subtotal}</span>
+                <span className="font-semibold text-neutral-800 dark:text-neutral-200">{formatPrice(subtotal)}</span>
               </div>
               
               {coupon && (
                 <div className="flex justify-between text-emerald-600">
                   <span className="flex items-center gap-1"><Tag className="h-3 w-3" /> Discount ({coupon.code})</span>
                   <span className="font-semibold">
-                    -{coupon.discountType === 'percentage' ? `${coupon.discountAmount}%` : `$${coupon.discountAmount}`}
+                    -{coupon.discountType === 'percentage' ? `${coupon.discountAmount}%` : formatPrice(coupon.discountAmount)}
                   </span>
                 </div>
               )}
@@ -225,16 +255,16 @@ export default function Cart() {
               <div className="flex justify-between text-neutral-500">
                 <span>Shipping</span>
                 <span className="font-semibold text-neutral-800 dark:text-neutral-200">
-                  {shippingPrice === 0 ? 'Free' : `$${shippingPrice}`}
+                  {shippingPrice === 0 ? 'Free' : formatPrice(shippingPrice)}
                 </span>
               </div>
               <div className="flex justify-between text-neutral-500">
                 <span>Estimated Tax</span>
-                <span className="font-semibold text-neutral-800 dark:text-neutral-200">${taxPrice}</span>
+                <span className="font-semibold text-neutral-800 dark:text-neutral-200">{formatPrice(taxPrice)}</span>
               </div>
               <div className="flex justify-between text-sm font-bold text-neutral-950 dark:text-white pt-3 border-t border-neutral-100 dark:border-neutral-850">
                 <span>Total</span>
-                <span>${totalPrice}</span>
+                <span>{formatPrice(totalPrice)}</span>
               </div>
             </div>
 

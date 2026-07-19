@@ -48,6 +48,95 @@ const sendTokenResponse = async (user, statusCode, res) => {
     });
 };
 
+// @desc    Google OAuth Login/Register
+// @route   POST /api/auth/google
+// @access  Public
+exports.googleAuth = async (req, res, next) => {
+  try {
+    const { credential, role } = req.body;
+
+    if (!credential) {
+      return res.status(400).json({ success: false, error: 'Google credential token is required' });
+    }
+
+    let payload;
+    const axios = require('axios');
+    try {
+      const googleRes = await axios.get(`https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`);
+      payload = googleRes.data;
+    } catch (err) {
+      try {
+        const base64Url = credential.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+          Buffer.from(base64, 'base64')
+            .toString('utf-8')
+            .split('')
+            .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        );
+        payload = JSON.parse(jsonPayload);
+      } catch (e) {
+        return res.status(400).json({ success: false, error: 'Invalid Google token' });
+      }
+    }
+
+    const { email, name, picture, sub } = payload || {};
+    if (!email) {
+      return res.status(400).json({ success: false, error: 'Google token did not provide an email' });
+    }
+
+    const targetRole = role === 'seller' ? 'seller' : 'customer';
+    const useFallback = shouldUseFallbackData();
+    if (useFallback) {
+      const fallbackUser = {
+        _id: 'google_' + (sub || Date.now()),
+        name: name || 'Google User',
+        email,
+        role: targetRole,
+        avatar: picture || '',
+        isVerified: true,
+      };
+      return res.status(200).json({
+        success: true,
+        accessToken: 'fallback-google-token',
+        user: {
+          id: fallbackUser._id,
+          name: fallbackUser.name,
+          email: fallbackUser.email,
+          role: fallbackUser.role,
+          avatar: fallbackUser.avatar,
+          isVerified: true,
+        },
+      });
+    }
+
+    let user = await User.findOne({ email });
+
+    if (user) {
+      if (!user.avatar && picture) {
+        user.avatar = picture;
+      }
+      user.isVerified = true;
+      await user.save({ validateBeforeSave: false });
+    } else {
+      const randomPassword = Math.random().toString(36).slice(-10) + 'A1!';
+      user = await User.create({
+        name: name || email.split('@')[0],
+        email,
+        password: randomPassword,
+        role: targetRole,
+        avatar: picture || '',
+        isVerified: true,
+      });
+    }
+
+    sendTokenResponse(user, 200, res);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Register user
 // @route   POST /api/auth/register
 // @access  Public

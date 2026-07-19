@@ -11,6 +11,8 @@ import ProductCard from '../components/common/ProductCard';
 import SkeletonLoader from '../components/common/SkeletonLoader';
 import axios from 'axios';
 
+import { formatPrice, calculateDiscountPercent, calculateSavings } from '../utils/formatCurrency';
+
 export default function ProductDetails() {
   const { slug } = useParams();
   const dispatch = useDispatch();
@@ -71,6 +73,12 @@ export default function ProductDetails() {
   const handleAddToCart = () => {
     if (!currentProduct) return;
     if (!user) {
+      dispatch(
+        showToast({
+          message: 'Please sign in to add items to your cart.',
+          type: 'error',
+        })
+      );
       const redirectPath = location.pathname.substring(1) + location.search;
       navigate(`/login/customer?redirect=${encodeURIComponent(redirectPath)}`);
       return;
@@ -172,17 +180,19 @@ export default function ProductDetails() {
 
       {/* Main product display */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Left: Image Gallery */}
+        {/* Left: Image & Video Gallery */}
         <div className="space-y-4">
           <div className="w-full aspect-square rounded-2xl overflow-hidden border border-neutral-100 dark:border-neutral-850 bg-neutral-50 dark:bg-neutral-950">
             <img src={selectedImage || currentProduct.images?.[0]} alt={currentProduct.title} className="w-full h-full object-cover" />
           </div>
+          
+          {/* Thumbnails */}
           <div className="flex gap-3 overflow-x-auto pb-2">
             {(currentProduct.images || []).map((img, i) => (
               <button
                 key={i}
                 onClick={() => setSelectedImage(img)}
-                className={`w-20 h-20 rounded-xl overflow-hidden border-2 bg-neutral-50 dark:bg-neutral-950 flex-shrink-0 transition-colors ${
+                className={`w-20 h-20 rounded-xl overflow-hidden border-2 bg-neutral-50 dark:bg-neutral-950 flex-shrink-0 transition-colors cursor-pointer ${
                   selectedImage === img ? 'border-violet-600' : 'border-transparent'
                 }`}
               >
@@ -190,6 +200,35 @@ export default function ProductDetails() {
               </button>
             ))}
           </div>
+
+          {/* Product Demo Video Section */}
+          {currentProduct.videos && currentProduct.videos.length > 0 && (
+            <div className="pt-4 space-y-2">
+              <h4 className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider flex items-center gap-1.5">
+                🎬 Product Demonstration Video
+              </h4>
+              <div className="space-y-3">
+                {currentProduct.videos.map((vidUrl, idx) => (
+                  <div key={idx} className="w-full aspect-video rounded-2xl overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-black">
+                    {vidUrl.includes('embed') || vidUrl.includes('youtube') || vidUrl.includes('vimeo') ? (
+                      <iframe
+                        src={vidUrl}
+                        title={`Product Video ${idx + 1}`}
+                        className="w-full h-full border-0"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <video
+                        src={vidUrl}
+                        controls
+                        className="w-full h-full object-contain"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right: Product Info */}
@@ -220,10 +259,15 @@ export default function ProductDetails() {
           </div>
 
           {/* Pricing */}
-          <div className="py-4 border-y border-neutral-100 dark:border-neutral-850 flex items-baseline gap-3">
-            <span className="text-3xl font-bold text-neutral-900 dark:text-white">${price}</span>
+          <div className="py-4 border-y border-neutral-100 dark:border-neutral-850 flex items-center gap-3">
+            <span className="text-3xl font-bold text-neutral-900 dark:text-white">{formatPrice(price)}</span>
             {hasDiscount && (
-              <span className="text-base text-neutral-400 line-through">${currentProduct.price}</span>
+              <>
+                <span className="text-base text-neutral-400 line-through">{formatPrice(currentProduct.price)}</span>
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 font-bold text-xs">
+                  Save {formatPrice(calculateSavings(currentProduct.price, price))} ({calculateDiscountPercent(currentProduct.price, price)}% OFF)
+                </span>
+              </>
             )}
           </div>
 

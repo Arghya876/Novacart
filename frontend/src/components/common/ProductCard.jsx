@@ -7,6 +7,8 @@ import { toggleWishlist } from '../../store/wishlistSlice';
 import { addToCart } from '../../store/cartSlice';
 import { showToast } from '../../store/toastSlice';
 
+import { formatPrice, calculateDiscountPercent } from '../../utils/formatCurrency';
+
 export default function ProductCard({ product }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -38,6 +40,12 @@ export default function ProductCard({ product }) {
     e.preventDefault();
     e.stopPropagation();
     if (!user) {
+      dispatch(
+        showToast({
+          message: 'Please sign in to add items to your cart.',
+          type: 'error',
+        })
+      );
       const redirectPath = location.pathname.substring(1) + location.search;
       navigate(`/login/customer?redirect=${encodeURIComponent(redirectPath)}`);
       return;
@@ -63,6 +71,7 @@ export default function ProductCard({ product }) {
   const hasDiscount = product.discountPrice > 0;
   const originalPrice = product.price;
   const currentPrice = hasDiscount ? product.discountPrice : product.price;
+  const discountPercent = calculateDiscountPercent(originalPrice, product.discountPrice);
 
   return (
     <motion.div
@@ -78,6 +87,7 @@ export default function ProductCard({ product }) {
         <img
           src={product.images?.[0] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=600'}
           alt={product.title}
+          loading="lazy"
           className="h-full w-full object-cover object-center transform group-hover:scale-105 transition-transform duration-500 ease-out"
         />
 
@@ -85,7 +95,7 @@ export default function ProductCard({ product }) {
         <div className="absolute left-3 top-3 flex flex-col gap-1.5 z-10">
           {hasDiscount && (
             <span className="inline-flex items-center rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider">
-              Sale
+              {discountPercent}% OFF
             </span>
           )}
           {product.isFeatured && (
@@ -142,9 +152,9 @@ export default function ProductCard({ product }) {
         {/* Price & Add to Cart */}
         <div className="flex items-center justify-between mt-auto">
           <div className="flex items-baseline gap-1.5">
-            <span className="text-base font-bold text-neutral-900 dark:text-white">${currentPrice}</span>
+            <span className="text-base font-bold text-neutral-900 dark:text-white">{formatPrice(currentPrice)}</span>
             {hasDiscount && (
-              <span className="text-xs text-neutral-450 dark:text-neutral-550 line-through">${originalPrice}</span>
+              <span className="text-xs text-neutral-450 dark:text-neutral-550 line-through">{formatPrice(originalPrice)}</span>
             )}
           </div>
 

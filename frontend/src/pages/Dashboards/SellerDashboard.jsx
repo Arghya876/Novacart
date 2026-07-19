@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Plus, Package, ShoppingBag, DollarSign, TrendingUp, Edit, Trash2, Check, X, Loader2 } from 'lucide-react';
+import { Plus, Package, ShoppingBag, DollarSign, Trash2, Loader2 } from 'lucide-react';
 import axios from 'axios';
+import { formatPrice } from '../../utils/formatCurrency';
 
 export default function SellerDashboard() {
   const { token } = useSelector((state) => state.auth);
@@ -30,7 +31,8 @@ export default function SellerDashboard() {
     description: '',
     price: '',
     discountPrice: '',
-    images: ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=600'], // Default premium mockup image
+    imagesInput: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=600',
+    videosInput: '',
     category: '',
     brand: '',
     stock: '',
@@ -111,6 +113,67 @@ export default function SellerDashboard() {
     }
   };
 
+  // Image & Video File Upload Handlers (Device / Phone / Laptop Uploads)
+  const handleImageFileUpload = (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          // Canvas WebP Compression
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 1200;
+
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Convert to compressed WebP data URL
+          const compressedWebP = canvas.toDataURL('image/webp', 0.8);
+          setProductForm((prev) => ({
+            ...prev,
+            imagesInput: prev.imagesInput ? `${prev.imagesInput}, ${compressedWebP}` : compressedWebP,
+          }));
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleVideoFileUpload = (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const videoDataUrl = event.target.result;
+        setProductForm((prev) => ({
+          ...prev,
+          videosInput: prev.videosInput ? `${prev.videosInput}, ${videoDataUrl}` : videoDataUrl,
+        }));
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleAddSpec = () => {
     if (productForm.specificationsKey && productForm.specificationsValue) {
       setSpecs((prev) => ({
@@ -129,12 +192,16 @@ export default function SellerDashboard() {
 
     try {
       const tagsArray = productForm.tags.split(',').map((t) => t.trim()).filter(Boolean);
+      const imagesArray = productForm.imagesInput.split(',').map((url) => url.trim()).filter(Boolean);
+      const videosArray = productForm.videosInput.split(',').map((url) => url.trim()).filter(Boolean);
+
       const postData = {
         title: productForm.title,
         description: productForm.description,
         price: Number(productForm.price),
         discountPrice: productForm.discountPrice ? Number(productForm.discountPrice) : 0,
-        images: productForm.images,
+        images: imagesArray.length > 0 ? imagesArray : ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=600'],
+        videos: videosArray,
         category: productForm.category,
         brand: productForm.brand,
         stock: Number(productForm.stock),
@@ -147,14 +214,15 @@ export default function SellerDashboard() {
       });
 
       if (res.data.success) {
-        setFormSuccess('Product created successfully!');
+        setFormSuccess('Product created successfully! Images automatically converted to WebP format.');
         setSpecs({});
         setProductForm({
           title: '',
           description: '',
           price: '',
           discountPrice: '',
-          images: ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=600'],
+          imagesInput: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=600',
+          videosInput: '',
           category: categories[0]?._id || '',
           brand: '',
           stock: '',
@@ -235,7 +303,7 @@ export default function SellerDashboard() {
                 <div className="p-3 bg-violet-100 dark:bg-violet-950/40 rounded-2xl text-violet-600"><DollarSign className="h-6 w-6" /></div>
                 <div>
                   <p className="text-[10px] font-bold text-neutral-400 uppercase">Total Revenue</p>
-                  <p className="text-xl font-bold text-neutral-900 dark:text-white mt-0.5">${analytics.summary.totalRevenue}</p>
+                  <p className="text-xl font-bold text-neutral-900 dark:text-white mt-0.5">{formatPrice(analytics.summary.totalRevenue)}</p>
                 </div>
               </div>
               <div className="p-6 rounded-3xl border border-neutral-100 dark:border-neutral-850 bg-white dark:bg-neutral-900 shadow-sm flex items-center gap-4">
@@ -333,7 +401,7 @@ export default function SellerDashboard() {
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-neutral-400 uppercase">Price ($)</label>
+                  <label className="text-[10px] font-bold text-neutral-400 uppercase">Price (₹)</label>
                   <input
                     type="number"
                     required
@@ -343,7 +411,7 @@ export default function SellerDashboard() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-neutral-400 uppercase">Discount Price ($)</label>
+                  <label className="text-[10px] font-bold text-neutral-400 uppercase">Discount Price (₹)</label>
                   <input
                     type="number"
                     value={productForm.discountPrice}
@@ -361,6 +429,42 @@ export default function SellerDashboard() {
                     className="w-full h-10 px-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950"
                   />
                 </div>
+                <div className="sm:col-span-3 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-bold text-neutral-400 uppercase">Product Images</label>
+                    <label className="cursor-pointer text-[11px] font-bold text-violet-600 dark:text-violet-400 hover:underline flex items-center gap-1">
+                      📁 Pick Image Files from Device (Mobile/PC)
+                      <input type="file" accept="image/*" multiple onChange={handleImageFileUpload} className="hidden" />
+                    </label>
+                  </div>
+                  <textarea
+                    required
+                    rows={2}
+                    value={productForm.imagesInput}
+                    onChange={(e) => setProductForm({ ...productForm, imagesInput: e.target.value })}
+                    placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg or upload from device..."
+                    className="w-full p-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 font-mono text-[11px]"
+                  />
+                  <p className="text-[10px] text-violet-600 dark:text-violet-400 font-semibold">✨ Note: Device images are automatically compressed into WebP format (80% quality) for high speed loading.</p>
+                </div>
+
+                <div className="sm:col-span-3 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-bold text-neutral-400 uppercase">Product Videos (Optional MP4 / Youtube / Device Files)</label>
+                    <label className="cursor-pointer text-[11px] font-bold text-violet-600 dark:text-violet-400 hover:underline flex items-center gap-1">
+                      🎥 Pick Video Files from Device (Mobile/PC)
+                      <input type="file" accept="video/*" multiple onChange={handleVideoFileUpload} className="hidden" />
+                    </label>
+                  </div>
+                  <input
+                    type="text"
+                    value={productForm.videosInput}
+                    onChange={(e) => setProductForm({ ...productForm, videosInput: e.target.value })}
+                    placeholder="https://example.com/demo.mp4 or pick video files from device..."
+                    className="w-full h-10 px-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 font-mono text-[11px]"
+                  />
+                </div>
+
                 <div className="sm:col-span-3 space-y-1.5">
                   <label className="text-[10px] font-bold text-neutral-400 uppercase">Description</label>
                   <textarea
@@ -437,7 +541,7 @@ export default function SellerDashboard() {
           {productsLoading ? (
             <div className="py-12 flex justify-center"><div className="h-6 w-6 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" /></div>
           ) : (
-            <div className="border border-neutral-100 dark:border-neutral-850 rounded-3xl bg-white dark:bg-neutral-900 overflow-hidden shadow-sm">
+            <div className="border border-neutral-100 dark:border-neutral-850 rounded-3xl bg-white dark:bg-neutral-900 overflow-x-auto shadow-sm">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr className="bg-neutral-50 dark:bg-neutral-950 text-neutral-450 border-b border-neutral-150 dark:border-neutral-850">
@@ -455,7 +559,7 @@ export default function SellerDashboard() {
                         <span className="font-semibold text-neutral-850 dark:text-neutral-200 line-clamp-1">{item.title}</span>
                       </td>
                       <td className={`px-6 py-4 font-bold ${item.stock === 0 ? 'text-rose-500' : 'text-neutral-500'}`}>{item.stock}</td>
-                      <td className="px-6 py-4 font-bold text-neutral-900 dark:text-white">${item.discountPrice > 0 ? item.discountPrice : item.price}</td>
+                      <td className="px-6 py-4 font-bold text-neutral-900 dark:text-white">{formatPrice(item.discountPrice > 0 ? item.discountPrice : item.price)}</td>
                       <td className="px-6 py-4 text-center">
                         <button
                           onClick={() => handleDeleteProduct(item._id)}
@@ -509,7 +613,7 @@ export default function SellerDashboard() {
                         <img src={item.image} alt="" className="w-10 h-10 rounded-lg object-cover" />
                         <div className="flex-1">
                           <h4 className="font-semibold text-neutral-800 dark:text-neutral-200">{item.title}</h4>
-                          <p className="text-neutral-400">Qty {item.quantity} • ${item.price}</p>
+                          <p className="text-neutral-400">Qty {item.quantity} • {formatPrice(item.price)}</p>
                         </div>
                       </div>
                     ))}

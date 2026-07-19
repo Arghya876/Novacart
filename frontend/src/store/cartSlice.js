@@ -37,14 +37,14 @@ const calculateTotals = (state) => {
     }
   }
 
-  // Free shipping above $100, otherwise $10
-  state.shippingPrice = subtotal > 0 && subtotal < 100 ? 10 : 0;
+  // Free shipping above ₹999, otherwise ₹99
+  state.shippingPrice = subtotal > 0 && subtotal < 999 ? 99 : 0;
   
   // Tax is 8% of subtotal after discount
   const taxableAmount = Math.max(0, subtotal - discount);
-  state.taxPrice = Math.round(taxableAmount * 0.08 * 100) / 100;
+  state.taxPrice = Math.round(taxableAmount * 0.08);
 
-  state.totalPrice = Math.round((taxableAmount + state.shippingPrice + state.taxPrice) * 100) / 100;
+  state.totalPrice = Math.round(taxableAmount + state.shippingPrice + state.taxPrice);
 };
 
 const cartSlice = createSlice({

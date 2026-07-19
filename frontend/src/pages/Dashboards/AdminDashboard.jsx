@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Plus, Tag, Layers, Users, DollarSign, ShoppingBag, Trash2, CheckCircle2, AlertTriangle, ShieldAlert, FileText, Package } from 'lucide-react';
+import { Plus, Tag, Layers, Users, DollarSign, ShoppingBag, Trash2, CheckCircle2, AlertTriangle, ShieldAlert, FileText, Package, RotateCcw, Truck } from 'lucide-react';
 import axios from 'axios';
+import { formatPrice } from '../../utils/formatCurrency';
 
 export default function AdminDashboard() {
   const { token } = useSelector((state) => state.auth);
@@ -229,15 +230,30 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleUpdateOrderStatus = async (orderId, newStatus) => {
+  const handleDeleteOrder = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this order permanently from system history?')) return;
+    try {
+      await axios.delete(`/api/orders/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      alert('Order deleted permanently from system history.');
+      fetchAllOrders();
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to delete order history');
+      console.error(err);
+    }
+  };
+
+  const handleUpdateOrderStatus = async (orderId, newStatus, trackingNumber = '') => {
     try {
       await axios.put(
         `/api/orders/${orderId}/status`,
-        { status: newStatus },
+        { status: newStatus, trackingNumber },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       fetchAllOrders();
     } catch (err) {
+      alert(err.response?.data?.error || 'Failed to update order status');
       console.error(err);
     }
   };
@@ -285,7 +301,7 @@ export default function AdminDashboard() {
                   <div className="p-3 bg-violet-150 dark:bg-violet-950/40 rounded-2xl text-violet-600"><DollarSign className="h-6 w-6" /></div>
                   <div>
                     <p className="text-[10px] font-bold text-neutral-400 uppercase">Total Revenue</p>
-                    <p className="text-xl font-bold text-neutral-900 dark:text-white mt-0.5">${analytics.summary.totalRevenue}</p>
+                    <p className="text-xl font-bold text-neutral-900 dark:text-white mt-0.5">{formatPrice(analytics.summary.totalRevenue)}</p>
                   </div>
                 </div>
                 <div className="p-6 rounded-3xl border border-neutral-100 dark:border-neutral-850 bg-white dark:bg-neutral-900 shadow-sm flex items-center gap-4">
@@ -360,7 +376,7 @@ export default function AdminDashboard() {
               ) : userError ? (
                 <div className="p-4 bg-rose-50 dark:bg-rose-950/25 border border-rose-200 text-rose-500 rounded-2xl">{userError}</div>
               ) : (
-                <div className="border border-neutral-100 dark:border-neutral-850 rounded-3xl bg-white dark:bg-neutral-900 overflow-hidden shadow-sm">
+                <div className="border border-neutral-100 dark:border-neutral-850 rounded-3xl bg-white dark:bg-neutral-900 overflow-x-auto shadow-sm">
                   <table className="w-full text-left border-collapse text-xs">
                     <thead>
                       <tr className="bg-neutral-50 dark:bg-neutral-950 text-neutral-450 border-b border-neutral-150 dark:border-neutral-850">
@@ -417,7 +433,7 @@ export default function AdminDashboard() {
               ) : userError ? (
                 <div className="p-4 bg-rose-50 dark:bg-rose-950/25 border border-rose-200 text-rose-500 rounded-2xl">{userError}</div>
               ) : (
-                <div className="border border-neutral-100 dark:border-neutral-850 rounded-3xl bg-white dark:bg-neutral-900 overflow-hidden shadow-sm">
+                <div className="border border-neutral-100 dark:border-neutral-850 rounded-3xl bg-white dark:bg-neutral-900 overflow-x-auto shadow-sm">
                   <table className="w-full text-left border-collapse text-xs">
                     <thead>
                       <tr className="bg-neutral-50 dark:bg-neutral-950 text-neutral-450 border-b border-neutral-150 dark:border-neutral-850">
@@ -477,7 +493,7 @@ export default function AdminDashboard() {
           {productsLoading ? (
             <div className="py-12 flex justify-center"><div className="h-6 w-6 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" /></div>
           ) : (
-            <div className="border border-neutral-100 dark:border-neutral-850 rounded-3xl bg-white dark:bg-neutral-900 overflow-hidden shadow-sm">
+            <div className="border border-neutral-100 dark:border-neutral-850 rounded-3xl bg-white dark:bg-neutral-900 overflow-x-auto shadow-sm">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr className="bg-neutral-50 dark:bg-neutral-950 text-neutral-450 border-b border-neutral-150 dark:border-neutral-850">
@@ -498,7 +514,7 @@ export default function AdminDashboard() {
                       </td>
                       <td className="px-6 py-4 text-neutral-550">{item.brand}</td>
                       <td className="px-6 py-4 text-neutral-550 capitalize">{item.category?.name}</td>
-                      <td className="px-6 py-4 font-bold text-neutral-900 dark:text-white">${item.discountPrice > 0 ? item.discountPrice : item.price}</td>
+                      <td className="px-6 py-4 font-bold text-neutral-900 dark:text-white">{formatPrice(item.discountPrice > 0 ? item.discountPrice : item.price)}</td>
                       <td className={`px-6 py-4 font-bold ${item.stock === 0 ? 'text-rose-500' : 'text-neutral-500'}`}>{item.stock}</td>
                       <td className="px-6 py-4 text-center">
                         <button
@@ -520,40 +536,55 @@ export default function AdminDashboard() {
       {/* Orders Management Tab */}
       {activeTab === 'orders' && (
         <div className="space-y-6">
-          <h2 className="text-lg font-bold text-neutral-900 dark:text-white flex items-center gap-2">
-            <FileText className="h-5 w-5 text-violet-600" /> System Orders
-          </h2>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h2 className="text-lg font-bold text-neutral-900 dark:text-white flex items-center gap-2">
+              <FileText className="h-5 w-5 text-violet-600" /> Order Progress & Delivery Control Center
+            </h2>
+            <span className="text-xs font-medium text-neutral-500">
+              Admin priviliges: Reset or advance delivery status for any order.
+            </span>
+          </div>
 
           {ordersLoading ? (
             <div className="py-12 flex justify-center"><div className="h-6 w-6 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" /></div>
           ) : (
             <div className="space-y-6">
               {orders.map((order) => (
-                <div key={order._id} className="p-6 rounded-3xl border border-neutral-100 dark:border-neutral-850 bg-white dark:bg-neutral-900 shadow-sm space-y-4">
+                <div key={order._id} className="p-6 rounded-3xl border border-neutral-100 dark:border-neutral-850 bg-white dark:bg-neutral-900 shadow-sm space-y-5">
                   <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-neutral-100 dark:border-neutral-850 text-xs">
                     <div>
-                      <p className="text-neutral-400">Order ID</p>
-                      <p className="font-semibold mt-0.5">{order._id}</p>
+                      <p className="text-neutral-400 text-[10px] uppercase font-bold">Order ID</p>
+                      <p className="font-mono font-bold mt-0.5 text-neutral-900 dark:text-white">{order._id}</p>
                     </div>
                     <div>
-                      <p className="text-neutral-400">Customer</p>
+                      <p className="text-neutral-400 text-[10px] uppercase font-bold">Customer</p>
                       <p className="font-semibold mt-0.5 capitalize">{order.user?.name || 'Unknown'}</p>
                     </div>
                     <div>
-                      <p className="text-neutral-400">Total Price</p>
-                      <p className="font-bold mt-0.5">${order.totalPrice}</p>
+                      <p className="text-neutral-400 text-[10px] uppercase font-bold">Total Price</p>
+                      <p className="font-bold mt-0.5 text-neutral-900 dark:text-white">{formatPrice(order.totalPrice)}</p>
                     </div>
-                    <div>
-                      <p className="text-neutral-400">Status</p>
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider mt-0.5 ${
-                        order.orderStatus === 'Delivered'
-                          ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/25'
-                          : order.orderStatus === 'Cancelled'
-                          ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/25'
-                          : 'bg-amber-50 text-amber-600 dark:bg-amber-950/25'
-                      }`}>
-                        {order.orderStatus}
-                      </span>
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <p className="text-neutral-400 text-[10px] uppercase font-bold">Current Status</p>
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider mt-0.5 ${
+                          order.orderStatus === 'Delivered'
+                            ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/25'
+                            : order.orderStatus === 'Cancelled'
+                            ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/25'
+                            : 'bg-violet-50 text-violet-600 dark:bg-violet-950/25'
+                        }`}>
+                          {order.orderStatus}
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={() => handleDeleteOrder(order._id)}
+                        title="Delete Order History"
+                        className="p-2 rounded-xl text-neutral-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all cursor-pointer"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                     </div>
                   </div>
 
@@ -564,33 +595,66 @@ export default function AdminDashboard() {
                         <img src={item.image} alt="" className="w-10 h-10 rounded-lg object-cover bg-neutral-50" />
                         <div className="flex-1">
                           <h4 className="font-semibold text-neutral-800 dark:text-neutral-200">{item.title}</h4>
-                          <p className="text-neutral-400">Qty {item.quantity} • ${item.price}</p>
+                          <p className="text-neutral-400">Qty {item.quantity} • {formatPrice(item.price)}</p>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  {/* Status Action Buttons */}
-                  {order.orderStatus !== 'Delivered' && order.orderStatus !== 'Cancelled' && (
-                    <div className="flex gap-2 pt-2 border-t border-neutral-100 dark:border-neutral-850">
-                      {order.orderStatus === 'Processing' && (
-                        <button
-                          onClick={() => handleUpdateOrderStatus(order._id, 'Shipped')}
-                          className="h-8 px-4 rounded-lg bg-neutral-900 dark:bg-neutral-800 hover:bg-neutral-850 text-white text-xs font-semibold"
-                        >
-                          Mark as Shipped
-                        </button>
-                      )}
-                      {order.orderStatus === 'Shipped' && (
-                        <button
-                          onClick={() => handleUpdateOrderStatus(order._id, 'Delivered')}
-                          className="h-8 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold"
-                        >
-                          Mark as Delivered
-                        </button>
-                      )}
+                  {/* Admin Order Reset & Delivery Control Panel */}
+                  <div className="pt-4 border-t border-neutral-100 dark:border-neutral-850 bg-neutral-50/50 dark:bg-neutral-950/40 p-4 rounded-2xl space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200 flex items-center gap-1.5">
+                        <Truck className="h-4 w-4 text-violet-600" /> Admin Progress & Status Override
+                      </span>
+                      <span className="text-[11px] font-semibold text-neutral-500">
+                        Tracking: <span className="font-mono text-violet-600">{order.trackingNumber || 'NV-EXP-88492'}</span>
+                      </span>
                     </div>
-                  )}
+
+                    <div className="flex flex-wrap items-center gap-3">
+                      <label className="text-[10px] font-bold text-neutral-400 uppercase">Set Status:</label>
+                      <select
+                        defaultValue={order.orderStatus}
+                        id={`status-select-${order._id}`}
+                        className="h-9 px-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-xs font-semibold"
+                      >
+                        <option value="Processing">Processing</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Out for Delivery">Out for Delivery</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Cancelled">Cancelled</option>
+                      </select>
+
+                      <input
+                        type="text"
+                        placeholder="Tracking Number"
+                        defaultValue={order.trackingNumber || 'NV-EXP-88492'}
+                        id={`tracking-input-${order._id}`}
+                        className="h-9 px-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-xs font-mono"
+                      />
+
+                      <button
+                        onClick={() => {
+                          const status = document.getElementById(`status-select-${order._id}`).value;
+                          const tracking = document.getElementById(`tracking-input-${order._id}`).value;
+                          handleUpdateOrderStatus(order._id, status, tracking);
+                        }}
+                        className="h-9 px-4 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
+                      >
+                        <CheckCircle2 className="h-3.5 w-3.5" /> Save / Update
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          handleUpdateOrderStatus(order._id, 'Processing', 'NV-EXP-88492');
+                        }}
+                        className="h-9 px-3.5 rounded-xl border border-neutral-200 dark:border-neutral-800 hover:border-amber-500 text-amber-600 dark:text-amber-400 text-xs font-semibold transition-all flex items-center gap-1.5"
+                      >
+                        <RotateCcw className="h-3.5 w-3.5" /> Reset to Processing
+                      </button>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -726,7 +790,7 @@ export default function AdminDashboard() {
                   className="w-full h-10 px-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 font-semibold"
                 >
                   <option value="percentage">Percentage (%)</option>
-                  <option value="fixed">Fixed Amount ($)</option>
+                  <option value="fixed">Fixed Amount (₹)</option>
                 </select>
               </div>
               <div className="space-y-1.5">
@@ -740,7 +804,7 @@ export default function AdminDashboard() {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-neutral-400 uppercase">Minimum Active Order Subtotal ($)</label>
+                <label className="text-[10px] font-bold text-neutral-400 uppercase">Minimum Active Order Subtotal (₹)</label>
                 <input
                   type="number"
                   required
@@ -787,10 +851,10 @@ export default function AdminDashboard() {
                       <p className="text-neutral-500">
                         Discount:{' '}
                         <span className="font-semibold text-neutral-800 dark:text-neutral-200">
-                          {coupon.discountType === 'percentage' ? `${coupon.discountAmount}%` : `$${coupon.discountAmount}`}
+                          {coupon.discountType === 'percentage' ? `${coupon.discountAmount}%` : formatPrice(coupon.discountAmount)}
                         </span>
                       </p>
-                      <p className="text-neutral-400 text-[10px]">Min Purchase: ${coupon.minActiveValue}</p>
+                      <p className="text-neutral-400 text-[10px]">Min Purchase: {formatPrice(coupon.minActiveValue)}</p>
                       <p className="text-neutral-400 text-[10px]">Expires: {new Date(coupon.expiryDate).toLocaleDateString()}</p>
                     </div>
 

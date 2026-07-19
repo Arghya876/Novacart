@@ -99,8 +99,8 @@ const seedData = async () => {
       {
         title: 'Sony WH-1000XM5 ANC Headphones',
         description: 'Industry-leading noise canceling wireless over-ear headphones with auto noise canceling optimizer, crystal clear hands-free calling, and Alexa voice control.',
-        price: 399.99,
-        discountPrice: 349.99,
+        price: 29990,
+        discountPrice: 24990,
         images: [
           'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=600',
           'https://images.unsplash.com/photo-1484704849700-f032a568e944?auto=format&fit=crop&q=80&w=600',
@@ -122,7 +122,8 @@ const seedData = async () => {
       {
         title: 'iPhone 15 Pro Max Titanium',
         description: 'Forged in titanium and featuring the groundbreaking A17 Pro chip, a customizable Action button, and the most powerful iPhone camera system ever.',
-        price: 1199.99,
+        price: 134900,
+        discountPrice: 0,
         images: [
           'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?auto=format&fit=crop&q=80&w=600',
         ],
@@ -143,8 +144,8 @@ const seedData = async () => {
       {
         title: 'Sony Alpha 7 IV Mirrorless Camera',
         description: 'The ultimate hybrid mirrorless camera featuring a 33MP full-frame sensor, 4K 60p video, advanced real-time autofocus, and exceptional low-light performance.',
-        price: 2499.99,
-        discountPrice: 2299.99,
+        price: 199990,
+        discountPrice: 179990,
         images: [
           'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=600',
         ],
@@ -165,7 +166,8 @@ const seedData = async () => {
       {
         title: 'Keychron Q1 Pro Mechanical Keyboard',
         description: 'A full metal QMK/VIA wireless custom mechanical keyboard, featuring double-gasket design, CNC aluminum body, and hot-swappable switches.',
-        price: 199.99,
+        price: 14999,
+        discountPrice: 12999,
         images: [
           'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?auto=format&fit=crop&q=80&w=600',
         ],
@@ -186,8 +188,8 @@ const seedData = async () => {
       {
         title: 'Nike Air Max Scarlet Premium',
         description: 'Featuring the iconic Air cushioning technology and a vibrant crimson mesh upper, these sneakers deliver all-day comfort and elite streetwear style.',
-        price: 149.99,
-        discountPrice: 129.00,
+        price: 9995,
+        discountPrice: 7995,
         images: [
           'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=600',
         ],
@@ -208,8 +210,8 @@ const seedData = async () => {
       {
         title: 'Adidas Ultraboost 1.0 Sneakers',
         description: 'From a walk in the park to a weekend run with friends, these Adidas Ultraboost 1.0 shoes are designed to keep you comfortable. Adidas PRIMEKNIT upper gently hugs your feet.',
-        price: 189.99,
-        discountPrice: 159.99,
+        price: 18990,
+        discountPrice: 15990,
         images: [
           'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&q=80&w=600',
         ],
@@ -230,7 +232,8 @@ const seedData = async () => {
       {
         title: 'Minimalist Oak Coffee Table',
         description: 'Handcrafted from solid white oak, this minimalist coffee table brings organic warmth and mid-century modern elegance to any living room space.',
-        price: 299.00,
+        price: 24990,
+        discountPrice: 0,
         images: [
           'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&q=80&w=600',
         ],
@@ -251,8 +254,8 @@ const seedData = async () => {
       {
         title: 'Dyson V15 Detect Cordless Vacuum',
         description: 'Dyson\'s most powerful, intelligent cordless vacuum. Laser reveals microscopic dust. Intelligently optimizes suction and run time based on dust level and floor type.',
-        price: 749.99,
-        discountPrice: 699.99,
+        price: 64990,
+        discountPrice: 59990,
         images: [
           'https://images.unsplash.com/photo-1558317374-067fb5f30001?auto=format&fit=crop&q=80&w=600',
         ],
@@ -273,8 +276,8 @@ const seedData = async () => {
       {
         title: 'French Terry Oversized Hoodie',
         description: 'Crafted from ultra-soft 450gsm French Terry cotton, this oversized hoodie offers the perfect drape, durability, and premium comfort.',
-        price: 85.00,
-        discountPrice: 65.00,
+        price: 3499,
+        discountPrice: 2499,
         images: [
           'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&q=80&w=600',
         ],
@@ -295,7 +298,8 @@ const seedData = async () => {
       {
         title: 'Minimalist Leather Bifold Wallet',
         description: 'Handcrafted from premium full-grain vegetable-tanned leather, this slim bifold wallet fits up to 8 cards and flat bills without adding bulk to your pocket.',
-        price: 55.00,
+        price: 2499,
+        discountPrice: 1999,
         images: [
           'https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&q=80&w=600',
         ],
@@ -323,16 +327,24 @@ const seedData = async () => {
         code: 'NOVACART10',
         discountType: 'percentage',
         discountAmount: 10,
-        minActiveValue: 50,
+        minActiveValue: 999,
         expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
         isActive: true,
       },
       {
-        code: 'WELCOME25',
+        code: 'WELCOME500',
         discountType: 'fixed',
-        discountAmount: 25,
-        minActiveValue: 100,
+        discountAmount: 500,
+        minActiveValue: 1999,
         expiryDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), // 15 days
+        isActive: true,
+      },
+      {
+        code: 'FESTIVE20',
+        discountType: 'percentage',
+        discountAmount: 20,
+        minActiveValue: 4999,
+        expiryDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 days
         isActive: true,
       }
     ]);

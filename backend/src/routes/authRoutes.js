@@ -16,12 +16,14 @@ const {
   verifyEmail,
   deleteMe,
   requestDeleteOtp,
+  googleAuth,
 } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 const { authorize } = require('../middleware/role');
 
 router.post('/register', register);
 router.post('/login', login);
+router.post('/google', googleAuth);
 router.post('/refresh', refreshToken);
 router.post('/forgotpassword', forgotPassword);
 router.post('/resetpassword', resetPassword);

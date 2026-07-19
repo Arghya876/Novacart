@@ -113,7 +113,7 @@ export default function Home() {
                   <p className="text-xs text-white/70">Trending Apparel</p>
                   <h4 className="font-bold text-sm">Nike Air Max Scarlet</h4>
                 </div>
-                <span className="font-bold text-base">$129.00</span>
+                <span className="font-bold text-base">₹7,995</span>
               </div>
             </motion.div>
           </div>
@@ -134,7 +134,7 @@ export default function Home() {
               <Truck className="h-6 w-6" />
             </div>
             <h4 className="font-semibold text-sm text-neutral-800 dark:text-neutral-200">Free Shipping</h4>
-            <p className="text-xs text-neutral-400">On all orders over $100</p>
+            <p className="text-xs text-neutral-400">On all orders over ₹999</p>
           </div>
           <div className="flex flex-col items-center text-center space-y-2">
             <div className="p-3 bg-violet-100 dark:bg-violet-950/40 rounded-2xl text-violet-600 dark:text-violet-400">

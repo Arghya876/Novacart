@@ -5,6 +5,7 @@ import { Trash2, ShoppingCart, Heart } from 'lucide-react';
 import { removeFromWishlist } from '../store/wishlistSlice';
 import { addToCart } from '../store/cartSlice';
 import { showToast } from '../store/toastSlice';
+import { formatPrice, calculateDiscountPercent } from '../utils/formatCurrency';
 
 export default function Wishlist() {
   const dispatch = useDispatch();
@@ -15,6 +16,12 @@ export default function Wishlist() {
 
   const handleMoveToCart = (product) => {
     if (!user) {
+      dispatch(
+        showToast({
+          message: 'Please sign in to add items to your cart.',
+          type: 'error',
+        })
+      );
       const redirectPath = location.pathname.substring(1) + location.search;
       navigate(`/login/customer?redirect=${encodeURIComponent(redirectPath)}`);
       return;
@@ -104,9 +111,9 @@ export default function Wishlist() {
                 </Link>
 
                 <div className="flex items-baseline gap-1.5 mb-4">
-                  <span className="text-sm font-bold text-neutral-900 dark:text-white">${price}</span>
+                  <span className="text-sm font-bold text-neutral-900 dark:text-white">{formatPrice(price)}</span>
                   {hasDiscount && (
-                    <span className="text-xs text-neutral-400 line-through">${product.price}</span>
+                    <span className="text-xs text-neutral-400 line-through">{formatPrice(product.price)}</span>
                   )}
                 </div>
 

@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { store } from '../store';
+import { showToast } from '../store/toastSlice';
 
 // Configure defaults globally on the axios instance
 axios.defaults.baseURL = import.meta.env.VITE_API_URL || '';
@@ -16,7 +18,7 @@ axios.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor: Silent refresh on 401 Unauthorized
+// Response Interceptor: Silent refresh on 401 Unauthorized & Global Error Notifications
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -35,6 +37,23 @@ axios.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    // Extract user friendly error message
+    const errorMessage =
+      error.response?.data?.error ||
+      error.response?.data?.message ||
+      (error.message === 'Network Error'
+        ? 'Network Connection Error. Please check your internet connection.'
+        : null);
+
+    // Suppress toasts for silent background checks if requested
+    if (errorMessage && !originalRequest?._suppressToast) {
+      // Don't toast 401s if silent refresh is going to attempt refresh
+      const isAuthRefresh = originalRequest.url?.includes('/api/auth/refresh');
+      if (error.response?.status !== 401 || isAuthRefresh) {
+        store.dispatch(showToast({ message: errorMessage, type: 'error' }));
+      }
+    }
 
     // Check if error is 401 and not already retried
     const isAuthRequest = 
@@ -60,41 +79,21 @@ axios.interceptors.response.use(
 
       try {
         // Request a new access token using the refresh cookie
-        // Pass _retry: true in config to ensure this refresh call doesn't loop
-        const response = await axios.post('/api/auth/refresh', {}, { _retry: true, withCredentials: true });
+        const response = await axios.post('/api/auth/refresh', {}, { _retry: true, withCredentials: true, _suppressToast: true });
         
         if (response.data.success) {
           const { accessToken } = response.data;
-          
-          // Save the new token in localStorage
           localStorage.setItem('accessToken', accessToken);
-          
           processQueue(null, accessToken);
-          
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           return axios(originalRequest);
         }
       } catch (refreshError) {
         processQueue(refreshError, null);
         
-        // Refresh token is invalid/expired: clear localStorage and redirect to login
+        // Refresh token is invalid/expired: clear localStorage
         localStorage.removeItem('user');
         localStorage.removeItem('accessToken');
-        
-        const userStr = localStorage.getItem('user');
-        let isAdmin = false;
-        try {
-          if (userStr) {
-            const user = JSON.parse(userStr);
-            isAdmin = user.role === 'admin';
-          }
-        } catch (e) {}
-
-        if (isAdmin) {
-          window.location.href = '/admin/login';
-        } else {
-          window.location.href = '/login';
-        }
         
         return Promise.reject(refreshError);
       } finally {
@@ -106,5 +105,4 @@ axios.interceptors.response.use(
   }
 );
 
-// Export the globally configured axios instance for slices that import 'api'
 export default axios;
