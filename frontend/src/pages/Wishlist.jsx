@@ -39,8 +39,12 @@ export default function Wishlist() {
     dispatch(removeFromWishlist(product._id));
     dispatch(
       showToast({
-        message: `Moved "${product.title}" to cart!`,
-        type: 'success',
+        title: 'Added to Cart!',
+        message: product.title,
+        type: 'cart',
+        image: product.images?.[0],
+        actionLink: '/cart',
+        actionLabel: 'View Cart',
       })
     );
   };

@@ -28,10 +28,12 @@ export default function ProductCard({ product }) {
     dispatch(toggleWishlist(product));
     dispatch(
       showToast({
-        message: isInWishlist
-          ? `Removed "${product.title}" from wishlist.`
-          : `Added "${product.title}" to wishlist!`,
-        type: isInWishlist ? 'info' : 'success',
+        title: isInWishlist ? 'Removed from Favorites' : 'Added to Favorites!',
+        message: product.title,
+        type: isInWishlist ? 'info' : 'favorite',
+        image: product.images?.[0],
+        actionLink: isInWishlist ? null : '/wishlist',
+        actionLabel: isInWishlist ? null : 'View Favorites',
       })
     );
   };
@@ -42,6 +44,7 @@ export default function ProductCard({ product }) {
     if (!user) {
       dispatch(
         showToast({
+          title: 'Sign In Required',
           message: 'Please sign in to add items to your cart.',
           type: 'error',
         })
@@ -62,8 +65,12 @@ export default function ProductCard({ product }) {
     );
     dispatch(
       showToast({
-        message: `Added "${product.title}" to cart!`,
-        type: 'success',
+        title: 'Added to Cart!',
+        message: product.title,
+        type: 'cart',
+        image: product.images?.[0],
+        actionLink: '/cart',
+        actionLabel: 'View Cart',
       })
     );
   };

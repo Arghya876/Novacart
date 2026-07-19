@@ -622,10 +622,10 @@ export default function SellerDashboard() {
                   {/* Status Action Buttons */}
                   {order.orderStatus !== 'Delivered' && order.orderStatus !== 'Cancelled' && (
                     <div className="flex gap-2 pt-2 border-t border-neutral-100 dark:border-neutral-850">
-                      {order.orderStatus === 'Processing' && (
+                      {(order.orderStatus === 'Order Placed' || order.orderStatus === 'Pending' || order.orderStatus === 'Processing') && (
                         <button
                           onClick={() => handleUpdateOrderStatus(order._id, 'Shipped')}
-                          className="h-8 px-4 rounded-lg bg-neutral-900 dark:bg-neutral-800 hover:bg-neutral-850 text-white text-xs font-semibold"
+                          className="h-8 px-4 rounded-lg bg-neutral-900 dark:bg-neutral-800 hover:bg-neutral-850 text-white text-xs font-semibold cursor-pointer"
                         >
                           Mark as Shipped
                         </button>

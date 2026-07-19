@@ -45,28 +45,26 @@ const OrderProgressTracker = ({ status, trackingNumber, deliveredAt, createdAt }
   }
 
   const steps = [
-    { label: 'Order Placed', desc: 'Order received' },
-    { label: 'Payment Confirmed', desc: 'Verified' },
-    { label: 'Processing', desc: 'Packed at warehouse' },
-    { label: 'Shipped', desc: 'In transit' },
+    { label: 'Order Placed', desc: 'Order received & verified' },
+    { label: 'Shipped', desc: 'Dispatched in transit' },
     { label: 'Out for Delivery', desc: 'Courier assigned' },
-    { label: 'Delivered', desc: 'Handed over' },
+    { label: 'Delivered', desc: 'Handed over to buyer' },
   ];
 
   const getStatusIndex = (currentStatus) => {
     switch (currentStatus) {
+      case 'Order Placed':
       case 'Pending':
-        return 0;
       case 'Processing':
-        return 2;
+        return 0;
       case 'Shipped':
-        return 3;
-      case 'Out for Delivery':
-        return 4;
-      case 'Delivered':
-        return 5;
-      default:
         return 1;
+      case 'Out for Delivery':
+        return 2;
+      case 'Delivered':
+        return 3;
+      default:
+        return 0;
     }
   };
 
@@ -80,15 +78,15 @@ const OrderProgressTracker = ({ status, trackingNumber, deliveredAt, createdAt }
   );
 
   return (
-    <div className="p-5 bg-neutral-50/80 dark:bg-neutral-950/40 rounded-3xl border border-neutral-150 dark:border-neutral-850 space-y-6">
+    <div className="p-3.5 sm:p-5 bg-neutral-50/80 dark:bg-neutral-950/40 rounded-2xl sm:rounded-3xl border border-neutral-150 dark:border-neutral-850 space-y-4 sm:space-y-5">
       {/* Tracker Header */}
-      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 pb-4 border-b border-neutral-200/60 dark:border-neutral-850">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 sm:gap-3 pb-3 border-b border-neutral-200/60 dark:border-neutral-850">
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-xl bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400">
+          <div className="p-2 rounded-xl bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 shrink-0">
             <Truck className="h-4 w-4 animate-bounce" />
           </div>
           <div>
-            <h5 className="text-xs font-bold text-neutral-850 dark:text-neutral-150 uppercase tracking-wider">
+            <h5 className="text-[11px] sm:text-xs font-bold text-neutral-850 dark:text-neutral-150 uppercase tracking-wider">
               {status === 'Delivered' ? 'Package Delivered' : `Estimated Delivery: ${estimatedDelivery}`}
             </h5>
             <p className="text-[10px] text-neutral-400 font-medium">Carrier Partner: NovaExpress Priority Logistics</p>
@@ -96,7 +94,7 @@ const OrderProgressTracker = ({ status, trackingNumber, deliveredAt, createdAt }
         </div>
 
         {trackingNumber && (
-          <div className="flex items-center gap-1.5 bg-white dark:bg-neutral-900 px-3 py-1.5 rounded-xl border border-neutral-200 dark:border-neutral-800 text-[11px]">
+          <div className="flex items-center gap-1.5 bg-white dark:bg-neutral-900 px-3 py-1.5 rounded-xl border border-neutral-200 dark:border-neutral-800 text-[11px] self-start sm:self-auto">
             <span className="text-neutral-400 font-medium">Tracking ID:</span>
             <span className="font-bold text-neutral-800 dark:text-neutral-200 font-mono">{trackingNumber}</span>
           </div>
@@ -104,9 +102,9 @@ const OrderProgressTracker = ({ status, trackingNumber, deliveredAt, createdAt }
       </div>
 
       {/* Progress Stepper Visual Bar */}
-      <div className="relative px-2 py-4">
-        {/* Progress Line */}
-        <div className="absolute left-6 right-6 top-7 h-1 bg-neutral-200 dark:bg-neutral-800 rounded-full z-0">
+      <div className="relative px-2 sm:px-4 py-2">
+        {/* Line container positioning */}
+        <div className="absolute left-[12.5%] right-[12.5%] top-[22px] sm:top-[26px] h-1 bg-neutral-200 dark:bg-neutral-800 rounded-full z-0">
           <div
             className="h-full bg-linear-to-r from-violet-600 to-indigo-600 transition-all duration-700 ease-out rounded-full"
             style={{ width: `${(currentIndex / (steps.length - 1)) * 100}%` }}
@@ -114,36 +112,36 @@ const OrderProgressTracker = ({ status, trackingNumber, deliveredAt, createdAt }
         </div>
 
         {/* Step Nodes */}
-        <div className="relative z-10 flex justify-between items-start">
+        <div className="relative z-10 grid grid-cols-4 gap-1 w-full text-center">
           {steps.map((step, idx) => {
             const isCompleted = idx <= currentIndex;
             const isCurrent = idx === currentIndex;
 
             return (
-              <div key={idx} className="flex flex-col items-center group relative min-w-[50px] sm:min-w-[70px]">
+              <div key={idx} className="flex flex-col items-center group">
                 <div
-                  className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
+                  className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
                     isCompleted
                       ? 'bg-violet-600 border-violet-600 text-white shadow-md shadow-violet-500/20'
                       : 'bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-800 text-neutral-400'
-                  } ${isCurrent ? 'ring-4 ring-violet-500/20 scale-110' : ''}`}
+                  } ${isCurrent ? 'ring-4 ring-violet-500/20 scale-105 sm:scale-110' : ''}`}
                 >
                   {isCompleted ? (
-                    <CheckCircle2 className="h-4 w-4 stroke-[3px]" />
+                    <CheckCircle2 className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 stroke-[3px]" />
                   ) : (
-                    <span className="text-[10px] font-bold">{idx + 1}</span>
+                    <span className="text-[10px] sm:text-xs font-bold">{idx + 1}</span>
                   )}
                 </div>
 
-                <div className="mt-3 text-center flex flex-col items-center">
+                <div className="mt-2 text-center flex flex-col items-center max-w-[70px] sm:max-w-none">
                   <span
-                    className={`text-[10px] sm:text-[11px] font-bold leading-tight ${
+                    className={`text-[9px] sm:text-xs font-bold leading-tight ${
                       isCompleted ? 'text-neutral-900 dark:text-neutral-100' : 'text-neutral-400 dark:text-neutral-600'
                     }`}
                   >
                     {step.label}
                   </span>
-                  <span className="text-[8px] sm:text-[9px] text-neutral-400 dark:text-neutral-500 hidden sm:block mt-0.5">
+                  <span className="text-[8px] sm:text-[10px] text-neutral-400 dark:text-neutral-500 hidden md:block mt-0.5">
                     {step.desc}
                   </span>
                 </div>
@@ -330,7 +328,7 @@ export default function UserDashboard() {
 
     if (selectedOrderStatus === 'All') return matchesSearch;
     if (selectedOrderStatus === 'In Progress')
-      return matchesSearch && ['Pending', 'Processing', 'Shipped', 'Out for Delivery'].includes(order.orderStatus);
+      return matchesSearch && ['Order Placed', 'Pending', 'Processing', 'Shipped', 'Out for Delivery'].includes(order.orderStatus);
     return matchesSearch && order.orderStatus === selectedOrderStatus;
   });
 
@@ -491,7 +489,7 @@ export default function UserDashboard() {
                             </div>
 
                             {/* Individual Item Cancel Button */}
-                            {(order.orderStatus === 'Pending' || order.orderStatus === 'Processing') && item.status !== 'Cancelled' && (
+                            {(order.orderStatus === 'Order Placed' || order.orderStatus === 'Pending' || order.orderStatus === 'Processing') && item.status !== 'Cancelled' && (
                               <button
                                 onClick={() => handleCancelItem(order._id, item.product)}
                                 className="h-7 px-2.5 rounded-lg border border-rose-200 hover:border-rose-300 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/25 text-[10px] font-semibold transition-all shrink-0 cursor-pointer"
@@ -512,7 +510,7 @@ export default function UserDashboard() {
                       />
 
                       {/* Footer Actions */}
-                      {(order.orderStatus === 'Pending' || order.orderStatus === 'Processing') && (
+                      {(order.orderStatus === 'Order Placed' || order.orderStatus === 'Pending' || order.orderStatus === 'Processing') && (
                         <div className="pt-2 border-t border-neutral-150 dark:border-neutral-850 flex justify-end">
                           <button
                             onClick={() => handleCancelOrder(order._id)}

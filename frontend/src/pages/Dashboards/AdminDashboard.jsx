@@ -619,7 +619,7 @@ export default function AdminDashboard() {
                         id={`status-select-${order._id}`}
                         className="h-9 px-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-xs font-semibold"
                       >
-                        <option value="Processing">Processing</option>
+                        <option value="Order Placed">Order Placed</option>
                         <option value="Shipped">Shipped</option>
                         <option value="Out for Delivery">Out for Delivery</option>
                         <option value="Delivered">Delivered</option>
@@ -640,18 +640,18 @@ export default function AdminDashboard() {
                           const tracking = document.getElementById(`tracking-input-${order._id}`).value;
                           handleUpdateOrderStatus(order._id, status, tracking);
                         }}
-                        className="h-9 px-4 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
+                        className="h-9 px-4 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
                       >
                         <CheckCircle2 className="h-3.5 w-3.5" /> Save / Update
                       </button>
 
                       <button
                         onClick={() => {
-                          handleUpdateOrderStatus(order._id, 'Processing', 'NV-EXP-88492');
+                          handleUpdateOrderStatus(order._id, 'Order Placed', 'NV-EXP-88492');
                         }}
-                        className="h-9 px-3.5 rounded-xl border border-neutral-200 dark:border-neutral-800 hover:border-amber-500 text-amber-600 dark:text-amber-400 text-xs font-semibold transition-all flex items-center gap-1.5"
+                        className="h-9 px-3.5 rounded-xl border border-neutral-200 dark:border-neutral-800 hover:border-amber-500 text-amber-600 dark:text-amber-400 text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer"
                       >
-                        <RotateCcw className="h-3.5 w-3.5" /> Reset to Processing
+                        <RotateCcw className="h-3.5 w-3.5" /> Reset to Order Placed
                       </button>
                     </div>
                   </div>

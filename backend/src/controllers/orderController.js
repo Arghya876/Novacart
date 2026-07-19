@@ -123,7 +123,8 @@ exports.createOrder = async (req, res, next) => {
               <strong>Order ID:</strong> #${order._id}<br>
               <strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}<br>
               <strong>Payment Method:</strong> ${order.paymentMethod}<br>
-              <strong>Payment Status:</strong> ${order.paymentStatus}
+              <strong>Payment Status:</strong> ${order.paymentStatus}<br>
+              <strong>Delivery Address:</strong> ${order.shippingAddress ? `${order.shippingAddress.address}, ${order.shippingAddress.city}, ${order.shippingAddress.postalCode}, ${order.shippingAddress.country}` : 'Provided at checkout'}
             </div>
 
             <table style="width: 100%; border-collapse: collapse; margin-top: 25px;">
@@ -475,8 +476,8 @@ exports.cancelOrder = async (req, res, next) => {
       });
     }
 
-    // Only allow cancelling if status is Pending or Processing
-    if (order.orderStatus !== 'Pending' && order.orderStatus !== 'Processing') {
+    // Only allow cancelling if status is Order Placed, Pending or Processing
+    if (order.orderStatus !== 'Order Placed' && order.orderStatus !== 'Pending' && order.orderStatus !== 'Processing') {
       return res.status(400).json({
         success: false,
         error: `Cannot cancel an order that is already ${order.orderStatus}`,
@@ -516,8 +517,8 @@ exports.cancelOrderItem = async (req, res, next) => {
       return res.status(403).json({ success: false, error: 'You are not authorized to cancel this item' });
     }
 
-    // Check if order is processing/pending
-    if (order.orderStatus !== 'Pending' && order.orderStatus !== 'Processing') {
+    // Check if order is order placed/processing/pending
+    if (order.orderStatus !== 'Order Placed' && order.orderStatus !== 'Pending' && order.orderStatus !== 'Processing') {
       return res.status(400).json({
         success: false,
         error: `Cannot cancel item. Order is already ${order.orderStatus}`,
