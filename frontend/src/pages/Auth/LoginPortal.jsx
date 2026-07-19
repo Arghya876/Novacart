@@ -24,72 +24,72 @@ export default function LoginPortal() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
           {/* Customer Portal Card */}
-          <div className="group relative rounded-3xl border border-neutral-200/80 dark:border-neutral-850 bg-white/70 dark:bg-neutral-900/70 p-6 sm:p-8 shadow-md hover:shadow-xl dark:shadow-neutral-950/20 backdrop-blur-md transition-all duration-300 hover:-translate-y-1">
-            <div className="absolute top-0 left-0 right-0 h-1.5 rounded-t-3xl bg-linear-to-r from-violet-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="group relative rounded-3xl border border-neutral-200/80 dark:border-neutral-850 bg-white/80 dark:bg-neutral-900/80 p-6 sm:p-7 shadow-md hover:shadow-xl dark:shadow-neutral-950/30 backdrop-blur-md transition-all duration-300 flex flex-col justify-between">
+            <div className="absolute top-0 left-0 right-0 h-1.5 rounded-t-3xl bg-linear-to-r from-violet-500 to-indigo-500 opacity-80 group-hover:opacity-100 transition-opacity" />
             
-            <div className="space-y-6">
-              <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 group-hover:scale-110 transition-transform duration-300">
-                <User className="h-6 w-6" />
+            <div className="space-y-5">
+              <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400">
+                <User className="h-5.5 w-5.5" />
               </div>
               
-              <div className="space-y-2">
-                <h2 className="text-xl font-bold text-neutral-950 dark:text-white flex items-center gap-2">
+              <div className="space-y-1.5">
+                <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
                   Customer Sign In & Portal
                 </h2>
-                <p className="text-xs text-neutral-450 dark:text-neutral-450 leading-relaxed">
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
                   Shop premium items, manage your cart & wishlist, track orders, and experience personalized checkouts.
                 </p>
               </div>
+            </div>
 
-              <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3 w-full">
-                <Link
-                  to="/login/customer"
-                  className="w-[92%] sm:w-full sm:flex-1 h-16 sm:h-11 px-5 rounded-2xl bg-violet-600 hover:bg-violet-700 text-white text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-violet-600/20 hover:shadow-violet-600/30 active:scale-[0.98] mx-auto sm:mx-0"
-                >
-                  Customer Login <ArrowRight className="h-4.5 w-4.5" />
-                </Link>
-                <Link
-                  to="/register/customer"
-                  className="w-[92%] sm:w-full sm:flex-1 h-16 sm:h-11 px-5 rounded-2xl border-2 border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-neutral-900/50 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-100 text-sm font-bold flex items-center justify-center transition-all active:scale-[0.98] mx-auto sm:mx-0"
-                >
-                  Create Account
-                </Link>
-              </div>
+            <div className="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+              <Link
+                to="/login/customer"
+                className="h-11 sm:h-10.5 px-4 rounded-xl bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shadow-sm active:scale-[0.98] w-full"
+              >
+                Customer Login <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/register/customer"
+                className="h-11 sm:h-10.5 px-4 rounded-xl border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-950/50 hover:bg-neutral-100 dark:hover:bg-neutral-850 text-neutral-800 dark:text-neutral-200 text-xs font-semibold flex items-center justify-center transition-all active:scale-[0.98] w-full"
+              >
+                Create Account
+              </Link>
             </div>
           </div>
 
           {/* Seller Portal Card */}
-          <div className="group relative rounded-3xl border border-neutral-200/80 dark:border-neutral-850 bg-white/70 dark:bg-neutral-900/70 p-6 sm:p-8 shadow-md hover:shadow-xl dark:shadow-neutral-950/20 backdrop-blur-md transition-all duration-300 hover:-translate-y-1">
-            <div className="absolute top-0 left-0 right-0 h-1.5 rounded-t-3xl bg-linear-to-r from-emerald-500 to-teal-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="group relative rounded-3xl border border-neutral-200/80 dark:border-neutral-850 bg-white/80 dark:bg-neutral-900/80 p-6 sm:p-7 shadow-md hover:shadow-xl dark:shadow-neutral-950/30 backdrop-blur-md transition-all duration-300 flex flex-col justify-between">
+            <div className="absolute top-0 left-0 right-0 h-1.5 rounded-t-3xl bg-linear-to-r from-emerald-500 to-teal-500 opacity-80 group-hover:opacity-100 transition-opacity" />
 
-            <div className="space-y-6">
-              <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform duration-300">
-                <Store className="h-6 w-6" />
+            <div className="space-y-5">
+              <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400">
+                <Store className="h-5.5 w-5.5" />
               </div>
 
-              <div className="space-y-2">
-                <h2 className="text-xl font-bold text-neutral-950 dark:text-white flex items-center gap-2">
+              <div className="space-y-1.5">
+                <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
                   Seller Sign In & Portal
                 </h2>
-                <p className="text-xs text-neutral-450 dark:text-neutral-450 leading-relaxed">
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
                   Open your storefront, manage products, view sales reports, fulfill buyer orders, and access key merchant insights.
                 </p>
               </div>
+            </div>
 
-              <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3 w-full">
-                <Link
-                  to="/login/seller"
-                  className="w-[92%] sm:w-full sm:flex-1 h-16 sm:h-11 px-5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 active:scale-[0.98] mx-auto sm:mx-0"
-                >
-                  Merchant Login <ArrowRight className="h-4.5 w-4.5" />
-                </Link>
-                <Link
-                  to="/register/seller"
-                  className="w-[92%] sm:w-full sm:flex-1 h-16 sm:h-11 px-5 rounded-2xl border-2 border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-neutral-900/50 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-100 text-sm font-bold flex items-center justify-center transition-all active:scale-[0.98] mx-auto sm:mx-0"
-                >
-                  Register Shop
-                </Link>
-              </div>
+            <div className="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+              <Link
+                to="/login/seller"
+                className="h-11 sm:h-10.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shadow-sm active:scale-[0.98] w-full"
+              >
+                Merchant Login <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/register/seller"
+                className="h-11 sm:h-10.5 px-4 rounded-xl border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-950/50 hover:bg-neutral-100 dark:hover:bg-neutral-850 text-neutral-800 dark:text-neutral-200 text-xs font-semibold flex items-center justify-center transition-all active:scale-[0.98] w-full"
+              >
+                Register Shop
+              </Link>
             </div>
           </div>
         </div>
