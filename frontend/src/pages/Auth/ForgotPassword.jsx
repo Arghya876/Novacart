@@ -45,7 +45,7 @@ export default function ForgotPassword() {
 
   return (
     <div className="min-h-[75vh] flex items-center justify-center px-4 py-8 relative">
-      <div className="w-full max-w-md p-8 border border-neutral-200/80 dark:border-neutral-850 bg-white dark:bg-neutral-900 rounded-3xl shadow-xl space-y-6 backdrop-blur">
+      <div className="w-full max-w-md p-6 sm:p-8 border border-neutral-200/80 dark:border-neutral-850 bg-white dark:bg-neutral-900 rounded-3xl shadow-xl space-y-6 backdrop-blur">
         
         {/* Back navigation */}
         <Link 
