@@ -23,9 +23,9 @@ const app = express();
 // Trust proxy (required for rate limiting behind reverse proxies like Render/Heroku)
 app.set('trust proxy', 1);
 
-// Body parser with payload size cap to prevent Denial of Service payload flooding
-app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+// Body parser with 50mb limit to support high-res product images and media uploads
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Cookie parser
 app.use(cookieParser());
