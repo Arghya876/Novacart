@@ -4,6 +4,30 @@ import { Plus, Package, ShoppingBag, DollarSign, Trash2, Loader2, UploadCloud, I
 import axios from 'axios';
 import { formatPrice } from '../../utils/formatCurrency';
 
+// Helper function to safely parse media inputs containing URLs and Data URIs (Base64)
+const parseMediaList = (input) => {
+  if (!input || typeof input !== 'string') return [];
+
+  const rawParts = input.split(',').map((s) => s.trim()).filter(Boolean);
+  const result = [];
+
+  for (let i = 0; i < rawParts.length; i++) {
+    const part = rawParts[i];
+    // Base64 Data URLs (e.g. data:image/webp;base64,...) contain a comma after ';base64'.
+    // Naively splitting by comma separates the prefix ('data:image/webp;base64') and payload into two array elements.
+    const isPartialDataUrl = part.startsWith('data:') && part.includes(';base64') && !part.includes(';base64,');
+
+    if (isPartialDataUrl && i + 1 < rawParts.length) {
+      result.push(`${part},${rawParts[i + 1]}`);
+      i++; // Skip the payload element since it's merged with the prefix
+    } else {
+      result.push(part);
+    }
+  }
+
+  return result;
+};
+
 export default function SellerDashboard() {
   const { token } = useSelector((state) => state.auth);
 
@@ -192,8 +216,8 @@ export default function SellerDashboard() {
 
     try {
       const tagsArray = productForm.tags.split(',').map((t) => t.trim()).filter(Boolean);
-      const imagesArray = productForm.imagesInput.split(',').map((url) => url.trim()).filter(Boolean);
-      const videosArray = productForm.videosInput.split(',').map((url) => url.trim()).filter(Boolean);
+      const imagesArray = parseMediaList(productForm.imagesInput);
+      const videosArray = parseMediaList(productForm.videosInput);
 
       const postData = {
         title: productForm.title,
@@ -456,17 +480,17 @@ export default function SellerDashboard() {
                   />
 
                   {/* Image Previews */}
-                  {productForm.imagesInput.split(',').map(s => s.trim()).filter(Boolean).length > 0 && (
+                  {parseMediaList(productForm.imagesInput).length > 0 && (
                     <div className="space-y-1.5">
-                      <p className="text-[10px] font-bold text-neutral-400 uppercase">Uploaded Image Previews ({productForm.imagesInput.split(',').map(s => s.trim()).filter(Boolean).length})</p>
+                      <p className="text-[10px] font-bold text-neutral-400 uppercase">Uploaded Image Previews ({parseMediaList(productForm.imagesInput).length})</p>
                       <div className="flex flex-wrap gap-2.5 max-h-36 overflow-y-auto p-1">
-                        {productForm.imagesInput.split(',').map(s => s.trim()).filter(Boolean).map((imgUrl, idx) => (
+                        {parseMediaList(productForm.imagesInput).map((imgUrl, idx) => (
                           <div key={idx} className="relative group/img w-16 h-16 rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900 shadow-sm shrink-0">
                             <img src={imgUrl} alt={`Upload ${idx+1}`} className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-200" />
                             <button
                               type="button"
                               onClick={() => {
-                                const list = productForm.imagesInput.split(',').map(s => s.trim()).filter(Boolean);
+                                const list = parseMediaList(productForm.imagesInput);
                                 list.splice(idx, 1);
                                 setProductForm({ ...productForm, imagesInput: list.join(', ') });
                               }}
@@ -513,21 +537,21 @@ export default function SellerDashboard() {
                   />
 
                   {/* Video Previews */}
-                  {productForm.videosInput.split(',').map(s => s.trim()).filter(Boolean).length > 0 && (
+                  {parseMediaList(productForm.videosInput).length > 0 && (
                     <div className="space-y-1.5">
-                      <p className="text-[10px] font-bold text-neutral-400 uppercase">Uploaded Video Previews ({productForm.videosInput.split(',').map(s => s.trim()).filter(Boolean).length})</p>
+                      <p className="text-[10px] font-bold text-neutral-400 uppercase">Uploaded Video Previews ({parseMediaList(productForm.videosInput).length})</p>
                       <div className="flex flex-wrap gap-2.5 max-h-36 overflow-y-auto p-1">
-                        {productForm.videosInput.split(',').map(s => s.trim()).filter(Boolean).map((vidUrl, idx) => (
+                        {parseMediaList(productForm.videosInput).map((vidUrl, idx) => (
                           <div key={idx} className="relative group/vid w-28 h-16 rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-neutral-900 shadow-sm flex items-center justify-center shrink-0">
                             {vidUrl.startsWith('data:video') || vidUrl.endsWith('.mp4') || vidUrl.endsWith('.webm') ? (
-                              <video src={vidUrl} className="w-full h-full object-cover" />
+                              <video src={vidUrl} className="w-full h-full object-cover" controls={false} muted />
                             ) : (
                               <div className="text-[9px] text-white p-1 truncate text-center font-mono">{vidUrl}</div>
                             )}
                             <button
                               type="button"
                               onClick={() => {
-                                const list = productForm.videosInput.split(',').map(s => s.trim()).filter(Boolean);
+                                const list = parseMediaList(productForm.videosInput);
                                 list.splice(idx, 1);
                                 setProductForm({ ...productForm, videosInput: list.join(', ') });
                               }}
