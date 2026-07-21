@@ -270,7 +270,7 @@ export default function SellerDashboard() {
         <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Seller Portal</h1>
         
         {/* Tab Selection */}
-        <div className="flex gap-2 p-1.5 bg-neutral-100 dark:bg-neutral-850 rounded-2xl self-start sm:self-auto">
+        <div className="flex gap-1.5 sm:gap-2 p-1.5 bg-neutral-100 dark:bg-neutral-850 rounded-2xl self-start sm:self-auto max-w-full overflow-x-auto">
           {[
             { id: 'analytics', name: 'Dashboard' },
             { id: 'products', name: 'Products' },
@@ -279,7 +279,7 @@ export default function SellerDashboard() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`h-9 px-4 rounded-xl text-xs font-semibold transition-colors ${
+              className={`h-9 px-4 rounded-xl text-xs font-semibold transition-colors whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white shadow-sm'
                   : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-200'
@@ -298,7 +298,7 @@ export default function SellerDashboard() {
           {analyticsLoading || !analytics ? (
             <div className="py-12 flex justify-center"><div className="h-6 w-6 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" /></div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
               <div className="p-6 rounded-3xl border border-neutral-100 dark:border-neutral-850 bg-white dark:bg-neutral-900 shadow-sm flex items-center gap-4">
                 <div className="p-3 bg-violet-100 dark:bg-violet-950/40 rounded-2xl text-violet-600"><DollarSign className="h-6 w-6" /></div>
                 <div>
@@ -349,11 +349,11 @@ export default function SellerDashboard() {
       {/* Products Tab */}
       {activeTab === 'products' && (
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Product Catalog</h2>
             <button
               onClick={() => setShowAddForm(!showAddForm)}
-              className="h-9 px-4 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-all"
+              className="h-9 px-4 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-all self-start sm:self-auto"
             >
               <Plus className="h-4 w-4" /> Add Product
             </button>
@@ -361,13 +361,13 @@ export default function SellerDashboard() {
 
           {/* Add Product Form */}
           {showAddForm && (
-            <form onSubmit={handleProductSubmit} className="p-6 border border-neutral-100 dark:border-neutral-850 bg-white dark:bg-neutral-900 rounded-3xl space-y-6 shadow-md">
+            <form onSubmit={handleProductSubmit} className="p-4 sm:p-6 border border-neutral-100 dark:border-neutral-850 bg-white dark:bg-neutral-900 rounded-2xl sm:rounded-3xl space-y-6 shadow-md">
               <h3 className="font-bold text-sm text-neutral-900 dark:text-white">Add New Product</h3>
               
               {formError && <div className="p-3 text-xs bg-rose-50 dark:bg-rose-950/25 text-rose-500 rounded-xl">{formError}</div>}
-              {formSuccess && <div className="p-3 text-xs bg-emerald-50 dark:bg-emerald-950/25 text-emerald-650 rounded-xl">{formSuccess}</div>}
+              {formSuccess && <div className="p-3 text-xs bg-emerald-50 dark:bg-emerald-950/25 text-emerald-600 rounded-xl">{formSuccess}</div>}
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 text-xs">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-neutral-400 uppercase">Title</label>
                   <input
@@ -429,8 +429,8 @@ export default function SellerDashboard() {
                     className="w-full h-10 px-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950"
                   />
                 </div>
-                <div className="sm:col-span-3 space-y-3 p-4 rounded-2xl border border-violet-100 dark:border-violet-900/30 bg-violet-50/30 dark:bg-violet-950/10">
-                  <div className="flex justify-between items-center flex-wrap gap-2">
+                <div className="col-span-1 sm:col-span-2 lg:col-span-3 space-y-3 p-3.5 sm:p-4 rounded-2xl border border-violet-100 dark:border-violet-900/30 bg-violet-50/30 dark:bg-violet-950/10">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
                       <label className="text-[11px] font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider flex items-center gap-1.5">
                         <ImagePlus className="w-4 h-4 text-violet-600 dark:text-violet-400" />
@@ -439,9 +439,9 @@ export default function SellerDashboard() {
                       <p className="text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5">Upload image files or paste image URLs</p>
                     </div>
 
-                    <label className="group relative cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-md shadow-violet-500/20 hover:shadow-lg hover:shadow-violet-500/30 transition-all duration-300 active:scale-95 border border-violet-400/30">
-                      <UploadCloud className="w-4 h-4 text-violet-100 group-hover:scale-110 transition-transform duration-200" />
-                      <span>📁 Pick Image Files from Device (Mobile/PC)</span>
+                    <label className="cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 active:scale-95 text-white text-xs font-semibold shadow-sm transition-all border border-violet-500/30 w-full sm:w-auto">
+                      <UploadCloud className="w-4 h-4 text-white" />
+                      <span>Upload Images</span>
                       <input type="file" accept="image/*" multiple onChange={handleImageFileUpload} className="hidden" />
                     </label>
                   </div>
@@ -451,7 +451,7 @@ export default function SellerDashboard() {
                     rows={2}
                     value={productForm.imagesInput}
                     onChange={(e) => setProductForm({ ...productForm, imagesInput: e.target.value })}
-                    placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg or click button above to pick from device..."
+                    placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg or click button above to upload..."
                     className="w-full p-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 font-mono text-[11px] focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all"
                   />
 
@@ -461,7 +461,7 @@ export default function SellerDashboard() {
                       <p className="text-[10px] font-bold text-neutral-400 uppercase">Uploaded Image Previews ({productForm.imagesInput.split(',').map(s => s.trim()).filter(Boolean).length})</p>
                       <div className="flex flex-wrap gap-2.5 max-h-36 overflow-y-auto p-1">
                         {productForm.imagesInput.split(',').map(s => s.trim()).filter(Boolean).map((imgUrl, idx) => (
-                          <div key={idx} className="relative group/img w-16 h-16 rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900 shadow-sm">
+                          <div key={idx} className="relative group/img w-16 h-16 rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900 shadow-sm shrink-0">
                             <img src={imgUrl} alt={`Upload ${idx+1}`} className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-200" />
                             <button
                               type="button"
@@ -481,14 +481,14 @@ export default function SellerDashboard() {
                     </div>
                   )}
 
-                  <div className="flex items-center gap-1.5 text-[10px] text-violet-600 dark:text-violet-400 font-semibold bg-violet-100/50 dark:bg-violet-950/40 px-3 py-1.5 rounded-lg w-fit">
-                    <Sparkles className="w-3.5 h-3.5" />
+                  <div className="flex items-center gap-1.5 text-[10px] text-violet-600 dark:text-violet-400 font-semibold bg-violet-100/50 dark:bg-violet-950/40 px-3 py-1.5 rounded-lg w-full sm:w-fit">
+                    <Sparkles className="w-3.5 h-3.5 shrink-0" />
                     <span>Device images auto-compress to WebP (80% quality) for lightning fast loading.</span>
                   </div>
                 </div>
 
-                <div className="sm:col-span-3 space-y-3 p-4 rounded-2xl border border-purple-100 dark:border-purple-900/30 bg-purple-50/30 dark:bg-purple-950/10">
-                  <div className="flex justify-between items-center flex-wrap gap-2">
+                <div className="col-span-1 sm:col-span-2 lg:col-span-3 space-y-3 p-3.5 sm:p-4 rounded-2xl border border-purple-100 dark:border-purple-900/30 bg-purple-50/30 dark:bg-purple-950/10">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
                       <label className="text-[11px] font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider flex items-center gap-1.5">
                         <Film className="w-4 h-4 text-purple-600 dark:text-purple-400" />
@@ -497,9 +497,9 @@ export default function SellerDashboard() {
                       <p className="text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5">Upload video files or paste video URLs</p>
                     </div>
 
-                    <label className="group relative cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-semibold shadow-md shadow-purple-500/20 hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300 active:scale-95 border border-purple-400/30">
-                      <Video className="w-4 h-4 text-purple-100 group-hover:scale-110 transition-transform duration-200" />
-                      <span>🎥 Pick Video Files from Device (Mobile/PC)</span>
+                    <label className="cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-xs font-semibold shadow-sm transition-all border border-purple-500/30 w-full sm:w-auto">
+                      <Video className="w-4 h-4 text-white" />
+                      <span>Upload Videos</span>
                       <input type="file" accept="video/*" multiple onChange={handleVideoFileUpload} className="hidden" />
                     </label>
                   </div>
@@ -508,7 +508,7 @@ export default function SellerDashboard() {
                     type="text"
                     value={productForm.videosInput}
                     onChange={(e) => setProductForm({ ...productForm, videosInput: e.target.value })}
-                    placeholder="https://example.com/demo.mp4 or click button above to pick video files from device..."
+                    placeholder="https://example.com/demo.mp4 or click button above to upload..."
                     className="w-full h-10 px-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 font-mono text-[11px] focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
                   />
 
@@ -518,7 +518,7 @@ export default function SellerDashboard() {
                       <p className="text-[10px] font-bold text-neutral-400 uppercase">Uploaded Video Previews ({productForm.videosInput.split(',').map(s => s.trim()).filter(Boolean).length})</p>
                       <div className="flex flex-wrap gap-2.5 max-h-36 overflow-y-auto p-1">
                         {productForm.videosInput.split(',').map(s => s.trim()).filter(Boolean).map((vidUrl, idx) => (
-                          <div key={idx} className="relative group/vid w-28 h-16 rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-neutral-900 shadow-sm flex items-center justify-center">
+                          <div key={idx} className="relative group/vid w-28 h-16 rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-neutral-900 shadow-sm flex items-center justify-center shrink-0">
                             {vidUrl.startsWith('data:video') || vidUrl.endsWith('.mp4') || vidUrl.endsWith('.webm') ? (
                               <video src={vidUrl} className="w-full h-full object-cover" />
                             ) : (
@@ -543,7 +543,7 @@ export default function SellerDashboard() {
                   )}
                 </div>
 
-                <div className="sm:col-span-3 space-y-1.5">
+                <div className="col-span-1 sm:col-span-2 lg:col-span-3 space-y-1.5">
                   <label className="text-[10px] font-bold text-neutral-400 uppercase">Description</label>
                   <textarea
                     required
@@ -553,7 +553,7 @@ export default function SellerDashboard() {
                     className="w-full p-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950"
                   />
                 </div>
-                <div className="sm:col-span-3 space-y-1.5">
+                <div className="col-span-1 sm:col-span-2 lg:col-span-3 space-y-1.5">
                   <label className="text-[10px] font-bold text-neutral-400 uppercase">Tags (Comma-separated)</label>
                   <input
                     type="text"
@@ -565,9 +565,9 @@ export default function SellerDashboard() {
                 </div>
 
                 {/* Specs Creator */}
-                <div className="sm:col-span-3 space-y-3">
+                <div className="col-span-1 sm:col-span-2 lg:col-span-3 space-y-3">
                   <label className="text-[10px] font-bold text-neutral-400 uppercase">Specifications</label>
-                  <div className="flex gap-2 items-center">
+                  <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center">
                     <input
                       type="text"
                       placeholder="Specification Name (e.g. Color)"
@@ -585,7 +585,7 @@ export default function SellerDashboard() {
                     <button
                       type="button"
                       onClick={handleAddSpec}
-                      className="h-10 px-4 rounded-xl bg-neutral-900 dark:bg-neutral-800 text-white font-semibold"
+                      className="h-10 px-5 rounded-xl bg-neutral-900 dark:bg-neutral-800 hover:bg-neutral-800 dark:hover:bg-neutral-700 text-white font-semibold text-xs whitespace-nowrap transition-colors"
                     >
                       Add Spec
                     </button>
@@ -593,11 +593,11 @@ export default function SellerDashboard() {
 
                   {/* Display Added Specs */}
                   {Object.keys(specs).length > 0 && (
-                    <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-850 flex flex-wrap gap-2">
+                    <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-850 flex flex-wrap gap-2">
                       {Object.entries(specs).map(([key, val]) => (
                         <span key={key} className="inline-flex items-center gap-1 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg px-2.5 py-1 text-xs">
                           <span className="font-bold capitalize">{key}:</span> {val}
-                          <button type="button" onClick={() => setSpecs((prev) => { const c = { ...prev }; delete c[key]; return c; })} className="text-rose-500 font-bold ml-1">×</button>
+                          <button type="button" onClick={() => setSpecs((prev) => { const c = { ...prev }; delete c[key]; return c; })} className="text-rose-500 font-bold ml-1 hover:opacity-75">×</button>
                         </span>
                       ))}
                     </div>
@@ -615,41 +615,79 @@ export default function SellerDashboard() {
             </form>
           )}
 
-          {/* Catalog Table */}
+          {/* Catalog View: Desktop Table + Mobile Cards */}
           {productsLoading ? (
             <div className="py-12 flex justify-center"><div className="h-6 w-6 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" /></div>
+          ) : products.length === 0 ? (
+            <div className="p-8 text-center border border-neutral-100 dark:border-neutral-850 rounded-3xl bg-white dark:bg-neutral-900 text-neutral-400 text-xs">
+              No products found. Click "Add Product" above to create your first listing!
+            </div>
           ) : (
-            <div className="border border-neutral-100 dark:border-neutral-850 rounded-3xl bg-white dark:bg-neutral-900 overflow-x-auto shadow-sm">
-              <table className="w-full text-left border-collapse text-xs">
-                <thead>
-                  <tr className="bg-neutral-50 dark:bg-neutral-950 text-neutral-450 border-b border-neutral-150 dark:border-neutral-850">
-                    <th className="px-6 py-4 font-bold">Product</th>
-                    <th className="px-6 py-4 font-bold">Stock</th>
-                    <th className="px-6 py-4 font-bold">Price</th>
-                    <th className="px-6 py-4 font-bold text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.map((item) => (
-                    <tr key={item._id} className="border-b border-neutral-100 dark:border-neutral-850 hover:bg-neutral-50/50 dark:hover:bg-neutral-950/20">
-                      <td className="px-6 py-4 flex items-center gap-3">
-                        <img src={item.images[0]} alt="" className="w-10 h-10 rounded-lg object-cover" />
-                        <span className="font-semibold text-neutral-850 dark:text-neutral-200 line-clamp-1">{item.title}</span>
-                      </td>
-                      <td className={`px-6 py-4 font-bold ${item.stock === 0 ? 'text-rose-500' : 'text-neutral-500'}`}>{item.stock}</td>
-                      <td className="px-6 py-4 font-bold text-neutral-900 dark:text-white">{formatPrice(item.discountPrice > 0 ? item.discountPrice : item.price)}</td>
-                      <td className="px-6 py-4 text-center">
-                        <button
-                          onClick={() => handleDeleteProduct(item._id)}
-                          className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/25 transition-all"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </td>
+            <div className="space-y-4">
+              {/* Mobile Product Cards View (< 640px) */}
+              <div className="block sm:hidden space-y-3">
+                {products.map((item) => (
+                  <div key={item._id} className="p-4 rounded-2xl border border-neutral-150 dark:border-neutral-850 bg-white dark:bg-neutral-900 shadow-sm flex items-center gap-3 justify-between">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <img src={item.images[0]} alt={item.title} className="w-12 h-12 rounded-xl object-cover shrink-0 border border-neutral-100 dark:border-neutral-800" />
+                      <div className="min-w-0">
+                        <h4 className="font-semibold text-xs text-neutral-900 dark:text-white truncate">{item.title}</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="font-bold text-xs text-violet-600 dark:text-violet-400">
+                            {formatPrice(item.discountPrice > 0 ? item.discountPrice : item.price)}
+                          </span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${item.stock === 0 ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-500' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400'}`}>
+                            {item.stock === 0 ? 'Out of stock' : `Stock: ${item.stock}`}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => handleDeleteProduct(item._id)}
+                      className="p-2 rounded-xl text-neutral-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all shrink-0"
+                      title="Delete Product"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table View (>= 640px) */}
+              <div className="hidden sm:block border border-neutral-100 dark:border-neutral-850 rounded-3xl bg-white dark:bg-neutral-900 overflow-x-auto shadow-sm">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-neutral-50 dark:bg-neutral-950 text-neutral-400 border-b border-neutral-150 dark:border-neutral-850">
+                      <th className="px-6 py-4 font-bold">Product</th>
+                      <th className="px-6 py-4 font-bold">Stock</th>
+                      <th className="px-6 py-4 font-bold">Price</th>
+                      <th className="px-6 py-4 font-bold text-center">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {products.map((item) => (
+                      <tr key={item._id} className="border-b border-neutral-100 dark:border-neutral-850 hover:bg-neutral-50/50 dark:hover:bg-neutral-950/20 transition-colors">
+                        <td className="px-6 py-4 flex items-center gap-3">
+                          <img src={item.images[0]} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                          <span className="font-semibold text-neutral-850 dark:text-neutral-200 line-clamp-1">{item.title}</span>
+                        </td>
+                        <td className={`px-6 py-4 font-bold ${item.stock === 0 ? 'text-rose-500' : 'text-neutral-500'}`}>{item.stock}</td>
+                        <td className="px-6 py-4 font-bold text-neutral-900 dark:text-white">{formatPrice(item.discountPrice > 0 ? item.discountPrice : item.price)}</td>
+                        <td className="px-6 py-4 text-center">
+                          <button
+                            onClick={() => handleDeleteProduct(item._id)}
+                            className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/25 transition-all"
+                            title="Delete Product"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </div>
