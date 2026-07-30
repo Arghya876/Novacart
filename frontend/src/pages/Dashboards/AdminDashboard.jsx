@@ -47,6 +47,10 @@ export default function AdminDashboard() {
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(false);
 
+  // Orders State (Admin Order Management)
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+
   // Reviews State (Admin Review Moderation)
   const [reviews, setReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
