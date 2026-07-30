@@ -23,9 +23,6 @@ export default function Home() {
     // Fetch AI recommendations
     const recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
     dispatch(fetchRecommendations({ recentlyViewedIds: recentlyViewed, limit: 4 }));
-    // #region agent log
-    fetch('http://127.0.0.1:7489/ingest/1c86fd52-618c-449a-ab3c-a0465569063a',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'db9a91'},body:JSON.stringify({sessionId:'db9a91',location:'Home.jsx:useEffect',message:'Home page mounted, fetching featured products',data:{recentlyViewedCount:recentlyViewed.length},timestamp:Date.now(),hypothesisId:'H2'})}).catch(()=>{});
-    // #endregion
   }, [dispatch]);
 
   // GSAP Entrance Animations
