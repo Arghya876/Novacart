@@ -93,6 +93,12 @@ exports.createOrder = async (req, res, next) => {
     (async () => {
       try {
         const sendEmail = require('../utils/sendEmail');
+        const {
+          getCustomerInvoiceTemplate,
+          getSellerOrderTemplate,
+          getAdminOrderTemplate,
+        } = require('../utils/emailTemplates');
+
         const customer = await User.findById(req.user.id);
         if (!customer) return;
 
@@ -100,64 +106,33 @@ exports.createOrder = async (req, res, next) => {
           .map(
             (item) => `
             <tr>
-              <td style="padding: 10px; border-bottom: 1px solid #eee; font-size: 13px; color: #333;">${item.title}</td>
-              <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center; font-size: 13px; color: #333;">${item.quantity}</td>
-              <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right; font-size: 13px; color: #333;">₹${item.price.toLocaleString('en-IN')}</td>
-              <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right; font-size: 13px; color: #333;">₹${(item.price * item.quantity).toLocaleString('en-IN')}</td>
+              <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #334155; font-weight: 600;">${item.title}</td>
+              <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: center; font-size: 13px; color: #334155;">${item.quantity}</td>
+              <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: right; font-size: 13px; color: #334155;">₹${item.price.toLocaleString('en-IN')}</td>
+              <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: right; font-size: 13px; color: #4f46e5; font-weight: bold;">₹${(item.price * item.quantity).toLocaleString('en-IN')}</td>
             </tr>
           `
           )
           .join('');
 
-        const invoiceHtml = `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 25px; border: 1px solid #e5e7eb; border-radius: 16px; background-color: #ffffff;">
-            <div style="text-align: center; margin-bottom: 25px;">
-              <h1 style="color: #6d28d9; margin: 0; font-size: 26px; font-weight: 800;">NovaCart</h1>
-              <p style="color: #6b7280; font-size: 12px; margin-top: 5px;">Order Invoice & Confirmation</p>
-            </div>
-            
-            <p style="font-size: 14px; color: #374151; margin-bottom: 20px;">Dear <strong>${customer.name}</strong>,</p>
-            <p style="font-size: 14px; color: #4b5563; line-height: 1.5;">Thank you for shopping with us! Your order has been placed successfully. Below is your detailed purchase invoice:</p>
-            
-            <div style="margin: 25px 0; padding: 20px; background-color: #f9fafb; border-radius: 12px; border-left: 4px solid #6d28d9; font-size: 13px; line-height: 1.6; color: #374151;">
-              <strong>Order ID:</strong> #${order._id}<br>
-              <strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}<br>
-              <strong>Payment Method:</strong> ${order.paymentMethod}<br>
-              <strong>Payment Status:</strong> ${order.paymentStatus}<br>
-              <strong>Delivery Address:</strong> ${order.shippingAddress ? `${order.shippingAddress.address}, ${order.shippingAddress.city}, ${order.shippingAddress.postalCode}, ${order.shippingAddress.country}` : 'Provided at checkout'}
-            </div>
+        const formattedPrices = {
+          subtotal: `₹${calculatedSubtotal.toLocaleString('en-IN')}`,
+          shipping: `₹${Number(order.shippingPrice || 0).toLocaleString('en-IN')}`,
+          tax: `₹${Number(order.taxPrice || 0).toLocaleString('en-IN')}`,
+          total: `₹${Number(order.totalPrice || 0).toLocaleString('en-IN')}`,
+        };
 
-            <table style="width: 100%; border-collapse: collapse; margin-top: 25px;">
-              <thead>
-                <tr style="background-color: #6d28d9; color: white;">
-                  <th style="padding: 12px 10px; text-align: left; font-size: 12px; font-weight: bold; border-top-left-radius: 8px;">Product</th>
-                  <th style="padding: 12px 10px; text-align: center; font-size: 12px; font-weight: bold;">Qty</th>
-                  <th style="padding: 12px 10px; text-align: right; font-size: 12px; font-weight: bold;">Price</th>
-                  <th style="padding: 12px 10px; text-align: right; font-size: 12px; font-weight: bold; border-top-right-radius: 8px;">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${itemsHtml}
-              </tbody>
-            </table>
-
-            <div style="margin-top: 25px; text-align: right; line-height: 1.8; font-size: 13px; color: #4b5563; padding-right: 10px;">
-              <strong>Shipping Price:</strong> ₹${order.shippingPrice.toLocaleString('en-IN')}<br>
-              <strong>Tax:</strong> ₹${order.taxPrice.toLocaleString('en-IN')}<br>
-              <span style="font-size: 16px; color: #6d28d9;"><strong>Total Amount Paid:</strong> ₹${order.totalPrice.toLocaleString('en-IN')}</span>
-            </div>
-
-            <div style="margin-top: 35px; padding-top: 20px; border-top: 1px solid #f3f4f6; text-align: center; font-size: 11px; color: #9ca3af; line-height: 1.5;">
-              <p>For any inquiries regarding your purchase, please contact our support desk.</p>
-              <p>&copy; ${new Date().getFullYear()} NovaCart. All rights reserved.</p>
-            </div>
-          </div>
-        `;
+        const invoiceHtml = getCustomerInvoiceTemplate({
+          customerName: customer.name,
+          order,
+          itemsHtml,
+          formattedPrices,
+        });
 
         // 1. Email Customer
         await sendEmail({
           email: customer.email,
-          subject: `NovaCart Order Invoice - #${order._id}`,
+          subject: `NovaCart Order Confirmation & Invoice - #${order._id}`,
           message: `Thank you for your order! Your total is ₹${order.totalPrice.toLocaleString('en-IN')}.`,
           html: invoiceHtml,
         });
@@ -165,33 +140,35 @@ exports.createOrder = async (req, res, next) => {
         // 2. Email Seller(s)
         const productIds = order.orderItems.map((item) => item.product);
         const productsInOrder = await Product.find({ _id: { $in: productIds } }).populate('seller', 'name email');
-        const sellerEmails = [...new Set(productsInOrder.map((p) => p.seller?.email).filter(Boolean))];
+        const sellers = [...new Set(productsInOrder.map((p) => p.seller).filter(Boolean))];
 
-        for (const sellerEmail of sellerEmails) {
+        for (const seller of sellers) {
+          const sellerHtml = getSellerOrderTemplate({
+            sellerName: seller.name || 'Seller Partner',
+            order,
+            customerName: customer.name,
+          });
+
           await sendEmail({
-            email: sellerEmail,
-            subject: `🎉 New Order Received - #${order._id}`,
-            message: `A new order #${order._id} has been placed for your product catalog!`,
-            html: `<div style="font-family: Arial, sans-serif; padding: 20px; border-radius: 12px; border: 1px solid #ddd;">
-                    <h2 style="color: #6d28d9;">New Sale Notification!</h2>
-                    <p>Order <strong>#${order._id}</strong> has been placed by ${customer.name}.</p>
-                    <p>Total Value: <strong>₹${order.totalPrice.toLocaleString('en-IN')}</strong></p>
-                    <p>Please log in to your Seller Portal to process shipping.</p>
-                   </div>`,
+            email: seller.email,
+            subject: `🎉 New Sale Received - Order #${order._id}`,
+            message: `A new sale has been placed for your product catalog!`,
+            html: sellerHtml,
           });
         }
 
         // 3. Email Admin
         const adminEmail = process.env.ADMIN_EMAIL || 'novacart876admin@gmail.com';
+        const adminHtml = getAdminOrderTemplate({
+          order,
+          customerName: customer.name,
+        });
+
         await sendEmail({
           email: adminEmail,
           subject: `[Admin Digest] New Order Placed - #${order._id}`,
-          message: `Order #${order._id} placed by ${customer.email} for ₹${order.totalPrice.toLocaleString('en-IN')}`,
-          html: `<div style="font-family: Arial, sans-serif; padding: 20px; border-radius: 12px; border: 1px solid #ddd;">
-                  <h2 style="color: #6d28d9;">System Order Digest</h2>
-                  <p>Order <strong>#${order._id}</strong> placed by <strong>${customer.email}</strong>.</p>
-                  <p>Total Revenue: <strong>₹${order.totalPrice.toLocaleString('en-IN')}</strong></p>
-                 </div>`,
+          message: `System Order #${order._id} placed by ${customer.email}`,
+          html: adminHtml,
         });
       } catch (err) {
         console.error('Failed to send multi-recipient order emails:', err.message);
@@ -358,43 +335,21 @@ exports.updateOrderStatus = async (req, res, next) => {
     (async () => {
       try {
         const sendEmail = require('../utils/sendEmail');
-        const statusHtml = `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 25px; border: 1px solid #e5e7eb; border-radius: 16px; background-color: #ffffff;">
-            <div style="text-align: center; margin-bottom: 25px;">
-              <h1 style="color: #6d28d9; margin: 0; font-size: 26px; font-weight: 800;">NovaCart</h1>
-              <p style="color: #6b7280; font-size: 12px; margin-top: 5px;">Order Tracking Status Update</p>
-            </div>
+        const { getOrderStatusUpdateTemplate } = require('../utils/emailTemplates');
 
-            <p style="font-size: 14px; color: #374151; margin-bottom: 20px;">Dear <strong>${order.user?.name || 'Customer'}</strong>,</p>
-            <p style="font-size: 14px; color: #4b5563; line-height: 1.5;">The status for order <strong>#${order._id}</strong> has been updated to:</p>
-            
-            <div style="margin: 25px 0; padding: 20px; background-color: #f9fafb; border-radius: 12px; border-left: 4px solid #6d28d9; font-size: 18px; font-weight: 800; text-align: center; color: #6d28d9; letter-spacing: 0.05em; text-transform: uppercase;">
-              ${status}
-            </div>
-
-            ${
-              order.trackingNumber
-                ? `<div style="margin: 20px 0; padding: 15px; border: 1px dashed #6d28d9; border-radius: 8px; font-size: 13px; color: #374151;">
-                    <strong>Tracking/Consignment Number:</strong> <span style="font-family: monospace; font-size: 14px; color: #6d28d9; font-weight: bold;">${order.trackingNumber}</span>
-                   </div>`
-                : ''
-            }
-
-            <p style="font-size: 14px; color: #4b5563; line-height: 1.5; margin-top: 20px;">You can view detailed consignment progress inside your Shopper Dashboard under "My Orders".</p>
-
-            <div style="margin-top: 35px; padding-top: 20px; border-top: 1px solid #f3f4f6; text-align: center; font-size: 11px; color: #9ca3af;">
-              <p>Thank you for buying premium goods on NovaCart!</p>
-              <p>&copy; ${new Date().getFullYear()} NovaCart. All rights reserved.</p>
-            </div>
-          </div>
-        `;
+        const statusHtml = getOrderStatusUpdateTemplate({
+          customerName: order.user?.name || 'Customer',
+          order,
+          newStatus: status,
+          trackingNumber,
+        });
 
         // 1. Email Customer
         if (order.user && order.user.email) {
           await sendEmail({
             email: order.user.email,
-            subject: `NovaCart Order #${order._id} Status: ${status}`,
-            message: `Your order status has been updated to: ${status}`,
+            subject: `Shipment Update: Order #${order._id} is ${status}`,
+            message: `Your order #${order._id} status has been updated to: ${status}`,
             html: statusHtml,
           });
         }

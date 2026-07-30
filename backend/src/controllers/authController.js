@@ -187,52 +187,20 @@ exports.register = async (req, res, next) => {
 
     // Send welcome & verification email with full account details
     const sendEmail = require('../utils/sendEmail');
-    const message = `Welcome to NovaCart, ${user.name}!\n\nThank you for creating your account. Here are your registered account details:\n\n• Name: ${user.name}\n• Email: ${user.email}\n• Account Type: ${user.role.toUpperCase()}\n• Registration Timestamp: ${new Date().toISOString()}\n\nPlease verify your email to log in and activate your account. Your 6-digit verification OTP is:\n\n${otp}\n\nThis OTP is valid for 1 hour. Welcome aboard!`;
-
-    const htmlWelcomeEmail = `
-      <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background-color: #ffffff; border-radius: 16px; border: 1px solid #e5e7eb; shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-        <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #f3f4f6;">
-          <h1 style="color: #6d28d9; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.5px;">NovaCart</h1>
-          <p style="color: #6b7280; font-size: 13px; margin-top: 4px;">Welcome to Your Next Generation Shopping Destination</p>
-        </div>
-
-        <div style="padding: 24px 0;">
-          <h2 style="color: #111827; font-size: 18px; margin-top: 0;">Welcome aboard, ${user.name}! 🎉</h2>
-          <p style="color: #4b5563; font-size: 14px; line-height: 1.6;">
-            Thank you for creating an account with <strong>NovaCart</strong>. We are thrilled to have you! Here are your registered account details:
-          </p>
-
-          <div style="margin: 20px 0; padding: 18px; background-color: #f9fafb; border-radius: 12px; border-left: 4px solid #6d28d9; font-size: 13px; line-height: 1.8; color: #374151;">
-            <strong>• Full Name:</strong> ${user.name}<br>
-            <strong>• Registered Email:</strong> ${user.email}<br>
-            <strong>• Account Type:</strong> ${user.role.toUpperCase()}<br>
-            <strong>• Registered On:</strong> ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-          </div>
-
-          <p style="color: #4b5563; font-size: 14px; line-height: 1.6;">
-            To complete your registration and activate your account, please verify your email address using the 6-digit OTP below:
-          </p>
-
-          <div style="text-align: center; margin: 28px 0;">
-            <div style="display: inline-block; padding: 14px 28px; background-color: #f3e8ff; border: 2px dashed #9333ea; border-radius: 12px;">
-              <span style="font-size: 28px; font-weight: 800; letter-spacing: 8px; color: #6d28d9; font-mono: monospace;">${otp}</span>
-            </div>
-            <p style="color: #9ca3af; font-size: 11px; margin-top: 8px;">This code expires in 1 hour.</p>
-          </div>
-        </div>
-
-        <div style="padding-top: 20px; border-top: 1px solid #f3f4f6; text-align: center; font-size: 12px; color: #9ca3af; line-height: 1.5;">
-          <p>If you did not initiate this account creation, please ignore this email.</p>
-          <p>&copy; ${new Date().getFullYear()} NovaCart Inc. All rights reserved.</p>
-        </div>
-      </div>
-    `;
+    const { getWelcomeOtpTemplate } = require('../utils/emailTemplates');
+    const message = `Welcome to NovaCart, ${user.name}!\n\nThank you for creating your account. Your 6-digit verification OTP is:\n\n${otp}\n\nThis OTP is valid for 1 hour. Welcome aboard!`;
+    const htmlWelcomeEmail = getWelcomeOtpTemplate({
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      otp,
+    });
 
     let mailInfo = null;
     try {
       mailInfo = await sendEmail({
         email: user.email,
-        subject: `Welcome to NovaCart! Account Details & Verification OTP`,
+        subject: `Welcome to NovaCart! Account Activation OTP`,
         message,
         html: htmlWelcomeEmail,
       });
@@ -318,6 +286,30 @@ exports.login = async (req, res, next) => {
         previewUrl: mailInfo?.previewUrl || null,
       });
     }
+
+    // Send Login Security Alert Email (Asynchronous)
+    (async () => {
+      try {
+        const sendEmail = require('../utils/sendEmail');
+        const { getLoginAlertTemplate } = require('../utils/emailTemplates');
+        const loginHtml = getLoginAlertTemplate({
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          loginTime: new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' }),
+          userAgent: req.headers['user-agent'] || 'Web Browser',
+        });
+
+        await sendEmail({
+          email: user.email,
+          subject: 'Security Alert: Account Login Detected - NovaCart',
+          message: `Hello ${user.name}, your ${user.role} account was accessed at ${new Date().toLocaleString()}.`,
+          html: loginHtml,
+        });
+      } catch (err) {
+        console.error('Failed to send login security alert email:', err.message);
+      }
+    })();
 
     sendTokenResponse(user, 200, res);
   } catch (error) {
