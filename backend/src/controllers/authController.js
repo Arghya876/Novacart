@@ -336,7 +336,11 @@ exports.refreshToken = async (req, res, next) => {
     }
 
     // Verify token
-    const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET || 'fallback_refresh_token_secret');
+    const refreshSecret = process.env.REFRESH_TOKEN_SECRET;
+    if (!refreshSecret && process.env.NODE_ENV === 'production') {
+      throw new Error('REFRESH_TOKEN_SECRET environment variable is missing in production!');
+    }
+    const decoded = jwt.verify(token, refreshSecret || 'fallback_refresh_token_secret');
 
     // Check if user exists and has this refresh token
     const user = await User.findById(decoded.id).select('+refreshToken');

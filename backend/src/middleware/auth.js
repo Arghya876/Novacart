@@ -25,7 +25,11 @@ const protect = async (req, res, next) => {
 
   try {
     // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_jwt_secret');
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret && process.env.NODE_ENV === 'production') {
+      throw new Error('JWT_SECRET environment variable is missing in production!');
+    }
+    const decoded = jwt.verify(token, jwtSecret || 'fallback_jwt_secret');
 
     // Attach user to request (supporting fallback mode)
     if (shouldUseFallbackData()) {
