@@ -36,6 +36,7 @@ export default function ProductDetails() {
   // Fetch product details
   useEffect(() => {
     dispatch(fetchProductDetails(slug));
+    window.scrollTo(0, 0);
 
     return () => {
       dispatch(clearCurrentProduct());

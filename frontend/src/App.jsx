@@ -106,11 +106,23 @@ function UserProtectedRoute({ children }) {
   return children;
 }
 
+// Automatically scroll window to top on route navigation
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
+
 export default function App() {
   return (
     <Provider store={store}>
       <HelmetProvider>
         <Router>
+          <ScrollToTop />
           <GlobalBackButton />
           <Toast />
           <Routes>
