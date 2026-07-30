@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Plus, Tag, Layers, Users, DollarSign, ShoppingBag, Trash2, CheckCircle2, AlertTriangle, ShieldAlert, FileText, Package, RotateCcw, Truck } from 'lucide-react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { formatPrice } from '../../utils/formatCurrency';
 
 export default function AdminDashboard() {
-  const { token } = useSelector((state) => state.auth);
+  const { tab } = useParams();
+  const navigate = useNavigate();
+  const activeTab = tab || 'analytics';
 
-  const [activeTab, setActiveTab] = useState('analytics');
+  const handleTabChange = (newTab) => {
+    navigate(`/admin/${newTab}`);
+  };
 
   // Analytics State
   const [analytics, setAnalytics] = useState(null);
@@ -63,9 +68,7 @@ export default function AdminDashboard() {
   const fetchAnalytics = async () => {
     setAnalyticsLoading(true);
     try {
-      const res = await axios.get('/api/analytics/admin', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get('/api/analytics/admin');
       setAnalytics(res.data.data);
     } catch (err) {
       console.error(err);
@@ -77,7 +80,7 @@ export default function AdminDashboard() {
   const fetchCategories = async () => {
     setCategoriesLoading(true);
     try {
-      const res = await axios.get('/api/categories');
+      const res = await api.get('/api/categories');
       const data = res.data?.data || res.data;
       setCategories(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -91,9 +94,7 @@ export default function AdminDashboard() {
   const fetchCoupons = async () => {
     setCouponsLoading(true);
     try {
-      const res = await axios.get('/api/coupons', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get('/api/coupons');
       const data = res.data?.data || res.data;
       setCoupons(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -108,9 +109,7 @@ export default function AdminDashboard() {
     setUsersLoading(true);
     setUserError('');
     try {
-      const res = await axios.get('/api/auth/users', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get('/api/auth/users');
       const data = res.data?.data || res.data;
       setUsers(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -125,7 +124,7 @@ export default function AdminDashboard() {
   const fetchAllProducts = async () => {
     setProductsLoading(true);
     try {
-      const res = await axios.get('/api/products');
+      const res = await api.get('/api/products');
       const data = res.data?.data || res.data;
       setProducts(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -139,9 +138,7 @@ export default function AdminDashboard() {
   const fetchAllOrders = async () => {
     setOrdersLoading(true);
     try {
-      const res = await axios.get('/api/orders', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get('/api/orders');
       const data = res.data?.data || res.data;
       setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -155,9 +152,7 @@ export default function AdminDashboard() {
   const fetchReviews = async () => {
     setReviewsLoading(true);
     try {
-      const res = await axios.get('/api/reviews', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get('/api/reviews');
       const data = res.data?.data || res.data;
       setReviews(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -171,9 +166,7 @@ export default function AdminDashboard() {
   const handleDeleteReview = async (id) => {
     if (!window.confirm('Are you sure you want to delete this customer review?')) return;
     try {
-      await axios.delete(`/api/reviews/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.delete(`/api/reviews/${id}`);
       fetchReviews();
     } catch (err) {
       alert(err.response?.data?.error || 'Failed to delete review');
@@ -187,9 +180,7 @@ export default function AdminDashboard() {
     setCategorySuccess('');
 
     try {
-      const res = await axios.post('/api/categories', categoryForm, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.post('/api/categories', categoryForm);
 
       if (res.data.success) {
         setCategorySuccess('Category created successfully!');
@@ -203,9 +194,7 @@ export default function AdminDashboard() {
 
   const handleDeleteCategory = async (id) => {
     try {
-      await axios.delete(`/api/categories/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.delete(`/api/categories/${id}`);
       fetchCategories();
     } catch (err) {
       alert(err.response?.data?.error || 'Failed to delete category');
@@ -219,9 +208,7 @@ export default function AdminDashboard() {
     setCouponSuccess('');
 
     try {
-      const res = await axios.post('/api/coupons', couponForm, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.post('/api/coupons', couponForm);
 
       if (res.data.success) {
         setCouponSuccess('Coupon created successfully!');
@@ -241,9 +228,7 @@ export default function AdminDashboard() {
 
   const handleDeleteCoupon = async (id) => {
     try {
-      await axios.delete(`/api/coupons/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.delete(`/api/coupons/${id}`);
       fetchCoupons();
     } catch (err) {
       alert(err.response?.data?.error || 'Failed to delete coupon');
@@ -253,9 +238,7 @@ export default function AdminDashboard() {
 
   const handleDeleteUser = async (id) => {
     try {
-      await axios.delete(`/api/auth/users/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.delete(`/api/auth/users/${id}`);
       fetchUsers();
     } catch (err) {
       alert(err.response?.data?.error || 'Failed to delete user');
@@ -264,9 +247,7 @@ export default function AdminDashboard() {
 
   const handleDeleteProduct = async (id) => {
     try {
-      await axios.delete(`/api/products/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.delete(`/api/products/${id}`);
       fetchAllProducts();
     } catch (err) {
       alert(err.response?.data?.error || 'Failed to delete product');
@@ -277,9 +258,7 @@ export default function AdminDashboard() {
   const handleDeleteOrder = async (id) => {
     if (!window.confirm('Are you sure you want to delete this order permanently from system history?')) return;
     try {
-      await axios.delete(`/api/orders/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.delete(`/api/orders/${id}`);
       alert('Order deleted permanently from system history.');
       fetchAllOrders();
     } catch (err) {
@@ -290,11 +269,7 @@ export default function AdminDashboard() {
 
   const handleUpdateOrderStatus = async (orderId, newStatus, trackingNumber = '') => {
     try {
-      await axios.put(
-        `/api/orders/${orderId}/status`,
-        { status: newStatus, trackingNumber },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.put(`/api/orders/${orderId}/status`, { status: newStatus, trackingNumber });
       fetchAllOrders();
     } catch (err) {
       alert(err.response?.data?.error || 'Failed to update order status');
@@ -320,7 +295,7 @@ export default function AdminDashboard() {
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => handleTabChange(tab.id)}
               className={`h-9 px-4 rounded-xl text-xs font-semibold transition-colors ${
                 activeTab === tab.id
                   ? 'bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white shadow-sm'
