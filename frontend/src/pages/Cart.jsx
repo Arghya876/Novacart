@@ -201,7 +201,7 @@ export default function Cart() {
                     <div className="flex-1 flex flex-col justify-between">
                       <div>
                         <h4 className="font-semibold text-xs text-neutral-800 dark:text-neutral-200 line-clamp-1">{item.title}</h4>
-                        <span className="font-bold text-xs text-neutral-900 dark:text-white">${item.price}</span>
+                        <span className="font-bold text-xs text-neutral-900 dark:text-white">{formatPrice(item.price)}</span>
                       </div>
                       <div className="flex gap-3 mt-2">
                         <button

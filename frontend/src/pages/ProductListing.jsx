@@ -125,7 +125,7 @@ export default function ProductListing() {
 
       {/* Price Filter */}
       <div className="space-y-2">
-        <h4 className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">Price Range ($)</h4>
+        <h4 className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">Price Range (₹)</h4>
         <div className="flex gap-2 items-center">
           <input
             type="number"

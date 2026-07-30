@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { CreditCard, Truck, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
 import { clearCart } from '../store/cartSlice';
+import { formatPrice } from '../utils/formatCurrency';
 import axios from 'axios';
 
 export default function Checkout() {
@@ -18,9 +19,9 @@ export default function Checkout() {
     city: '',
     state: '',
     zipCode: '',
-    country: '',
+    country: 'India',
   });
-  const [paymentMethod, setPaymentMethod] = useState('COD');
+  const [paymentMethod, setPaymentMethod] = useState('Razorpay');
   const [isLoading, setIsLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState('');
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
@@ -33,7 +34,7 @@ export default function Checkout() {
       city: addr.city,
       state: addr.state,
       zipCode: addr.zipCode,
-      country: addr.country,
+      country: addr.country || 'India',
     });
   };
 
@@ -98,9 +99,9 @@ export default function Checkout() {
       const options = {
         key: keyId || 'rzp_live_TJjrNC7ArpuuTE',
         amount: rzpOrder.amount,
-        currency: rzpOrder.currency,
+        currency: rzpOrder.currency || 'INR',
         name: 'NovaCart',
-        description: 'Order Payment',
+        description: 'Order Payment (UPI / Cards / NetBanking)',
         order_id: rzpOrder.id,
         handler: async function (response) {
           try {
@@ -136,6 +137,13 @@ export default function Checkout() {
           name: user?.name || '',
           email: user?.email || '',
         },
+        config: {
+          display: {
+            preferences: {
+              show_default_blocks: true,
+            },
+          },
+        },
         theme: {
           color: '#7c3aed',
         },
@@ -168,14 +176,12 @@ export default function Checkout() {
     } else if (paymentMethod === 'Razorpay') {
       handleRazorpayPayment();
     } else {
-      // Open Payment Gateway Modal (Mock / Stripe fallback)
       setPaymentModalOpen(true);
     }
   };
 
   const handleMockPaymentSuccess = async () => {
     setPaymentProcessing(true);
-    // Simulate API call to gateway
     setTimeout(() => {
       setPaymentProcessing(false);
       setPaymentModalOpen(false);
@@ -291,7 +297,7 @@ export default function Checkout() {
                   value={shippingDetails.city}
                   onChange={handleInputChange}
                   required
-                  placeholder="New York"
+                  placeholder="Kolkata"
                   className="w-full h-10 px-3 text-xs rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 focus:outline-none focus:border-violet-500"
                 />
               </div>
@@ -303,7 +309,7 @@ export default function Checkout() {
                   value={shippingDetails.state}
                   onChange={handleInputChange}
                   required
-                  placeholder="NY"
+                  placeholder="West Bengal"
                   className="w-full h-10 px-3 text-xs rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 focus:outline-none focus:border-violet-500"
                 />
               </div>
@@ -315,7 +321,7 @@ export default function Checkout() {
                   value={shippingDetails.zipCode}
                   onChange={handleInputChange}
                   required
-                  placeholder="10001"
+                  placeholder="700001"
                   className="w-full h-10 px-3 text-xs rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 focus:outline-none focus:border-violet-500"
                 />
               </div>
@@ -327,7 +333,7 @@ export default function Checkout() {
                   value={shippingDetails.country}
                   onChange={handleInputChange}
                   required
-                  placeholder="United States"
+                  placeholder="India"
                   className="w-full h-10 px-3 text-xs rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 focus:outline-none focus:border-violet-500"
                 />
               </div>
@@ -340,10 +346,9 @@ export default function Checkout() {
               <CreditCard className="h-5 w-5 text-violet-600 dark:text-violet-400" /> Payment Method
             </h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
-                { id: 'Stripe', name: 'Credit Card (Stripe)' },
-                { id: 'Razorpay', name: 'UPI / Wallet (Razorpay)' },
+                { id: 'Razorpay', name: 'Online Payment (UPI, Cards, NetBanking, Wallets)' },
                 { id: 'COD', name: 'Cash on Delivery (COD)' },
               ].map((method) => (
                 <label
@@ -389,7 +394,7 @@ export default function Checkout() {
                   <h4 className="font-semibold text-neutral-800 dark:text-neutral-200 truncate">{item.title}</h4>
                   <p className="text-neutral-400 mt-0.5">Qty {item.quantity}</p>
                 </div>
-                <span className="font-bold text-neutral-900 dark:text-white">${item.price * item.quantity}</span>
+                <span className="font-bold text-neutral-900 dark:text-white">{formatPrice(item.price * item.quantity)}</span>
               </div>
             ))}
           </div>
@@ -398,16 +403,16 @@ export default function Checkout() {
             <div className="flex justify-between text-neutral-500">
               <span>Shipping</span>
               <span className="font-semibold text-neutral-800 dark:text-neutral-200">
-                {shippingPrice === 0 ? 'Free' : `$${shippingPrice}`}
+                {shippingPrice === 0 ? 'Free' : formatPrice(shippingPrice)}
               </span>
             </div>
             <div className="flex justify-between text-neutral-500">
               <span>Estimated Tax</span>
-              <span className="font-semibold text-neutral-800 dark:text-neutral-200">${taxPrice}</span>
+              <span className="font-semibold text-neutral-800 dark:text-neutral-200">{formatPrice(taxPrice)}</span>
             </div>
             <div className="flex justify-between text-sm font-bold text-neutral-950 dark:text-white pt-3 border-t border-neutral-100 dark:border-neutral-850">
               <span>Total</span>
-              <span>${totalPrice}</span>
+              <span>{formatPrice(totalPrice)}</span>
             </div>
           </div>
         </div>
@@ -420,7 +425,7 @@ export default function Checkout() {
           <div className="w-full max-w-md bg-white dark:bg-neutral-900 rounded-3xl p-6 shadow-2xl border border-neutral-100 dark:border-neutral-800 space-y-6">
             <div className="text-center space-y-2">
               <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
-                {paymentMethod === 'Stripe' ? 'Stripe Secure Checkout' : 'Razorpay Secure Payment'}
+                Razorpay Secure Payment
               </h3>
               <p className="text-xs text-neutral-400">Sandbox / Simulation Mode</p>
             </div>
@@ -432,7 +437,7 @@ export default function Checkout() {
               </div>
               <div className="flex justify-between text-xs font-semibold">
                 <span className="text-neutral-400">Amount:</span>
-                <span className="text-neutral-900 dark:text-white text-sm font-bold">${totalPrice}</span>
+                <span className="text-neutral-900 dark:text-white text-sm font-bold">{formatPrice(totalPrice)}</span>
               </div>
             </div>
 

@@ -359,7 +359,7 @@ export default function SellerDashboard() {
                       <span className="font-semibold text-neutral-800 dark:text-neutral-200 line-clamp-1">{item.title}</span>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-neutral-900 dark:text-white">${item.revenue}</p>
+                      <p className="font-bold text-neutral-900 dark:text-white">{formatPrice(item.revenue)}</p>
                       <p className="text-neutral-400 mt-0.5">{item.quantitySold} sold</p>
                     </div>
                   </div>

@@ -65,7 +65,7 @@ export function FAQ() {
   const faqs = [
     { q: 'How long does shipping take?', a: 'Standard shipping takes 3-5 business days. Express shipping is available for 1-2 business days delivery.' },
     { q: 'Can I sell my products on NovaCart?', a: 'Yes! You can register as a seller from the registration page. Once approved, you can list products from your seller portal.' },
-    { q: 'Is my payment secure?', a: 'Absolutely. We use industry-standard Stripe and Razorpay integrations with 256-bit encryption for all transactions.' },
+    { q: 'Is my payment secure?', a: 'Absolutely. We use industry-standard Razorpay integration with 256-bit encryption for UPI, cards, and netbanking transactions.' },
   ];
 
   return (
@@ -90,7 +90,7 @@ export function Privacy() {
     <div className="mx-auto max-w-3xl px-4 py-16 space-y-6">
       <h1 className="text-3xl font-bold text-neutral-900 dark:text-white">Privacy Policy</h1>
       <p className="text-xs text-neutral-450 leading-relaxed">
-        At NovaCart, we value your privacy. We collect personal information such as name, email address, and shipping address solely to process your orders and enhance your shopping experience. We never sell your data to third parties. All payment information is processed securely through Stripe/Razorpay and is not stored on our servers.
+        At NovaCart, we value your privacy. We collect personal information such as name, email address, and shipping address solely to process your orders and enhance your shopping experience. We never sell your data to third parties. All payment information is processed securely through Razorpay and is not stored on our servers.
       </p>
     </div>
   );
