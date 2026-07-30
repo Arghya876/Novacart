@@ -78,9 +78,11 @@ export default function AdminDashboard() {
     setCategoriesLoading(true);
     try {
       const res = await axios.get('/api/categories');
-      setCategories(res.data.data);
+      const data = res.data?.data || res.data;
+      setCategories(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
+      setCategories([]);
     } finally {
       setCategoriesLoading(false);
     }
@@ -92,9 +94,11 @@ export default function AdminDashboard() {
       const res = await axios.get('/api/coupons', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setCoupons(res.data.data);
+      const data = res.data?.data || res.data;
+      setCoupons(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
+      setCoupons([]);
     } finally {
       setCouponsLoading(false);
     }
@@ -107,9 +111,11 @@ export default function AdminDashboard() {
       const res = await axios.get('/api/auth/users', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setUsers(res.data.data);
+      const data = res.data?.data || res.data;
+      setUsers(Array.isArray(data) ? data : []);
     } catch (err) {
       setUserError('Failed to fetch users list');
+      setUsers([]);
       console.error(err);
     } finally {
       setUsersLoading(false);
@@ -120,9 +126,11 @@ export default function AdminDashboard() {
     setProductsLoading(true);
     try {
       const res = await axios.get('/api/products');
-      setProducts(res.data.data);
+      const data = res.data?.data || res.data;
+      setProducts(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
+      setProducts([]);
     } finally {
       setProductsLoading(false);
     }
@@ -134,9 +142,11 @@ export default function AdminDashboard() {
       const res = await axios.get('/api/orders', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setOrders(res.data.data);
+      const data = res.data?.data || res.data;
+      setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
+      setOrders([]);
     } finally {
       setOrdersLoading(false);
     }
@@ -148,9 +158,11 @@ export default function AdminDashboard() {
       const res = await axios.get('/api/reviews', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setReviews(res.data.data);
+      const data = res.data?.data || res.data;
+      setReviews(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
+      setReviews([]);
     } finally {
       setReviewsLoading(false);
     }

@@ -233,6 +233,7 @@ export default function App() {
               }
             >
               <Route index element={<AdminDashboard />} />
+              <Route path="dashboard" element={<AdminDashboard />} />
             </Route>
 
             {/* Meaningful 404 Fallback Page */}
