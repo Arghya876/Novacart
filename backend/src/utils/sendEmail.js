@@ -15,15 +15,25 @@ const sendEmail = async (options) => {
 
   // 1. Primary Option: Native System SMTP Transporter
   if (host && user && pass) {
-    transporter = nodemailer.createTransport({
-      host,
-      port,
-      secure: port === 465,
-      auth: { user, pass },
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 10000,
-    });
+    if (host.toLowerCase().includes('gmail') || process.env.SMTP_SERVICE?.toLowerCase() === 'gmail') {
+      transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user, pass },
+        connectionTimeout: 8000,
+        greetingTimeout: 8000,
+        socketTimeout: 8000,
+      });
+    } else {
+      transporter = nodemailer.createTransport({
+        host,
+        port,
+        secure: port === 465,
+        auth: { user, pass },
+        connectionTimeout: 8000,
+        greetingTimeout: 8000,
+        socketTimeout: 8000,
+      });
+    }
   } else {
     // 2. Built-in Fallback: Generate Ethereal Mail test session
     try {
