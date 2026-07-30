@@ -54,6 +54,106 @@ export default function Checkout() {
     );
   };
 
+  // Helper to dynamically load Razorpay SDK
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handleRazorpayPayment = async () => {
+    setIsLoading(true);
+    try {
+      const isLoaded = await loadRazorpayScript();
+      if (!isLoaded) {
+        setCheckoutError('Razorpay SDK failed to load. Check your internet connection.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Create Razorpay Order on backend
+      const { data } = await axios.post(
+        '/api/payments/razorpay/order',
+        { amount: totalPrice, currency: 'INR' },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (data.isMock) {
+        // Fallback for mock mode
+        setPaymentModalOpen(true);
+        setIsLoading(false);
+        return;
+      }
+
+      const { data: rzpOrder, keyId } = data;
+
+      const options = {
+        key: keyId || 'rzp_live_TJjrNC7ArpuuTE',
+        amount: rzpOrder.amount,
+        currency: rzpOrder.currency,
+        name: 'NovaCart',
+        description: 'Order Payment',
+        order_id: rzpOrder.id,
+        handler: async function (response) {
+          try {
+            setIsLoading(true);
+            // Verify payment signature on backend
+            const verifyRes = await axios.post(
+              '/api/payments/razorpay/verify',
+              {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              },
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            if (verifyRes.data.success) {
+              await submitOrder({
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+                status: 'Paid',
+              });
+            } else {
+              setCheckoutError('Payment verification failed. Please try again.');
+              setIsLoading(false);
+            }
+          } catch (err) {
+            setCheckoutError(err.response?.data?.error || 'Payment verification failed');
+            setIsLoading(false);
+          }
+        },
+        prefill: {
+          name: user?.name || '',
+          email: user?.email || '',
+        },
+        theme: {
+          color: '#7c3aed',
+        },
+        modal: {
+          ondismiss: function () {
+            setIsLoading(false);
+          },
+        },
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+    } catch (err) {
+      setCheckoutError(err.response?.data?.error || 'Failed to initialize Razorpay checkout');
+      setIsLoading(false);
+    }
+  };
+
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
     setCheckoutError('');
@@ -65,8 +165,10 @@ export default function Checkout() {
 
     if (paymentMethod === 'COD') {
       submitOrder();
+    } else if (paymentMethod === 'Razorpay') {
+      handleRazorpayPayment();
     } else {
-      // Open Payment Gateway Modal
+      // Open Payment Gateway Modal (Mock / Stripe fallback)
       setPaymentModalOpen(true);
     }
   };

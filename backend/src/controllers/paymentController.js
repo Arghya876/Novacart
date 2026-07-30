@@ -79,8 +79,54 @@ exports.createRazorpayOrder = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
+      keyId: process.env.RAZORPAY_KEY_ID,
       data: order,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Verify Razorpay Payment Signature
+// @route   POST /api/payments/razorpay/verify
+// @access  Private
+exports.verifyRazorpayPayment = async (req, res, next) => {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required Razorpay verification parameters',
+      });
+    }
+
+    // Mock mode fallback
+    if (!process.env.RAZORPAY_KEY_SECRET) {
+      return res.status(200).json({
+        success: true,
+        message: 'Mock Razorpay payment verified successfully',
+      });
+    }
+
+    const crypto = require('crypto');
+    const body = razorpay_order_id + '|' + razorpay_payment_id;
+    const expectedSignature = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .update(body.toString())
+      .digest('hex');
+
+    if (expectedSignature === razorpay_signature) {
+      return res.status(200).json({
+        success: true,
+        message: 'Payment verified successfully',
+      });
+    } else {
+      return res.status(400).json({
+        success: false,
+        error: 'Payment verification failed: Invalid signature',
+      });
+    }
   } catch (error) {
     next(error);
   }
