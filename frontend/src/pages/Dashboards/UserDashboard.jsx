@@ -850,19 +850,29 @@ export default function UserDashboard() {
               <div className="flex justify-end pt-2">
                 <div className="w-full max-w-xs space-y-2 text-xs">
                   <div className="flex justify-between text-neutral-500">
-                    <span>Subtotal</span>
-                    <span>{formatPrice(invoiceModalOrder.itemsPrice || invoiceModalOrder.totalPrice)}</span>
+                    <span>Items Subtotal</span>
+                    <span>
+                      {formatPrice(
+                        invoiceModalOrder.orderItems.reduce((acc, item) => acc + (item.price * item.quantity), 0)
+                      )}
+                    </span>
                   </div>
                   <div className="flex justify-between text-neutral-500">
-                    <span>Shipping</span>
+                    <span>Shipping Fee</span>
                     <span>{formatPrice(invoiceModalOrder.shippingPrice || 0)}</span>
                   </div>
                   <div className="flex justify-between text-neutral-500">
-                    <span>Tax</span>
+                    <span>Tax & GST</span>
                     <span>{formatPrice(invoiceModalOrder.taxPrice || 0)}</span>
                   </div>
+                  {invoiceModalOrder.couponApplied && (
+                    <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-semibold">
+                      <span>Coupon Discount</span>
+                      <span>Applied</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-sm font-bold text-neutral-900 dark:text-white pt-2 border-t border-neutral-200 dark:border-neutral-800">
-                    <span>Grand Total</span>
+                    <span>Grand Total Paid</span>
                     <span className="text-violet-600 dark:text-violet-400">{formatPrice(invoiceModalOrder.totalPrice)}</span>
                   </div>
                 </div>
