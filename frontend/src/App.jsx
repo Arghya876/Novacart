@@ -106,6 +106,14 @@ function UserProtectedRoute({ children }) {
   return children;
 }
 
+// Protected Route for Administrators ONLY
+function AdminProtectedRoute({ children }) {
+  const { user } = useSelector((state) => state.auth);
+  if (!user) return <Navigate to="/admin/login" replace />;
+  if (user.role !== 'admin') return <Navigate to="/" replace />;
+  return children;
+}
+
 // Automatically scroll window to top on route navigation
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -216,7 +224,14 @@ export default function App() {
 
             {/* Separate Admin Routes (No storefront header & footer) */}
             <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin" element={<AdminLayout />}>
+            <Route
+              path="/admin"
+              element={
+                <AdminProtectedRoute>
+                  <AdminLayout />
+                </AdminProtectedRoute>
+              }
+            >
               <Route index element={<AdminDashboard />} />
             </Route>
 

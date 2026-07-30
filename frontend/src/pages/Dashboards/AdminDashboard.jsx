@@ -580,9 +580,15 @@ export default function AdminDashboard() {
 
           {ordersLoading ? (
             <div className="py-12 flex justify-center"><div className="h-6 w-6 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" /></div>
+          ) : (!orders || orders.length === 0) ? (
+            <div className="p-8 text-center bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-100 dark:border-neutral-850 text-xs text-neutral-500 space-y-2">
+              <Package className="h-8 w-8 mx-auto text-neutral-400" />
+              <p className="font-bold text-neutral-800 dark:text-neutral-200">No system orders found</p>
+              <p className="text-[11px] text-neutral-400">System orders will automatically populate here as customers place orders.</p>
+            </div>
           ) : (
             <div className="space-y-6">
-              {orders.map((order) => (
+              {(orders || []).map((order) => (
                 <div key={order._id} className="p-6 rounded-3xl border border-neutral-100 dark:border-neutral-850 bg-white dark:bg-neutral-900 shadow-sm space-y-5">
                   <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-neutral-100 dark:border-neutral-850 text-xs">
                     <div>
@@ -591,11 +597,11 @@ export default function AdminDashboard() {
                     </div>
                     <div>
                       <p className="text-neutral-400 text-[10px] uppercase font-bold">Customer</p>
-                      <p className="font-semibold mt-0.5 capitalize">{order.user?.name || 'Unknown'}</p>
+                      <p className="font-semibold mt-0.5 capitalize">{order.user?.name || order.user?.email || 'Customer'}</p>
                     </div>
                     <div>
                       <p className="text-neutral-400 text-[10px] uppercase font-bold">Total Price</p>
-                      <p className="font-bold mt-0.5 text-neutral-900 dark:text-white">{formatPrice(order.totalPrice)}</p>
+                      <p className="font-bold mt-0.5 text-neutral-900 dark:text-white">{formatPrice(order.totalPrice || 0)}</p>
                     </div>
                     <div className="flex items-center gap-3">
                       <div>
@@ -607,7 +613,7 @@ export default function AdminDashboard() {
                             ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/25'
                             : 'bg-violet-50 text-violet-600 dark:bg-violet-950/25'
                         }`}>
-                          {order.orderStatus}
+                          {order.orderStatus || 'Order Placed'}
                         </span>
                       </div>
 
@@ -623,12 +629,12 @@ export default function AdminDashboard() {
 
                   {/* Order Items */}
                   <div className="space-y-3">
-                    {order.orderItems.map((item) => (
-                      <div key={item.product} className="flex gap-3 text-xs items-center">
-                        <img src={item.image} alt="" className="w-10 h-10 rounded-lg object-cover bg-neutral-50" />
+                    {(order.orderItems || []).map((item, idx) => (
+                      <div key={item.product?._id || item.product || idx} className="flex gap-3 text-xs items-center">
+                        <img src={item.image || 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=300&q=80'} alt="" className="w-10 h-10 rounded-lg object-cover bg-neutral-50" />
                         <div className="flex-1">
-                          <h4 className="font-semibold text-neutral-800 dark:text-neutral-200">{item.title}</h4>
-                          <p className="text-neutral-400">Qty {item.quantity} • {formatPrice(item.price)}</p>
+                          <h4 className="font-semibold text-neutral-800 dark:text-neutral-200">{item.title || 'Product Item'}</h4>
+                          <p className="text-neutral-400">Qty {item.quantity || 1} • {formatPrice(item.price || 0)}</p>
                         </div>
                       </div>
                     ))}
@@ -648,11 +654,12 @@ export default function AdminDashboard() {
                     <div className="flex flex-wrap items-center gap-3">
                       <label className="text-[10px] font-bold text-neutral-400 uppercase">Set Status:</label>
                       <select
-                        defaultValue={order.orderStatus}
+                        defaultValue={order.orderStatus || 'Order Placed'}
                         id={`status-select-${order._id}`}
                         className="h-9 px-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-xs font-semibold"
                       >
                         <option value="Order Placed">Order Placed</option>
+                        <option value="Processing">Processing</option>
                         <option value="Shipped">Shipped</option>
                         <option value="Out for Delivery">Out for Delivery</option>
                         <option value="Delivered">Delivered</option>
