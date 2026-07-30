@@ -100,6 +100,11 @@ exports.getProductReviews = async (req, res, next) => {
       count: reviews.length,
       data: reviews,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Get all reviews (Admin only)
 // @route   GET /api/reviews
 // @access  Private (Admin)
