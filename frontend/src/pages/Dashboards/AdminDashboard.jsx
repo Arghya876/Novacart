@@ -568,10 +568,24 @@ export default function AdminDashboard() {
           {ordersLoading ? (
             <div className="py-12 flex justify-center"><div className="h-6 w-6 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" /></div>
           ) : (!orders || orders.length === 0) ? (
-            <div className="p-8 text-center bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-100 dark:border-neutral-850 text-xs text-neutral-500 space-y-2">
-              <Package className="h-8 w-8 mx-auto text-neutral-400" />
-              <p className="font-bold text-neutral-800 dark:text-neutral-200">No system orders found</p>
-              <p className="text-[11px] text-neutral-400">System orders will automatically populate here as customers place orders.</p>
+            <div className="p-12 text-center bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-100 dark:border-neutral-850 shadow-sm space-y-4 max-w-xl mx-auto my-8">
+              <div className="w-16 h-16 rounded-3xl bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 flex items-center justify-center mx-auto shadow-inner">
+                <Package className="h-8 w-8" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-lg font-bold text-neutral-900 dark:text-white">No Orders Placed Yet</h3>
+                <p className="text-xs text-neutral-500 max-w-md mx-auto">
+                  There are currently no customer orders in the system database. As soon as customers place orders on NovaCart, they will instantly appear here for tracking, status updates, and fulfillment.
+                </p>
+              </div>
+              <div className="pt-2 flex justify-center gap-3">
+                <button
+                  onClick={fetchAllOrders}
+                  className="px-4.5 py-2 rounded-2xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/20 flex items-center gap-2 cursor-pointer"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" /> Refresh Orders List
+                </button>
+              </div>
             </div>
           ) : (
             <div className="space-y-6">
