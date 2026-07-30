@@ -100,6 +100,21 @@ exports.getProductReviews = async (req, res, next) => {
       count: reviews.length,
       data: reviews,
     });
+// @desc    Get all reviews (Admin only)
+// @route   GET /api/reviews
+// @access  Private (Admin)
+exports.getAllReviews = async (req, res, next) => {
+  try {
+    const reviews = await Review.find()
+      .populate('user', 'name email avatar')
+      .populate('product', 'title images')
+      .sort('-createdAt');
+
+    res.status(200).json({
+      success: true,
+      count: reviews.length,
+      data: reviews,
+    });
   } catch (error) {
     next(error);
   }

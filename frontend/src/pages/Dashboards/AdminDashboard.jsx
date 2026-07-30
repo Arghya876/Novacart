@@ -42,9 +42,13 @@ export default function AdminDashboard() {
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(false);
 
-  // Orders State (Admin Order Management)
-  const [orders, setOrders] = useState([]);
-  const [ordersLoading, setOrdersLoading] = useState(false);
+  // Reviews State (Admin Review Moderation)
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+
+  // Search & Filter States
+  const [searchQuery, setSearchQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
 
   useEffect(() => {
     if (activeTab === 'analytics') fetchAnalytics();
@@ -53,6 +57,7 @@ export default function AdminDashboard() {
     if (activeTab === 'users') fetchUsers();
     if (activeTab === 'products') fetchAllProducts();
     if (activeTab === 'orders') fetchAllOrders();
+    if (activeTab === 'reviews') fetchReviews();
   }, [activeTab]);
 
   const fetchAnalytics = async () => {
@@ -134,6 +139,33 @@ export default function AdminDashboard() {
       console.error(err);
     } finally {
       setOrdersLoading(false);
+    }
+  };
+
+  const fetchReviews = async () => {
+    setReviewsLoading(true);
+    try {
+      const res = await axios.get('/api/reviews', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setReviews(res.data.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
+  const handleDeleteReview = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this customer review?')) return;
+    try {
+      await axios.delete(`/api/reviews/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchReviews();
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to delete review');
+      console.error(err);
     }
   };
 
@@ -272,6 +304,7 @@ export default function AdminDashboard() {
             { id: 'orders', name: 'Orders' },
             { id: 'categories', name: 'Categories' },
             { id: 'coupons', name: 'Coupons' },
+            { id: 'reviews', name: 'Reviews' },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -869,6 +902,67 @@ export default function AdminDashboard() {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Reviews Tab */}
+      {activeTab === 'reviews' && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-bold text-neutral-900 dark:text-white">Customer Reviews Moderation ({reviews.length})</h2>
+          </div>
+
+          {reviewsLoading ? (
+            <div className="py-12 flex justify-center"><div className="h-6 w-6 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" /></div>
+          ) : reviews.length === 0 ? (
+            <div className="p-8 text-center bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-100 dark:border-neutral-850 text-xs text-neutral-500">
+              No product reviews submitted yet.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {reviews.map((rev) => (
+                <div
+                  key={rev._id}
+                  className="p-5 rounded-3xl border border-neutral-100 dark:border-neutral-850 bg-white dark:bg-neutral-900 flex flex-col justify-between gap-4 shadow-sm"
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-violet-100 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400 font-bold flex items-center justify-center text-xs">
+                          {rev.user?.name?.charAt(0) || 'U'}
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-neutral-900 dark:text-white">{rev.user?.name || 'Customer'}</p>
+                          <p className="text-[10px] text-neutral-400">{rev.user?.email || ''}</p>
+                        </div>
+                      </div>
+                      <span className="px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-600 text-[11px] font-bold">
+                        ★ {rev.rating} / 5
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-neutral-600 dark:text-neutral-300 italic">"{rev.comment}"</p>
+                    
+                    {rev.product && (
+                      <p className="text-[10px] text-violet-600 dark:text-violet-400 font-medium">
+                        Product: {rev.product.title || rev.product._id}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between pt-3 border-t border-neutral-100 dark:border-neutral-850 text-[10px] text-neutral-400">
+                    <span>{new Date(rev.createdAt).toLocaleDateString()}</span>
+                    <button
+                      onClick={() => handleDeleteReview(rev._id)}
+                      className="px-3 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 hover:bg-rose-100 dark:hover:bg-rose-900/40 font-bold text-[11px] transition-colors cursor-pointer flex items-center gap-1"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" /> Delete Review
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

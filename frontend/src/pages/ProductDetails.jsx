@@ -25,6 +25,7 @@ export default function ProductDetails() {
   const { user } = useSelector((state) => state.auth);
 
   const [selectedImage, setSelectedImage] = useState('');
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [reviews, setReviews] = useState([]);
   const [reviewRating, setReviewRating] = useState(5);
@@ -35,7 +36,6 @@ export default function ProductDetails() {
   // Fetch product details
   useEffect(() => {
     dispatch(fetchProductDetails(slug));
-    window.scrollTo({ top: 0, behavior: 'instant' });
 
     return () => {
       dispatch(clearCurrentProduct());
@@ -189,9 +189,38 @@ export default function ProductDetails() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Left: Image & Video Gallery */}
         <div className="space-y-4">
-          <div className="w-full aspect-square rounded-2xl overflow-hidden border border-neutral-100 dark:border-neutral-850 bg-neutral-50 dark:bg-neutral-950">
-            <img src={selectedImage || currentProduct.images?.[0]} alt={currentProduct.title} className="w-full h-full object-cover" />
+          <div
+            onClick={() => setIsImageModalOpen(true)}
+            className="group relative w-full aspect-square rounded-2xl overflow-hidden border border-neutral-100 dark:border-neutral-850 bg-neutral-50 dark:bg-neutral-950 cursor-zoom-in"
+          >
+            <img src={selectedImage || currentProduct.images?.[0]} alt={currentProduct.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+            <div className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-semibold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 pointer-events-none">
+              🔍 Click to Zoom Image
+            </div>
           </div>
+
+          {/* Fullscreen High-Res Image Modal Overlay */}
+          {isImageModalOpen && (
+            <div
+              onClick={() => setIsImageModalOpen(false)}
+              className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-xl flex items-center justify-center p-4 cursor-zoom-out animate-fadeIn"
+            >
+              <div className="relative max-w-5xl max-h-[90vh] flex flex-col items-center">
+                <button
+                  onClick={() => setIsImageModalOpen(false)}
+                  className="absolute -top-10 right-0 text-white hover:text-rose-400 font-bold text-sm bg-white/10 px-3 py-1 rounded-full cursor-pointer"
+                >
+                  ✕ Close Preview
+                </button>
+                <img
+                  src={selectedImage || currentProduct.images?.[0]}
+                  alt={currentProduct.title}
+                  className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl border border-neutral-800"
+                />
+                <p className="text-neutral-400 text-xs mt-3 text-center">{currentProduct.title}</p>
+              </div>
+            </div>
+          )}
           
           {/* Thumbnails */}
           <div className="flex gap-3 overflow-x-auto pb-2">
