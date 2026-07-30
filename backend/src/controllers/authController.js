@@ -275,13 +275,13 @@ exports.login = async (req, res, next) => {
     // Check for user
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
-      return res.status(401).json({ success: false, error: 'Invalid credentials' });
+      return res.status(401).json({ success: false, error: 'No registered account found with this email. Please create an account first.' });
     }
 
     // Check if password matches
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
-      return res.status(401).json({ success: false, error: 'Invalid credentials' });
+      return res.status(401).json({ success: false, error: 'Incorrect password for this account.' });
     }
 
     // Block unverified users & send verification OTP
