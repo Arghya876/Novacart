@@ -74,7 +74,7 @@ export default function Home() {
               <img 
                 src="/logo.png" 
                 alt="NovaCart Logo" 
-                className="h-10 w-10 rounded-xl shadow-md border border-violet-500/20 object-cover" 
+                className="h-10 w-10 object-contain" 
               />
               <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-100 dark:bg-violet-900/45 px-3 py-1 text-xs font-semibold text-violet-600 dark:text-violet-400">
                 <Zap className="h-3.5 w-3.5 fill-violet-600 dark:fill-violet-400" /> Premium E-Commerce Platform

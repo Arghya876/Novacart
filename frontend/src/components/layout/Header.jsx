@@ -157,7 +157,7 @@ export default function Header() {
             <img 
               src="/logo.png" 
               alt="NovaCart Logo" 
-              className="h-9.5 w-9.5 sm:h-10 sm:w-10 rounded-xl shadow-md border border-violet-500/20 object-cover group-hover:scale-105 transition-transform" 
+              className="h-9.5 w-9.5 sm:h-10 sm:w-10 object-contain group-hover:scale-105 transition-transform" 
             />
             <div className="flex flex-col justify-center">
               <div className="flex items-center font-extrabold text-xl sm:text-2xl tracking-tight text-neutral-900 dark:text-white leading-none">

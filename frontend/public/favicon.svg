@@ -6,15 +6,15 @@
     </linearGradient>
   </defs>
 
-  <!-- Purple Rounded Squircle Background -->
-  <rect x="0" y="0" width="100" height="100" rx="28" fill="url(#purpleBg)"/>
+  <!-- Purple Rounded Squircle filling canvas without outer white borders -->
+  <rect x="0" y="0" width="100" height="100" rx="26" fill="url(#purpleBg)"/>
 
   <!-- Pure White Shopping Bag Handle -->
-  <path d="M 36 34 C 36 21, 64 21, 64 34" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round"/>
+  <path d="M 36 32 C 36 19, 64 19, 64 32" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round"/>
 
   <!-- Pure White Shopping Bag Body -->
-  <rect x="22" y="34" width="56" height="50" rx="10" fill="#FFFFFF"/>
+  <rect x="22" y="32" width="56" height="52" rx="10" fill="#FFFFFF"/>
 
-  <!-- Purple Letter 'N' inside White Bag -->
-  <path d="M 38 46 L 38 72 L 44.5 72 L 44.5 58 L 55.5 72 L 62 72 L 62 46 L 55.5 46 L 55.5 60 L 44.5 46 Z" fill="#7C3AED"/>
+  <!-- Purple Cutout Letter 'N' inside White Bag -->
+  <path d="M 37.5 45 L 37.5 71 L 44 71 L 44 57 L 55 71 L 61.5 71 L 61.5 45 L 55 45 L 55 59 L 44 45 Z" fill="#7C3AED"/>
 </svg>

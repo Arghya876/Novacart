@@ -16,7 +16,7 @@ export default function Footer() {
               <img 
                 src="/logo.png" 
                 alt="NovaCart Logo" 
-                className="h-8.5 w-8.5 rounded-xl shadow-md border border-violet-500/20 object-cover" 
+                className="h-8.5 w-8.5 object-contain" 
               />
               <span className="bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent font-extrabold">
                 NovaCart
