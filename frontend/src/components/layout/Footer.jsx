@@ -12,11 +12,13 @@ export default function Footer() {
           
           {/* Brand Column */}
           <div className="space-y-4">
-            <Link to="/" className="flex items-center gap-2 font-bold text-xl text-white">
-              <div className="rounded-full bg-violet-500/15 p-2">
-                <Sparkles className="h-5 w-5 text-violet-400" />
-              </div>
-              <span className="bg-linear-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
+            <Link to="/" className="flex items-center gap-2.5 font-bold text-xl text-white">
+              <img 
+                src="/logo.png" 
+                alt="NovaCart Logo" 
+                className="h-8.5 w-8.5 rounded-xl shadow-md border border-violet-500/20 object-cover" 
+              />
+              <span className="bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent font-extrabold">
                 NovaCart
               </span>
             </Link>
