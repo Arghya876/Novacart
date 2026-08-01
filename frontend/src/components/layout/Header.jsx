@@ -155,8 +155,9 @@ export default function Header() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group cursor-pointer select-none shrink-0">
             <div className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-tr from-violet-600 via-indigo-600 to-violet-700 text-white shadow-md shadow-violet-500/20 group-hover:scale-105 transition-transform">
-              <svg className="w-5 h-5 sm:w-5.5 sm:h-5.5 fill-current" viewBox="0 0 24 24">
-                <path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm0 10l-2.5 2.5 1.5 1.5 1-1 3.5-3.5-1.5-1.5z" />
+              <svg className="w-5.5 h-5.5 fill-current" viewBox="0 0 24 24">
+                <path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3z" />
+                <path d="M9.2 10.5v5.8h1.4v-3.6l2.5 3.6h1.4v-5.8h-1.4v3.6l-2.5-3.6H9.2z" fill="#FFFFFF" />
               </svg>
               <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-amber-400 border-2 border-white dark:border-neutral-950 animate-pulse" />
             </div>

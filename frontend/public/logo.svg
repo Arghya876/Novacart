@@ -4,10 +4,6 @@
       <stop offset="0%" stop-color="#7C3AED"/>
       <stop offset="100%" stop-color="#4F46E5"/>
     </linearGradient>
-    <linearGradient id="sparkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#F59E0B"/>
-      <stop offset="100%" stop-color="#EF4444"/>
-    </linearGradient>
   </defs>
 
   <!-- Rounded Bag Body -->
@@ -16,7 +12,9 @@
   <!-- Shopping Bag Handles -->
   <path d="M 36 32 C 36 18, 64 18, 64 32" fill="none" stroke="url(#novaGrad)" stroke-width="7" stroke-linecap="round"/>
 
-  <!-- Nova Star / Sparkle in Center -->
-  <path d="M 50 44 Q 50 56, 62 56 Q 50 56, 50 68 Q 50 56, 38 56 Q 50 56, 50 44 Z" fill="#FFFFFF"/>
-  <circle cx="66" cy="46" r="3" fill="url(#sparkGrad)"/>
+  <!-- Bold 'N' Letter Inside Bag -->
+  <path d="M 37 46 L 37 74 L 44 74 L 44 59 L 56 74 L 63 74 L 63 46 L 56 46 L 56 61 L 44 46 Z" fill="#FFFFFF"/>
+
+  <!-- Spark Accent dot -->
+  <circle cx="68" cy="42" r="3.5" fill="#F59E0B"/>
 </svg>
