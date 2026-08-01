@@ -72,7 +72,7 @@ export default function Home() {
           <div ref={heroTextRef} className="space-y-6">
             <div className="flex items-center gap-3">
               <img 
-                src="/logo.svg" 
+                src="/logo.png" 
                 alt="NovaCart Logo" 
                 className="h-10 w-10 object-contain" 
               />

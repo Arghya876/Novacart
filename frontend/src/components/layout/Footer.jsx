@@ -14,7 +14,7 @@ export default function Footer() {
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-2.5 font-bold text-xl text-white">
               <img 
-                src="/logo.svg" 
+                src="/logo.png" 
                 alt="NovaCart Logo" 
                 className="h-8.5 w-8.5 object-contain" 
               />

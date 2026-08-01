@@ -155,7 +155,7 @@ export default function Header() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group cursor-pointer select-none shrink-0">
             <img 
-              src="/logo.svg" 
+              src="/logo.png" 
               alt="NovaCart Logo" 
               className="h-9.5 w-9.5 sm:h-10 sm:w-10 object-contain group-hover:scale-105 transition-transform" 
             />
