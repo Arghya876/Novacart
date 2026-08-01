@@ -27,8 +27,8 @@ export default function Home() {
   const { products = [], categories = [], recommendations = [], isLoading } = useSelector((state) => state.products || {});
 
   useEffect(() => {
-    // Fetch all available real products
-    dispatch(fetchProducts({ limit: 12 }));
+    // Fetch all products sorted by newest first so newly added seller items display automatically
+    dispatch(fetchProducts({ limit: 12, sort: '-createdAt' }));
     dispatch(fetchCategories());
     
     // Fetch AI recommendations
@@ -58,8 +58,6 @@ export default function Home() {
     return () => ctx.revert();
   }, []);
 
-  const heroProduct = products.length > 0 ? products[0] : null;
-
   return (
     <div ref={heroRef} className="space-y-16 pb-16 overflow-x-hidden">
       {/* Hero Section */}
@@ -74,7 +72,7 @@ export default function Home() {
           <div ref={heroTextRef} className="space-y-6">
             <div className="flex items-center gap-3">
               <img 
-                src="/favicon.png" 
+                src="/logo.png" 
                 alt="NovaCart Logo" 
                 className="h-10 w-10 rounded-xl shadow-md border border-violet-500/20 object-cover animate-bounce" 
                 style={{ animationDuration: '3s' }}
@@ -108,7 +106,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Hero Right: Real Product Graphic */}
+          {/* Hero Right: Shoes Product Graphic */}
           <div className="flex justify-center lg:justify-end">
             <motion.div
               ref={heroImageRef}
@@ -116,30 +114,19 @@ export default function Home() {
               transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               className="relative w-full max-w-[440px] aspect-square rounded-3xl overflow-hidden shadow-2xl border border-white/20 dark:border-neutral-850 bg-neutral-100 dark:bg-neutral-900 z-10"
             >
-              {heroProduct ? (
-                <Link to={`/product/${heroProduct.slug || heroProduct._id}`}>
-                  <img
-                    src={heroProduct.images?.[0] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=600'}
-                    alt={heroProduct.title}
-                    className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-white/30 dark:bg-black/55 backdrop-blur-md border border-white/20 text-white flex justify-between items-center shadow-lg">
-                    <div>
-                      <p className="text-xs text-white/80 font-medium capitalize">{heroProduct.brand || 'Featured Item'}</p>
-                      <h4 className="font-bold text-sm line-clamp-1">{heroProduct.title}</h4>
-                    </div>
-                    <span className="font-bold text-base text-violet-300 dark:text-violet-400">
-                      {formatPrice(heroProduct.discountPrice > 0 ? heroProduct.discountPrice : heroProduct.price)}
-                    </span>
-                  </div>
-                </Link>
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-violet-600/20 to-indigo-600/20">
-                  <ShoppingBag className="h-16 w-16 text-violet-500 mb-3" />
-                  <h3 className="font-bold text-lg text-neutral-800 dark:text-white">Explore Real Products</h3>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Discover authentic inventory from registered sellers</p>
+              <img
+                src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=600"
+                alt="Premium Nike Shoes"
+                className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700"
+              />
+              {/* Glass overlay details */}
+              <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-white/20 dark:bg-black/45 backdrop-blur-md border border-white/20 text-white flex justify-between items-center shadow-lg">
+                <div>
+                  <p className="text-xs text-white/70 font-medium">Trending Footwear</p>
+                  <h4 className="font-bold text-sm">Nike Air Max Scarlet</h4>
                 </div>
-              )}
+                <span className="font-bold text-base">₹7,995</span>
+              </div>
             </motion.div>
           </div>
         </div>

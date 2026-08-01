@@ -153,11 +153,13 @@ export default function Header() {
         <div className="flex h-16 items-center justify-between gap-3">
           
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 font-bold text-lg sm:text-xl text-neutral-900 dark:text-white shrink-0 group">
-            <div className="rounded-full bg-violet-100 dark:bg-violet-900/40 p-1.5 sm:p-2 shadow-xs">
-              <Sparkles className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-violet-600 dark:text-violet-400 transition-transform group-hover:rotate-12" />
-            </div>
-            <span className="bg-linear-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400 bg-clip-text text-transparent">
+          <Link to="/" className="flex items-center gap-2.5 font-extrabold text-lg sm:text-xl text-neutral-900 dark:text-white shrink-0 group">
+            <img 
+              src="/logo.png" 
+              alt="NovaCart Logo" 
+              className="h-8.5 w-8.5 sm:h-9.5 sm:w-9.5 rounded-xl shadow-md border border-violet-500/20 object-cover group-hover:scale-105 transition-transform" 
+            />
+            <span className="bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400 bg-clip-text text-transparent tracking-tight font-extrabold">
               NovaCart
             </span>
           </Link>
