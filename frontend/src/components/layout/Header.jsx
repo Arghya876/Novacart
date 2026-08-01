@@ -10,12 +10,12 @@ import useDebounce from '../../hooks/useDebounce';
 import { formatPrice } from '../../utils/formatCurrency';
 
 const POPULAR_SEARCHES = [
-  'iPhone 15 Pro',
-  'MacBook Pro',
-  'Wireless Earphones',
-  'Nike Air Max',
+  'Samsung Watch',
   'Smart Watch',
-  'Leather Jacket',
+  'Electronics',
+  'Fashion',
+  'Footwear',
+  'Home',
 ];
 
 export default function Header() {

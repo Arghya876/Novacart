@@ -3,10 +3,20 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import { gsap } from 'gsap';
-import { ArrowRight, ShoppingBag, Truck, ShieldCheck, RefreshCw, Zap, Sparkles } from 'lucide-react';
+import { ArrowRight, ShoppingBag, Truck, ShieldCheck, RefreshCw, Zap, Sparkles, Search, TrendingUp } from 'lucide-react';
 import { fetchProducts, fetchCategories, fetchRecommendations } from '../store/productSlice';
 import ProductCard from '../components/common/ProductCard';
 import SkeletonLoader from '../components/common/SkeletonLoader';
+import { formatPrice } from '../utils/formatCurrency';
+
+const POPULAR_SEARCHES = [
+  'Samsung Watch',
+  'Smart Watch',
+  'Electronics',
+  'Fashion',
+  'Footwear',
+  'Home',
+];
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -14,10 +24,11 @@ export default function Home() {
   const heroTextRef = useRef(null);
   const heroImageRef = useRef(null);
 
-  const { products, categories, recommendations, isLoading } = useSelector((state) => state.products);
+  const { products = [], categories = [], recommendations = [], isLoading } = useSelector((state) => state.products || {});
 
   useEffect(() => {
-    dispatch(fetchProducts({ limit: 4, isFeatured: true }));
+    // Fetch all available real products
+    dispatch(fetchProducts({ limit: 12 }));
     dispatch(fetchCategories());
     
     // Fetch AI recommendations
@@ -28,20 +39,26 @@ export default function Home() {
   // GSAP Entrance Animations
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        heroTextRef.current.children,
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: 'power3.out' }
-      );
-      gsap.fromTo(
-        heroImageRef.current,
-        { opacity: 0, scale: 0.9, rotate: -2 },
-        { opacity: 1, scale: 1, rotate: 0, duration: 1.2, ease: 'elastic.out(1, 0.75)', delay: 0.3 }
-      );
+      if (heroTextRef.current?.children) {
+        gsap.fromTo(
+          heroTextRef.current.children,
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: 'power3.out' }
+        );
+      }
+      if (heroImageRef.current) {
+        gsap.fromTo(
+          heroImageRef.current,
+          { opacity: 0, scale: 0.9, rotate: -2 },
+          { opacity: 1, scale: 1, rotate: 0, duration: 1.2, ease: 'elastic.out(1, 0.75)', delay: 0.3 }
+        );
+      }
     }, heroRef);
 
     return () => ctx.revert();
   }, []);
+
+  const heroProduct = products.length > 0 ? products[0] : null;
 
   return (
     <div ref={heroRef} className="space-y-16 pb-16 overflow-x-hidden">
@@ -63,7 +80,7 @@ export default function Home() {
                 style={{ animationDuration: '3s' }}
               />
               <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-100 dark:bg-violet-900/45 px-3 py-1 text-xs font-semibold text-violet-600 dark:text-violet-400">
-                <Zap className="h-3.5 w-3.5 fill-violet-600 dark:fill-violet-400" /> Discover the Future of Shopping
+                <Zap className="h-3.5 w-3.5 fill-violet-600 dark:fill-violet-400" /> Discover Real Products & Deals
               </span>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-neutral-900 dark:text-white leading-[1.1]">
@@ -73,7 +90,7 @@ export default function Home() {
               </span>
             </h1>
             <p className="text-base sm:text-lg text-neutral-500 dark:text-neutral-400 max-w-lg">
-              Explore our curated selection of premium electronics, high-fashion apparel, and modern home essentials designed for discerning tastemakers.
+              Explore authentic products listed by verified sellers across electronics, fashion, footwear, and home essentials.
             </p>
             <div className="flex flex-wrap gap-4 pt-2">
               <Link
@@ -91,7 +108,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Hero Right: Product Graphic */}
+          {/* Hero Right: Real Product Graphic */}
           <div className="flex justify-center lg:justify-end">
             <motion.div
               ref={heroImageRef}
@@ -99,23 +116,61 @@ export default function Home() {
               transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               className="relative w-full max-w-[440px] aspect-square rounded-3xl overflow-hidden shadow-2xl border border-white/20 dark:border-neutral-850 bg-neutral-100 dark:bg-neutral-900 z-10"
             >
-              <img
-                src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=600"
-                alt="Premium Nike Shoes"
-                className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700"
-              />
-              {/* Glass overlay details */}
-              <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-white/20 dark:bg-black/45 backdrop-blur-md border border-white/20 text-white flex justify-between items-center">
-                <div>
-                  <p className="text-xs text-white/70">Trending Apparel</p>
-                  <h4 className="font-bold text-sm">Nike Air Max Scarlet</h4>
+              {heroProduct ? (
+                <Link to={`/product/${heroProduct.slug || heroProduct._id}`}>
+                  <img
+                    src={heroProduct.images?.[0] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=600'}
+                    alt={heroProduct.title}
+                    className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-white/30 dark:bg-black/55 backdrop-blur-md border border-white/20 text-white flex justify-between items-center shadow-lg">
+                    <div>
+                      <p className="text-xs text-white/80 font-medium capitalize">{heroProduct.brand || 'Featured Item'}</p>
+                      <h4 className="font-bold text-sm line-clamp-1">{heroProduct.title}</h4>
+                    </div>
+                    <span className="font-bold text-base text-violet-300 dark:text-violet-400">
+                      {formatPrice(heroProduct.discountPrice > 0 ? heroProduct.discountPrice : heroProduct.price)}
+                    </span>
+                  </div>
+                </Link>
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-violet-600/20 to-indigo-600/20">
+                  <ShoppingBag className="h-16 w-16 text-violet-500 mb-3" />
+                  <h3 className="font-bold text-lg text-neutral-800 dark:text-white">Explore Real Products</h3>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Discover authentic inventory from registered sellers</p>
                 </div>
-                <span className="font-bold text-base">₹7,995</span>
-              </div>
+              )}
             </motion.div>
           </div>
         </div>
       </section>
+
+      {/* Popular Product Searches Section */}
+      <motion.section 
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-50px' }}
+        transition={{ duration: 0.6 }}
+        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
+      >
+        <div className="p-6 sm:p-8 rounded-3xl border border-neutral-200/80 dark:border-neutral-850 bg-violet-50/60 dark:bg-violet-950/20 backdrop-blur-md space-y-4">
+          <div className="flex items-center gap-2 text-xs font-bold text-violet-600 dark:text-violet-400 uppercase tracking-wider">
+            <TrendingUp className="h-4 w-4" /> Popular Product Searches
+          </div>
+          <div className="flex flex-wrap gap-2.5">
+            {POPULAR_SEARCHES.map((term) => (
+              <Link
+                key={term}
+                to={`/products?search=${encodeURIComponent(term)}`}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-800 text-xs font-medium text-neutral-700 dark:text-neutral-200 hover:text-violet-600 dark:hover:text-violet-400 hover:border-violet-300 dark:hover:border-violet-700 hover:shadow-xs transition-all cursor-pointer"
+              >
+                <Search className="h-3.5 w-3.5 text-violet-500" />
+                {term}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </motion.section>
 
       {/* Trust Badges */}
       <motion.section 
@@ -197,7 +252,7 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* Featured Products */}
+      {/* Available Products */}
       <motion.section 
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -205,12 +260,35 @@ export default function Home() {
         transition={{ duration: 0.6 }}
         className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6"
       >
-        <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">Featured Products</h2>
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">Available Products</h2>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-violet-100 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400">
+              Real Catalog Items
+            </span>
+          </div>
+          <Link to="/products" className="text-xs font-semibold text-violet-600 dark:text-violet-400 hover:underline">
+            View All Catalog ({products.length})
+          </Link>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {isLoading ? (
             [...Array(4)].map((_, i) => <SkeletonLoader key={i} />)
-          ) : (
+          ) : products.length > 0 ? (
             products.map((product) => <ProductCard key={product._id} product={product} />)
+          ) : (
+            <div className="col-span-full text-center py-12 p-8 rounded-3xl border border-dashed border-neutral-300 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/40 space-y-3">
+              <ShoppingBag className="mx-auto h-12 w-12 text-neutral-400" />
+              <h3 className="font-bold text-base text-neutral-800 dark:text-neutral-200">No Available Products Found</h3>
+              <p className="text-xs text-neutral-500 max-w-sm mx-auto">Sellers can post new items to the catalog using their seller dashboard.</p>
+              <Link
+                to="/products"
+                className="inline-block px-4 py-2 rounded-xl bg-violet-600 text-white text-xs font-semibold hover:bg-violet-700 transition-colors"
+              >
+                Browse All Categories
+              </Link>
+            </div>
           )}
         </div>
       </motion.section>
@@ -238,3 +316,4 @@ export default function Home() {
     </div>
   );
 }
+
