@@ -71,14 +71,14 @@ export default function Home() {
           {/* Hero Left: Text Content */}
           <div ref={heroTextRef} className="space-y-6">
             <div className="flex items-center gap-3">
-              <img 
-                src="/logo.png" 
-                alt="NovaCart Logo" 
-                className="h-10 w-10 rounded-xl shadow-md border border-violet-500/20 object-cover animate-bounce" 
-                style={{ animationDuration: '3s' }}
-              />
+              <div className="relative flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-tr from-violet-600 via-indigo-600 to-violet-700 text-white shadow-md shadow-violet-500/20">
+                <svg className="w-5.5 h-5.5 fill-current" viewBox="0 0 24 24">
+                  <path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm0 10l-2.5 2.5 1.5 1.5 1-1 3.5-3.5-1.5-1.5z" />
+                </svg>
+                <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-amber-400 border-2 border-white dark:border-neutral-950 animate-pulse" />
+              </div>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-100 dark:bg-violet-900/45 px-3 py-1 text-xs font-semibold text-violet-600 dark:text-violet-400">
-                <Zap className="h-3.5 w-3.5 fill-violet-600 dark:fill-violet-400" /> Discover Real Products & Deals
+                <Zap className="h-3.5 w-3.5 fill-violet-600 dark:fill-violet-400" /> Premium E-Commerce Platform
               </span>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-neutral-900 dark:text-white leading-[1.1]">

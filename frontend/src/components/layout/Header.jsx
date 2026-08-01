@@ -153,15 +153,22 @@ export default function Header() {
         <div className="flex h-16 items-center justify-between gap-3">
           
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 font-extrabold text-lg sm:text-xl text-neutral-900 dark:text-white shrink-0 group">
-            <img 
-              src="/logo.png" 
-              alt="NovaCart Logo" 
-              className="h-8.5 w-8.5 sm:h-9.5 sm:w-9.5 rounded-xl shadow-md border border-violet-500/20 object-cover group-hover:scale-105 transition-transform" 
-            />
-            <span className="bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400 bg-clip-text text-transparent tracking-tight font-extrabold">
-              NovaCart
-            </span>
+          <Link to="/" className="flex items-center gap-2.5 group cursor-pointer select-none shrink-0">
+            <div className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-tr from-violet-600 via-indigo-600 to-violet-700 text-white shadow-md shadow-violet-500/20 group-hover:scale-105 transition-transform">
+              <svg className="w-5 h-5 sm:w-5.5 sm:h-5.5 fill-current" viewBox="0 0 24 24">
+                <path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm0 10l-2.5 2.5 1.5 1.5 1-1 3.5-3.5-1.5-1.5z" />
+              </svg>
+              <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-amber-400 border-2 border-white dark:border-neutral-950 animate-pulse" />
+            </div>
+            <div className="flex flex-col justify-center">
+              <div className="flex items-center font-extrabold text-xl sm:text-2xl tracking-tight text-neutral-900 dark:text-white leading-none">
+                <span className="text-violet-600 dark:text-violet-400 font-black">Nova</span>
+                <span className="text-neutral-900 dark:text-white font-extrabold">Cart</span>
+              </div>
+              <svg className="w-16 h-1.5 text-violet-500 fill-none stroke-current mt-0.5" viewBox="0 0 60 6">
+                <path d="M 2 2 Q 30 6, 58 2" strokeWidth="2.5" strokeLinecap="round" />
+              </svg>
+            </div>
           </Link>
 
           {/* Desktop Search Bar Trigger */}
