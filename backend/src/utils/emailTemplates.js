@@ -220,6 +220,56 @@ const getOrderStatusUpdateTemplate = ({ customerName, order, newStatus, tracking
   return wrapEmailTemplate(content, `Shipment Update: Order #${order._id} is ${newStatus}`);
 };
 
+// 7. Contact Us Form Inquiry Template (Sent to Support Admin)
+const getContactInquiryTemplate = ({ name, email, subject, message }) => {
+  const content = `
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+      <span style="display: inline-block; padding: 6px 12px; background-color: #ede9fe; color: #6d28d9; font-size: 11px; font-weight: 700; border-radius: 20px; text-transform: uppercase;">Customer Inquiry</span>
+    </div>
+    <h2 style="margin-top: 0; color: #111827; font-size: 20px; font-weight: 700;">New Contact Form Message 📩</h2>
+    <p style="color: #4b5563; font-size: 14px; line-height: 1.6;">
+      You have received a new support inquiry from the NovaCart website.
+    </p>
+
+    <div style="margin: 20px 0; padding: 18px; background-color: #f8fafc; border-left: 4px solid #6d28d9; border-radius: 12px; font-size: 13px; color: #334155; line-height: 1.8;">
+      <strong>Sender Details:</strong><br>
+      • <strong>Name:</strong> ${name}<br>
+      • <strong>Email:</strong> <a href="mailto:${email}" style="color: #6d28d9; font-weight: bold;">${email}</a><br>
+      • <strong>Subject:</strong> ${subject || 'General Inquiry'}<br>
+      • <strong>Received At:</strong> ${new Date().toLocaleString()}
+    </div>
+
+    <div style="margin-top: 20px; padding: 16px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px;">
+      <strong style="color: #1e293b; font-size: 13px;">Message Content:</strong>
+      <p style="color: #334155; font-size: 14px; line-height: 1.6; margin-top: 8px; white-space: pre-wrap;">${message}</p>
+    </div>
+  `;
+  return wrapEmailTemplate(content, `Support Inquiry: ${subject || 'New Contact Message'}`);
+};
+
+// 8. Contact Us Auto-Reply Template (Sent to User)
+const getContactAutoReplyTemplate = ({ name, message }) => {
+  const content = `
+    <h2 style="margin-top: 0; color: #111827; font-size: 20px; font-weight: 700;">We received your message! 👋</h2>
+    <p style="color: #4b5563; font-size: 14px; line-height: 1.6;">
+      Dear <strong>${name}</strong>, thank you for reaching out to <strong>NovaCart Support</strong>.
+    </p>
+    <p style="color: #4b5563; font-size: 14px; line-height: 1.6;">
+      Our customer care team has received your message and is reviewing it. We aim to respond within 24 business hours.
+    </p>
+
+    <div style="margin: 20px 0; padding: 16px; background-color: #f8fafc; border-left: 4px solid #10b981; border-radius: 12px; font-size: 13px; color: #334155;">
+      <strong>Your Submitted Message:</strong>
+      <p style="color: #475569; font-style: italic; margin-top: 6px;">"${message.length > 200 ? message.substring(0, 200) + '...' : message}"</p>
+    </div>
+
+    <p style="color: #6b7280; font-size: 12px; line-height: 1.5;">
+      Need urgent assistance? You can also check our <a href="${process.env.CLIENT_URL || 'http://localhost:5173'}/faq" style="color: #6d28d9; text-decoration: underline;">FAQ Page</a>.
+    </p>
+  `;
+  return wrapEmailTemplate(content, 'NovaCart Support - We received your inquiry');
+};
+
 module.exports = {
   wrapEmailTemplate,
   getWelcomeOtpTemplate,
@@ -228,4 +278,6 @@ module.exports = {
   getSellerOrderTemplate,
   getAdminOrderTemplate,
   getOrderStatusUpdateTemplate,
+  getContactInquiryTemplate,
+  getContactAutoReplyTemplate,
 };

@@ -17,6 +17,7 @@ const {
   deleteMe,
   requestDeleteOtp,
   googleAuth,
+  contactSupport,
 } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 const { authorize } = require('../middleware/role');
@@ -24,6 +25,7 @@ const { authorize } = require('../middleware/role');
 router.post('/register', register);
 router.post('/login', login);
 router.post('/google', googleAuth);
+router.post('/contact', contactSupport);
 router.post('/refresh', refreshToken);
 router.post('/forgotpassword', forgotPassword);
 router.post('/resetpassword', resetPassword);

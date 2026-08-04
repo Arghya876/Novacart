@@ -1,5 +1,6 @@
-import React from 'react';
-import { Mail, Phone, MapPin, HelpCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Mail, Phone, MapPin, HelpCircle, Send, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import api from '../../utils/api';
 
 export function About() {
   return (
@@ -16,18 +17,44 @@ export function About() {
 }
 
 export function Contact() {
+  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
+  const [loading, setLoading] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setSuccessMsg('');
+    setErrorMsg('');
+
+    try {
+      const res = await api.post('/auth/contact', formData);
+      setSuccessMsg(res.data.message || 'Your inquiry has been submitted! A confirmation email has been dispatched to your inbox.');
+      setFormData({ name: '', email: '', subject: '', message: '' });
+    } catch (err) {
+      setErrorMsg(err.response?.data?.error || 'Failed to send message. Please try again or email support@novacart.com.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-16 grid grid-cols-1 md:grid-cols-2 gap-12">
       <div className="space-y-6">
         <h1 className="text-3xl font-bold text-neutral-900 dark:text-white">Contact Us</h1>
         <p className="text-sm text-neutral-500 dark:text-neutral-400">
-          Have questions about your order, shipping, or selling on NovaCart? Get in touch with our team.
+          Have questions about your order, shipping, or selling on NovaCart? Get in touch with our support team.
         </p>
 
         <div className="space-y-4 text-xs text-neutral-600 dark:text-neutral-350">
           <div className="flex items-center gap-3">
             <Mail className="h-5 w-5 text-violet-600" />
-            <span>support@novacart.com</span>
+            <span>arghyabhattacharjee876@gmail.com</span>
           </div>
           <div className="flex items-center gap-3">
             <Phone className="h-5 w-5 text-violet-600" />
@@ -40,21 +67,84 @@ export function Contact() {
         </div>
       </div>
 
-      <form className="p-6 border border-neutral-100 dark:border-neutral-850 bg-white dark:bg-neutral-900 rounded-3xl space-y-4 shadow-sm text-xs">
+      <form onSubmit={handleSubmit} className="p-6 border border-neutral-100 dark:border-neutral-850 bg-white dark:bg-neutral-900 rounded-3xl space-y-4 shadow-sm text-xs">
+        {successMsg && (
+          <div className="flex items-start gap-2.5 p-3.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 rounded-2xl text-xs">
+            <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
+            <span>{successMsg}</span>
+          </div>
+        )}
+
+        {errorMsg && (
+          <div className="flex items-start gap-2.5 p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 rounded-2xl text-xs">
+            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
+
         <div className="space-y-1.5">
           <label className="text-[10px] font-bold text-neutral-400 uppercase">Your Name</label>
-          <input type="text" required className="w-full h-10 px-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950" />
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            placeholder="John Doe"
+            className="w-full h-10 px-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-white"
+          />
         </div>
         <div className="space-y-1.5">
           <label className="text-[10px] font-bold text-neutral-400 uppercase">Email Address</label>
-          <input type="email" required className="w-full h-10 px-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950" />
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            placeholder="john@example.com"
+            className="w-full h-10 px-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-white"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-bold text-neutral-400 uppercase">Subject (Optional)</label>
+          <input
+            type="text"
+            name="subject"
+            value={formData.subject}
+            onChange={handleChange}
+            placeholder="Order status / General inquiry"
+            className="w-full h-10 px-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-white"
+          />
         </div>
         <div className="space-y-1.5">
           <label className="text-[10px] font-bold text-neutral-400 uppercase">Message</label>
-          <textarea rows={4} required className="w-full p-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950" />
+          <textarea
+            rows={4}
+            name="message"
+            value={formData.message}
+            onChange={handleChange}
+            required
+            placeholder="Type your message here..."
+            className="w-full p-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-white"
+          />
         </div>
-        <button type="submit" className="w-full h-11 rounded-full bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition-all shadow-sm">
-          Send Message
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full h-11 rounded-full bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Sending Email...</span>
+            </>
+          ) : (
+            <>
+              <Send className="h-4 w-4" />
+              <span>Send Message</span>
+            </>
+          )}
         </button>
       </form>
     </div>

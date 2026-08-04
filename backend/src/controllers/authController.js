@@ -872,3 +872,50 @@ exports.deleteMe = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Submit Contact Us Inquiry Form
+// @route   POST /api/auth/contact
+// @access  Public
+exports.contactSupport = async (req, res, next) => {
+  try {
+    const { name, email, subject, message } = req.body;
+
+    if (!name || !email || !message) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide your name, email address, and message.',
+      });
+    }
+
+    const sendEmail = require('../utils/sendEmail');
+    const { getContactInquiryTemplate, getContactAutoReplyTemplate } = require('../utils/emailTemplates');
+
+    const supportRecipient = process.env.FROM_EMAIL || process.env.SMTP_USER || 'arghyabhattacharjee876@gmail.com';
+
+    // 1. Dispatch email to Support Desk / Admin
+    const adminMailHtml = getContactInquiryTemplate({ name, email, subject, message });
+    await sendEmail({
+      email: supportRecipient,
+      replyTo: email,
+      subject: `[Contact Form] ${subject || 'Support Inquiry'} from ${name}`,
+      message: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
+      html: adminMailHtml,
+    });
+
+    // 2. Dispatch Auto-reply to Customer
+    const userAutoReplyHtml = getContactAutoReplyTemplate({ name, message });
+    await sendEmail({
+      email: email,
+      subject: 'NovaCart Support - We have received your message',
+      message: `Dear ${name},\n\nThank you for contacting NovaCart Support. We have received your inquiry and will respond within 24 hours.`,
+      html: userAutoReplyHtml,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Your inquiry has been submitted successfully! A confirmation email has been sent to your inbox.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};

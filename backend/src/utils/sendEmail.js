@@ -19,9 +19,12 @@ const sendEmail = async (options) => {
       transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: { user, pass },
-        connectionTimeout: 8000,
-        greetingTimeout: 8000,
-        socketTimeout: 8000,
+        tls: {
+          rejectUnauthorized: false,
+        },
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 10000,
       });
     } else {
       transporter = nodemailer.createTransport({
@@ -29,9 +32,12 @@ const sendEmail = async (options) => {
         port,
         secure: port === 465,
         auth: { user, pass },
-        connectionTimeout: 8000,
-        greetingTimeout: 8000,
-        socketTimeout: 8000,
+        tls: {
+          rejectUnauthorized: false,
+        },
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 10000,
       });
     }
   } else {
@@ -66,8 +72,9 @@ const sendEmail = async (options) => {
   const fromName = process.env.FROM_NAME || 'NovaCart';
 
   const message = {
-    from: `${fromName} <${fromEmail}>`,
+    from: `"${fromName}" <${fromEmail}>`,
     to: options.email,
+    replyTo: options.replyTo || undefined,
     subject: options.subject,
     text: options.message,
     html: options.html || `<p>${options.message.replace(/\n/g, '<br>')}</p>`,
@@ -83,11 +90,11 @@ const sendEmail = async (options) => {
       console.log('==================================================\n');
       return { previewUrl, messageId: info.messageId };
     }
-    console.log(`System mail delivered successfully: ${info.messageId}`);
+    console.log(`System mail delivered successfully to ${options.email}: ${info.messageId}`);
     return info;
   } catch (err) {
     console.error('System mail delivery error:', err.message);
-    return { mockSent: true, messageId: 'fallback_' + Date.now() };
+    return { mockSent: true, error: err.message, messageId: 'fallback_' + Date.now() };
   }
 };
 
