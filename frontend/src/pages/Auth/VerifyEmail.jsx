@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Lock, AlertTriangle, Loader2, ArrowLeft, CheckCircle, Key } from 'lucide-react';
-import { verifyEmail, clearError } from '../../store/authSlice';
+import { Lock, AlertTriangle, Loader2, ArrowLeft, CheckCircle, Key, RotateCw } from 'lucide-react';
+import { verifyEmail, resendVerificationOtp, clearError } from '../../store/authSlice';
 
 export default function VerifyEmail() {
   const navigate = useNavigate();
@@ -19,25 +19,42 @@ export default function VerifyEmail() {
   const [otp, setOtp] = useState('');
   const [localError, setLocalError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
+  const [resendMsg, setResendMsg] = useState(null);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
   const [previewUrl, setPreviewUrl] = useState(initialPreviewUrl);
 
   useEffect(() => {
     dispatch(clearError());
     setLocalError(null);
     setSuccessMsg(null);
+    setResendMsg(null);
   }, [dispatch]);
+
+  // Cooldown timer for Resend OTP
+  useEffect(() => {
+    let timer;
+    if (cooldown > 0) {
+      timer = setInterval(() => {
+        setCooldown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLocalError(null);
     setSuccessMsg(null);
+    setResendMsg(null);
 
-    if (otp.length !== 6 || isNaN(otp)) {
+    const cleanOtp = otp.trim();
+    if (cleanOtp.length !== 6 || isNaN(cleanOtp)) {
       setLocalError('OTP must be a 6-digit number');
       return;
     }
 
-    const verifyData = { email, otp };
+    const verifyData = { email: email.trim(), otp: cleanOtp };
     const result = await dispatch(verifyEmail(verifyData));
     
     if (verifyEmail.fulfilled.match(result)) {
@@ -49,7 +66,36 @@ export default function VerifyEmail() {
         } else {
           navigate(role === 'seller' ? '/my-products' : '/home');
         }
-      }, 2000);
+      }, 1500);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (!email) {
+      setLocalError('Please enter your email address to resend OTP.');
+      return;
+    }
+    if (cooldown > 0 || resendLoading) return;
+
+    setResendLoading(true);
+    setLocalError(null);
+    setResendMsg(null);
+
+    try {
+      const result = await dispatch(resendVerificationOtp(email.trim()));
+      if (resendVerificationOtp.fulfilled.match(result)) {
+        setResendMsg(result.payload.message || 'A new verification OTP has been sent to your email.');
+        if (result.payload.previewUrl) {
+          setPreviewUrl(result.payload.previewUrl);
+        }
+        setCooldown(60);
+      } else {
+        setLocalError(result.payload || 'Failed to resend verification OTP');
+      }
+    } catch (err) {
+      setLocalError('An error occurred while requesting a new OTP.');
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -70,14 +116,21 @@ export default function VerifyEmail() {
             Verify Your Email
           </h1>
           <p className="text-xs text-neutral-400">
-            A 6-digit verification code has been sent to your email. Please enter it below to activate your account.
+            A 6-digit verification code has been sent to your email address. Enter it below to activate your account.
           </p>
         </div>
 
         {successMsg && (
-          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/25 border border-emerald-200 dark:border-emerald-900/30 text-emerald-500 rounded-xl flex items-start gap-2 text-xs">
+          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/25 border border-emerald-200 dark:border-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-start gap-2 text-xs">
             <CheckCircle className="h-4.5 w-4.5 shrink-0 mt-0.5" /> 
             <span>{successMsg}</span>
+          </div>
+        )}
+
+        {resendMsg && !successMsg && (
+          <div className="p-3 bg-violet-50 dark:bg-violet-950/25 border border-violet-200 dark:border-violet-900/30 text-violet-600 dark:text-violet-400 rounded-xl flex items-start gap-2 text-xs">
+            <CheckCircle className="h-4.5 w-4.5 shrink-0 mt-0.5" /> 
+            <span>{resendMsg}</span>
           </div>
         )}
 
@@ -144,6 +197,31 @@ export default function VerifyEmail() {
             {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Verify Email'}
           </button>
         </form>
+
+        {/* Resend OTP Section */}
+        <div className="pt-2 text-center text-xs text-neutral-450 dark:text-neutral-500 flex flex-col items-center gap-2">
+          <span>Didn't receive the verification code?</span>
+          <button
+            type="button"
+            onClick={handleResendOtp}
+            disabled={cooldown > 0 || resendLoading || !!successMsg}
+            className="inline-flex items-center gap-1.5 font-bold text-violet-600 dark:text-violet-400 hover:underline disabled:opacity-50 disabled:no-underline cursor-pointer"
+          >
+            {resendLoading ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                <span>Sending Code...</span>
+              </>
+            ) : cooldown > 0 ? (
+              <span>Resend OTP in {cooldown}s</span>
+            ) : (
+              <>
+                <RotateCw className="h-3.5 w-3.5" />
+                <span>Resend OTP</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -187,6 +187,19 @@ export const verifyEmail = createAsyncThunk(
   }
 );
 
+export const resendVerificationOtp = createAsyncThunk(
+  'auth/resendVerificationOtp',
+  async (email, thunkAPI) => {
+    try {
+      const response = await api.post(`${API_URL}/resend-verification-otp`, { email });
+      return response.data;
+    } catch (error) {
+      const message = error.response?.data?.error || error.message || 'Failed to resend verification OTP';
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 export const deleteAccount = createAsyncThunk(
   'auth/deleteAccount',
   async (otp, thunkAPI) => {

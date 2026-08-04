@@ -558,59 +558,61 @@ exports.forgotPassword = async (req, res, next) => {
     const { email } = req.body;
 
     if (!email) {
-      return res.status(400).json({ success: false, error: 'Please provide an email' });
+      return res.status(400).json({ success: false, error: 'Please provide your registered email address' });
     }
+
+    const cleanEmail = email.toLowerCase().trim();
 
     const useFallback = process.env.USE_FALLBACK_DATA === 'true';
     if (useFallback) {
-      console.log(`[MOCK forgotPassword] OTP request for fallback user: ${email}`);
+      console.log(`[MOCK forgotPassword] OTP request for fallback user: ${cleanEmail}`);
       return res.status(200).json({
         success: true,
         message: 'OTP sent to email (Mock Mode)',
       });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: cleanEmail });
 
     if (!user) {
-      return res.status(404).json({ success: false, error: 'User not found with this email' });
+      return res.status(404).json({ success: false, error: 'No registered account found with this email address' });
     }
 
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Set OTP and expiration (10 minutes)
+    // Set OTP and expiration (15 minutes)
     const crypto = require('crypto');
     const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
 
     user.resetPasswordOtp = hashedOtp;
-    user.resetPasswordOtpExpire = Date.now() + 10 * 60 * 1000;
+    user.resetPasswordOtpExpire = new Date(Date.now() + 15 * 60 * 1000);
 
     await user.save({ validateBeforeSave: false });
 
     // Send via email
     const sendEmail = require('../utils/sendEmail');
-    const message = `You requested a password reset. Your 6-digit verification OTP is:\n\n${otp}\n\nThis OTP is valid for 10 minutes. If you did not request this, please ignore this email.`;
+    const message = `Dear ${user.name},\n\nYou requested a password reset for your NovaCart account. Your 6-digit verification OTP is:\n\n${otp}\n\nThis OTP is valid for 15 minutes. If you did not request this, please ignore this email.`;
 
     try {
       const mailInfo = await sendEmail({
         email: user.email,
-        subject: 'NovaCart Password Reset OTP',
+        subject: 'NovaCart Password Reset OTP Code',
         message,
       });
 
       res.status(200).json({ 
         success: true, 
-        message: 'OTP sent to email',
+        message: 'A 6-digit verification OTP has been sent to your email address.',
         previewUrl: mailInfo?.previewUrl || null
       });
     } catch (err) {
-      console.error(err);
+      console.error('Forgot password email dispatch error:', err.message);
       user.resetPasswordOtp = undefined;
       user.resetPasswordOtpExpire = undefined;
       await user.save({ validateBeforeSave: false });
 
-      return res.status(500).json({ success: false, error: 'Email could not be sent' });
+      return res.status(500).json({ success: false, error: 'Failed to send OTP email. Please try again later.' });
     }
   } catch (error) {
     next(error);
@@ -625,10 +627,13 @@ exports.resetPassword = async (req, res, next) => {
     const { email, otp, password } = req.body;
 
     if (!email || !otp || !password) {
-      return res.status(400).json({ success: false, error: 'Please provide email, OTP, and new password' });
+      return res.status(400).json({ success: false, error: 'Please provide email, 6-digit OTP, and new password' });
     }
 
-    // Strong Password Policy Validation (Min 8 chars, 1 uppercase, 1 lowercase, 1 digit, 1 special char)
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanOtp = String(otp).trim();
+
+    // Strong Password Policy Validation
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(password)) {
       return res.status(400).json({
@@ -639,35 +644,41 @@ exports.resetPassword = async (req, res, next) => {
 
     const useFallback = process.env.USE_FALLBACK_DATA === 'true';
     if (useFallback) {
-      console.log(`[MOCK resetPassword] Password reset for fallback user: ${email}`);
       return res.status(200).json({
         success: true,
         message: 'Password reset successful (Mock Mode)',
       });
     }
 
-    const crypto = require('crypto');
-    const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
-
-    // Find user by email, matching OTP and checking expiration
-    const user = await User.findOne({
-      email,
-      resetPasswordOtp: hashedOtp,
-      resetPasswordOtpExpire: { $gt: Date.now() },
-    });
+    const user = await User.findOne({ email: cleanEmail }).select('+resetPasswordOtp +resetPasswordOtpExpire');
 
     if (!user) {
-      return res.status(400).json({ success: false, error: 'Invalid or expired OTP' });
+      return res.status(404).json({ success: false, error: 'No registered account found with this email address.' });
     }
 
-    // Set new password (will be hashed automatically by user pre-save hook)
+    if (!user.resetPasswordOtp || !user.resetPasswordOtpExpire) {
+      return res.status(400).json({ success: false, error: 'No active password reset request found. Please request a new OTP.' });
+    }
+
+    if (new Date(user.resetPasswordOtpExpire).getTime() < Date.now()) {
+      return res.status(400).json({ success: false, error: 'Password reset OTP has expired. Please request a new OTP.' });
+    }
+
+    const crypto = require('crypto');
+    const hashedOtp = crypto.createHash('sha256').update(cleanOtp).digest('hex');
+
+    if (user.resetPasswordOtp !== hashedOtp) {
+      return res.status(400).json({ success: false, error: 'Invalid 6-digit OTP code. Please check your email and try again.' });
+    }
+
+    // Set new password (hashed automatically by user pre-save hook)
     user.password = password;
     user.resetPasswordOtp = undefined;
     user.resetPasswordOtpExpire = undefined;
 
     await user.save();
 
-    res.status(200).json({ success: true, message: 'Password reset successful' });
+    res.status(200).json({ success: true, message: 'Password reset successful! You can now log in with your new password.' });
   } catch (error) {
     next(error);
   }
@@ -681,31 +692,47 @@ exports.verifyEmail = async (req, res, next) => {
     const { email, otp } = req.body;
 
     if (!email || !otp) {
-      return res.status(400).json({ success: false, error: 'Please provide email and OTP' });
+      return res.status(400).json({ success: false, error: 'Please provide email address and 6-digit OTP' });
     }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanOtp = String(otp).trim();
 
     const useFallback = process.env.USE_FALLBACK_DATA === 'true';
     if (useFallback) {
       return res.status(200).json({
         success: true,
         message: 'Email verified successfully (Mock Mode)',
-        user: { email, name: 'Fallback User', role: 'customer' },
+        user: { email: cleanEmail, name: 'Fallback User', role: 'customer' },
         accessToken: 'fallback-token',
       });
     }
 
-    const crypto = require('crypto');
-    const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
-
-    // Find user by email, matching OTP and checking expiration
-    const user = await User.findOne({
-      email,
-      emailVerificationOtp: hashedOtp,
-      emailVerificationOtpExpire: { $gt: Date.now() },
-    });
+    // Find user by email with OTP fields selected
+    const user = await User.findOne({ email: cleanEmail }).select('+emailVerificationOtp +emailVerificationOtpExpire');
 
     if (!user) {
-      return res.status(400).json({ success: false, error: 'Invalid or expired verification OTP' });
+      return res.status(404).json({ success: false, error: 'No account found with this email address.' });
+    }
+
+    if (user.isVerified) {
+      // Send token response so user can log in seamlessly
+      return sendTokenResponse(user, 200, res);
+    }
+
+    if (!user.emailVerificationOtp || !user.emailVerificationOtpExpire) {
+      return res.status(400).json({ success: false, error: 'No pending verification OTP found. Please click "Resend OTP".' });
+    }
+
+    if (new Date(user.emailVerificationOtpExpire).getTime() < Date.now()) {
+      return res.status(400).json({ success: false, error: 'Verification OTP has expired. Please click "Resend OTP" to get a new code.' });
+    }
+
+    const crypto = require('crypto');
+    const hashedOtp = crypto.createHash('sha256').update(cleanOtp).digest('hex');
+
+    if (user.emailVerificationOtp !== hashedOtp) {
+      return res.status(400).json({ success: false, error: 'Invalid 6-digit OTP code. Please check your email and try again.' });
     }
 
     // Activate user
@@ -719,7 +746,7 @@ exports.verifyEmail = async (req, res, next) => {
     const sendEmail = require('../utils/sendEmail');
     const welcomeHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-        <h2 style="color: #6d28d9; text-align: center;">Welcome to NovaCart!</h2>
+        <h2 style="color: #6d28d9; text-align: center;">Welcome to NovaCart! 🎉</h2>
         <p>Dear ${user.name},</p>
         <p>Congratulations! Your email address has been successfully verified, and your NovaCart account is now fully active.</p>
         <p>You can now browse products, add items to your cart, set up your shipping addresses, and place orders seamlessly.</p>
@@ -728,7 +755,7 @@ exports.verifyEmail = async (req, res, next) => {
           <a href="${process.env.CLIENT_URL || 'http://localhost:5173'}" style="background-color: #6d28d9; color: white; padding: 12px 25px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block;">Start Shopping ↗</a>
         </div>
         
-        <p>If you did not sign up for this account, please ignore this email.</p>
+        <p style="font-size: 12px; color: #666;">If you did not sign up for this account, please ignore this email.</p>
         <hr style="border: none; border-top: 1px solid #eee; margin-top: 30px;">
         <p style="font-size: 11px; color: #777; text-align: center;">&copy; ${new Date().getFullYear()} NovaCart. All rights reserved.</p>
       </div>
@@ -747,6 +774,71 @@ exports.verifyEmail = async (req, res, next) => {
 
     // Log the user in and return tokens
     sendTokenResponse(user, 200, res);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Resend Email Verification OTP
+// @route   POST /api/auth/resend-verification-otp
+// @access  Public
+exports.resendVerificationOtp = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ success: false, error: 'Please provide your email address' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+
+    const user = await User.findOne({ email: cleanEmail }).select('+emailVerificationOtp +emailVerificationOtpExpire');
+
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'No registered account found with this email address.' });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ success: false, error: 'Your email address is already verified. Please sign in.' });
+    }
+
+    // Generate new 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const crypto = require('crypto');
+    const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+
+    user.emailVerificationOtp = hashedOtp;
+    user.emailVerificationOtpExpire = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    await user.save({ validateBeforeSave: false });
+
+    // Send email
+    const sendEmail = require('../utils/sendEmail');
+    const { getWelcomeOtpTemplate } = require('../utils/emailTemplates');
+    const message = `Dear ${user.name},\n\nYour new 6-digit email verification OTP for NovaCart is:\n\n${otp}\n\nThis OTP is valid for 1 hour.`;
+    const htmlWelcomeEmail = getWelcomeOtpTemplate({
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      otp,
+    });
+
+    let mailInfo = null;
+    try {
+      mailInfo = await sendEmail({
+        email: user.email,
+        subject: `NovaCart - New Email Verification OTP Code`,
+        message,
+        html: htmlWelcomeEmail,
+      });
+    } catch (err) {
+      console.error('Failed to resend verification email:', err.message);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'A new 6-digit verification OTP has been sent to your email.',
+      previewUrl: mailInfo?.previewUrl || null,
+    });
   } catch (error) {
     next(error);
   }
@@ -777,7 +869,7 @@ exports.requestDeleteOtp = async (req, res, next) => {
     const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
 
     user.deleteAccountOtp = hashedOtp;
-    user.deleteAccountOtpExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
+    user.deleteAccountOtpExpire = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
     await user.save({ validateBeforeSave: false });
 
@@ -789,7 +881,7 @@ exports.requestDeleteOtp = async (req, res, next) => {
     try {
       mailInfo = await sendEmail({
         email: user.email,
-        subject: 'NovaCart Account Deletion OTP',
+        subject: 'NovaCart Account Deletion OTP Code',
         message,
       });
     } catch (err) {
@@ -818,23 +910,33 @@ exports.deleteMe = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Please provide the verification OTP' });
     }
 
+    const cleanOtp = String(otp).trim();
+
     const useFallback = process.env.USE_FALLBACK_DATA === 'true';
     if (useFallback) {
       console.log(`[MOCK deleteMe] Deleting fallback user account: ${req.user.id}`);
       return res.status(200).json({ success: true, message: 'Account deleted successfully (Mock Mode)' });
     }
 
-    const crypto = require('crypto');
-    const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
-
-    const user = await User.findOne({
-      _id: req.user.id,
-      deleteAccountOtp: hashedOtp,
-      deleteAccountOtpExpire: { $gt: Date.now() },
-    });
+    const user = await User.findById(req.user.id).select('+deleteAccountOtp +deleteAccountOtpExpire');
 
     if (!user) {
-      return res.status(400).json({ success: false, error: 'Invalid or expired deletion OTP' });
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
+
+    if (!user.deleteAccountOtp || !user.deleteAccountOtpExpire) {
+      return res.status(400).json({ success: false, error: 'No active deletion OTP request found.' });
+    }
+
+    if (new Date(user.deleteAccountOtpExpire).getTime() < Date.now()) {
+      return res.status(400).json({ success: false, error: 'Deletion OTP has expired. Please request a new code.' });
+    }
+
+    const crypto = require('crypto');
+    const hashedOtp = crypto.createHash('sha256').update(cleanOtp).digest('hex');
+
+    if (user.deleteAccountOtp !== hashedOtp) {
+      return res.status(400).json({ success: false, error: 'Invalid 6-digit deletion OTP. Please try again.' });
     }
 
     const userEmail = user.email;
