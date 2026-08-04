@@ -22,6 +22,73 @@ NovaCart is designed to provide a seamless end-to-end shopping and management ex
 
 ---
 
+## 🏗️ System Architecture
+
+NovaCart follows a decoupled, highly scalable client-server architecture. The diagram below illustrates the end-to-end flow between user portals, front-end state management, backend controllers, payment gateways, and external cloud services:
+
+```mermaid
+graph TD
+    %% User Layer
+    subgraph Users ["👥 User Portals"]
+        Customer["🛍️ Customer Portal"]
+        Seller["🏪 Merchant Portal"]
+        Admin["🛡️ Admin Dashboard"]
+    end
+
+    %% Frontend Layer
+    subgraph Frontend ["⚡ Frontend (React 19 + Vite)"]
+        UI["🎨 UI Layer (Tailwind v4 + Framer Motion + GSAP)"]
+        State["🔄 State & Router (Redux Toolkit + React Router v7)"]
+        RazorpaySDK["💳 Razorpay Checkout SDK"]
+        GoogleAuth["🔐 Google Identity Services"]
+    end
+
+    %% Backend Layer
+    subgraph Backend ["⚙️ Backend API (Node.js + Express 5)"]
+        Security["🛡️ Security Pipeline (Helmet, Rate Limiter, Mongo Sanitize)"]
+        AuthModule["🔑 Auth Controller (JWT & Google OAuth)"]
+        ProductModule["📦 Product & Media Controller (WebP Compression)"]
+        OrderModule["🚚 Order & Coupon Engine"]
+        PaymentModule["💳 Payment Controller (HMAC Verification)"]
+        EmailModule["📧 Notification Service (Nodemailer)"]
+    end
+
+    %% Database & External Services Layer
+    subgraph DataExternal ["☁️ Databases & External Services"]
+        MongoDB[("🍃 MongoDB / Mongoose")]
+        RazorpayAPI["💳 Razorpay Gateway API"]
+        GoogleAPI["🔍 Google OAuth 2.0 API"]
+        SMTP["✉️ SMTP Server (Email Dispatch)"]
+    end
+
+    %% Connections
+    Customer --> UI
+    Seller --> UI
+    Admin --> UI
+
+    UI --> State
+    State --> Security
+    UI -.-> RazorpaySDK
+    UI -.-> GoogleAuth
+
+    Security --> AuthModule
+    Security --> ProductModule
+    Security --> OrderModule
+    Security --> PaymentModule
+
+    PaymentModule --> EmailModule
+
+    AuthModule --> GoogleAPI
+    AuthModule --> MongoDB
+    ProductModule --> MongoDB
+    OrderModule --> MongoDB
+    PaymentModule --> RazorpayAPI
+    RazorpaySDK <--> RazorpayAPI
+    EmailModule --> SMTP
+```
+
+---
+
 ## 🚀 Technology Stack
 
 ### Frontend
