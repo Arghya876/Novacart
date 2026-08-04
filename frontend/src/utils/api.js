@@ -78,12 +78,27 @@ axios.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Request a new access token using the refresh cookie
-        const response = await axios.post('/api/auth/refresh', {}, { _retry: true, withCredentials: true, _suppressToast: true });
+        const storedRefreshToken = localStorage.getItem('refreshToken');
+        // Request a new access token using the refresh cookie and fallback localStorage token
+        const response = await axios.post(
+          '/api/auth/refresh',
+          { refreshToken: storedRefreshToken },
+          {
+            _retry: true,
+            withCredentials: true,
+            _suppressToast: true,
+            headers: {
+              'x-refresh-token': storedRefreshToken || '',
+            },
+          }
+        );
         
         if (response.data.success) {
-          const { accessToken } = response.data;
+          const { accessToken, refreshToken: newRefreshToken } = response.data;
           localStorage.setItem('accessToken', accessToken);
+          if (newRefreshToken) {
+            localStorage.setItem('refreshToken', newRefreshToken);
+          }
           processQueue(null, accessToken);
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           return axios(originalRequest);
@@ -94,6 +109,7 @@ axios.interceptors.response.use(
         // Refresh token is invalid/expired: clear localStorage
         localStorage.removeItem('user');
         localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
         
         return Promise.reject(refreshError);
       } finally {

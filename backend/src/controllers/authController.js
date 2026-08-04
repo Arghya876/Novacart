@@ -36,6 +36,7 @@ const sendTokenResponse = async (user, statusCode, res) => {
     .json({
       success: true,
       accessToken,
+      refreshToken,
       user: {
         id: user._id,
         name: user.name,
@@ -322,7 +323,7 @@ exports.login = async (req, res, next) => {
 // @access  Public
 exports.refreshToken = async (req, res, next) => {
   try {
-    const token = req.cookies?.refreshToken || req.body.refreshToken;
+    const token = req.cookies?.refreshToken || req.body?.refreshToken || req.headers['x-refresh-token'];
 
     if (!token) {
       return res.status(401).json({ success: false, error: 'No refresh token provided' });
@@ -330,10 +331,7 @@ exports.refreshToken = async (req, res, next) => {
 
     // Verify token
     const refreshSecret = process.env.REFRESH_TOKEN_SECRET;
-    if (!refreshSecret && process.env.NODE_ENV === 'production') {
-      throw new Error('REFRESH_TOKEN_SECRET environment variable is missing in production!');
-    }
-    const decoded = jwt.verify(token, refreshSecret || 'fallback_refresh_token_secret');
+    const decoded = jwt.verify(token, refreshSecret || 'super_secret_novacart_refresh_token_key_67890');
 
     // Check if user exists and has this refresh token
     const user = await User.findById(decoded.id).select('+refreshToken');
@@ -341,13 +339,31 @@ exports.refreshToken = async (req, res, next) => {
       return res.status(401).json({ success: false, error: 'Invalid refresh token' });
     }
 
-    // Generate new Access Token
+    // Generate new Access Token & Refresh Token
     const accessToken = user.getSignedJwtToken();
+    const newRefreshToken = user.getSignedRefreshToken();
 
-    res.status(200).json({
-      success: true,
-      accessToken,
-    });
+    user.refreshToken = newRefreshToken;
+    await user.save({ validateBeforeSave: false });
+
+    const isProduction = process.env.NODE_ENV === 'production';
+    const cookieOptions = {
+      expires: new Date(
+        Date.now() + (parseInt(process.env.REFRESH_TOKEN_COOKIE_EXPIRE) || 7) * 24 * 60 * 60 * 1000
+      ),
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+    };
+
+    res
+      .status(200)
+      .cookie('refreshToken', newRefreshToken, cookieOptions)
+      .json({
+        success: true,
+        accessToken,
+        refreshToken: newRefreshToken,
+      });
   } catch (error) {
     return res.status(401).json({ success: false, error: 'Invalid or expired refresh token' });
   }

@@ -287,7 +287,12 @@ export default function UserDashboard() {
           setDeletePreviewUrl(res.payload.previewUrl);
         }
       } else {
-        setDeleteLocalError(res.payload || 'Failed to send OTP.');
+        const err = res.payload || '';
+        if (typeof err === 'string' && (err.includes('refresh token') || err.includes('token') || err.includes('Unauthorized'))) {
+          setDeleteLocalError('Your login session has expired. Please sign out and sign in again to perform this security action.');
+        } else {
+          setDeleteLocalError(err || 'Failed to send OTP.');
+        }
       }
     });
   };

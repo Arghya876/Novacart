@@ -37,6 +37,9 @@ export const loginUser = createAsyncThunk(
       if (response.data.success) {
         localStorage.setItem('user', JSON.stringify(response.data.user));
         localStorage.setItem('accessToken', response.data.accessToken);
+        if (response.data.refreshToken) {
+          localStorage.setItem('refreshToken', response.data.refreshToken);
+        }
       }
       return response.data;
     } catch (error) {
@@ -63,6 +66,9 @@ export const googleLoginUser = createAsyncThunk(
       if (response.data.success) {
         localStorage.setItem('user', JSON.stringify(response.data.user));
         localStorage.setItem('accessToken', response.data.accessToken);
+        if (response.data.refreshToken) {
+          localStorage.setItem('refreshToken', response.data.refreshToken);
+        }
       }
       return response.data;
     } catch (error) {
@@ -82,6 +88,7 @@ export const logoutUser = createAsyncThunk(
     } finally {
       localStorage.removeItem('user');
       localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
     }
     return {};
   }
