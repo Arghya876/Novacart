@@ -13,6 +13,7 @@ NovaCart is designed to provide a seamless end-to-end shopping and management ex
 ### 🌟 Key Highlights & Features
 
 - **🔐 Multi-Portal Authentication & Google Sign-In**: Dedicated, role-isolated portals for Customers (`/login/customer`), Merchants (`/login/seller`), and Admins (`/admin/login`) with Google OAuth 2.0 integration via Google Identity Services.
+- **💳 Multi-Method Razorpay Payment Gateway**: Seamless end-to-end checkout supporting Instant UPI (Google Pay, PhonePe, Paytm, BHIM), Credit & Debit Cards (Visa, Mastercard, RuPay, Amex), NetBanking (50+ banks), Flexible EMI options, and Digital Wallets with real-time payment status tracking.
 - **🏷️ Smart Discount Coupon Calculation**: Advanced coupon calculation engine supporting dynamic percentage discounts, fixed value reductions, minimum cart thresholds, expiration checks, and live cart total adjustments.
 - **🔍 Animated Floating Search & Real-Time Autocomplete**: Glassmorphic search overlay with debounced API queries, instant suggestions, thumbnail previews, and tag filtering.
 - **🖼️ Automatic WebP Image & Video Compression**: Automated client/server media optimization converting uploaded product images to lightweight WebP format for high-speed page loads.
@@ -35,6 +36,7 @@ NovaCart is designed to provide a seamless end-to-end shopping and management ex
 - **Runtime & Framework:** Node.js & Express 5
 - **Database:** MongoDB (via Mongoose) with `mongodb-memory-server` fallback
 - **Authentication:** JWT (Access & Refresh tokens via HTTP-Only Cookies) + Google Identity Services (OAuth 2.0)
+- **Payment Processing:** Razorpay Integration (UPI, Credit/Debit Cards, NetBanking, EMI, Wallets & Secure verification)
 - **Media Processing:** Client/Server WebP conversion & compressed storage
 - **Email Notifications:** Nodemailer (Multi-recipient delivery & status updates)
 - **Security:** Helmet CSP, Express Rate Limit, Mongo Sanitize, CORS lockdown, bcryptjs
@@ -45,11 +47,11 @@ NovaCart is designed to provide a seamless end-to-end shopping and management ex
 
 ### Pros
 - **⚡ High Performance & Speed:** Optimized modern build stack with React 19, Vite, and client-side WebP compression for rapid page loading.
+- **💳 Multi-Method Secure Payments:** Integrated Razorpay checkout supporting Instant UPI, Cards, Netbanking, EMI, and Wallets with cryptographic verification.
 - **🎨 Premium UI/UX & Aesthetics:** Modern glassmorphism design, fluid dark mode, and micro-animations with GSAP and Framer Motion.
 - **🔒 Robust Role-Based Security:** Strict separation of Customer, Seller, and Admin portals backed by JWT access/refresh tokens and sanitized API routes.
 - **💸 Smart Coupon & Discount Logic:** Flexible discount calculation system with automated validation, percentage/fixed savings, and live cart updating.
 - **📲 Responsive & Cross-Device Ready:** Mobile-first layout with smooth navigation, floating search, and interactive order tracking.
 
 ### Cons
-- **💳 Payment Gateway Sandbox:** Live checkout operates with sandbox/demo keys until merchant production credentials are added.
 - **📧 Email Dispatch Dependency:** Live email notifications require a configured SMTP host (e.g. Gmail App Password).
