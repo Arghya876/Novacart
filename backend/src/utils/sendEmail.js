@@ -1,8 +1,14 @@
 const nodemailer = require('nodemailer');
+const dns = require('dns');
+
+// Force Node.js to prefer IPv4 over IPv6 to prevent ENETUNREACH on Render/cloud containers
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 /**
  * Built-in System Mailer Service for NovaCart
- * Multi-port SMTP transport optimized for cloud hosting providers (Render, Vercel, Railway).
+ * IPv4 forced multi-port SMTP transport optimized for cloud hosting providers (Render, Vercel, Railway).
  * Uses Port 587 (STARTTLS) as primary to prevent cloud firewall timeouts, with Port 465 fallback.
  */
 const sendEmail = async (options) => {
@@ -24,22 +30,12 @@ const sendEmail = async (options) => {
 
   const createTransporter = (port, secure) => {
     const isGmail = host.toLowerCase().includes('gmail') || user.toLowerCase().includes('gmail.com');
-    
-    if (isGmail && secure) {
-      return nodemailer.createTransport({
-        service: 'gmail',
-        auth: { user, pass },
-        tls: { rejectUnauthorized: false },
-        connectionTimeout: 12000,
-        greetingTimeout: 12000,
-        socketTimeout: 12000,
-      });
-    }
 
     return nodemailer.createTransport({
       host: isGmail ? 'smtp.gmail.com' : host,
       port,
       secure,
+      family: 4, // Force IPv4 to avoid ENETUNREACH on Render/cloud containers
       auth: { user, pass },
       tls: { rejectUnauthorized: false },
       connectionTimeout: 12000,
@@ -48,20 +44,20 @@ const sendEmail = async (options) => {
     });
   };
 
-  // Attempt 1: Port 587 STARTTLS (Standard cloud port allowed on Render / Vercel)
+  // Attempt 1: Port 587 STARTTLS (IPv4 forced - standard cloud port allowed on Render / Vercel)
   try {
     const transporter587 = createTransporter(587, false);
     const info = await transporter587.sendMail(message);
-    console.log(`System mail delivered via Port 587 to ${options.email}: ${info.messageId}`);
+    console.log(`System mail delivered via Port 587 IPv4 to ${options.email}: ${info.messageId}`);
     return info;
   } catch (err587) {
-    console.warn(`Port 587 delivery attempt failed (${err587.message}). Retrying via Port 465 SSL...`);
+    console.warn(`Port 587 IPv4 delivery attempt failed (${err587.message}). Retrying via Port 465 SSL...`);
     
-    // Attempt 2: Port 465 SSL Fallback
+    // Attempt 2: Port 465 SSL Fallback (IPv4 forced)
     try {
       const transporter465 = createTransporter(465, true);
       const info465 = await transporter465.sendMail(message);
-      console.log(`System mail delivered via Port 465 to ${options.email}: ${info465.messageId}`);
+      console.log(`System mail delivered via Port 465 IPv4 to ${options.email}: ${info465.messageId}`);
       return info465;
     } catch (err465) {
       console.error(`System mail delivery error on all ports (587 & 465): ${err465.message}`);
