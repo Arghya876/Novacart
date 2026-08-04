@@ -2,74 +2,16 @@ const nodemailer = require('nodemailer');
 
 /**
  * Built-in System Mailer Service for NovaCart
- * Uses System SMTP credentials (SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS / EMAIL_HOST, EMAIL_USER)
- * with an automatic built-in Ethereal test session fallback. Zero third-party service dependencies like Resend required.
+ * Multi-port SMTP transport optimized for cloud hosting providers (Render, Vercel, Railway).
+ * Uses Port 587 (STARTTLS) as primary to prevent cloud firewall timeouts, with Port 465 fallback.
  */
 const sendEmail = async (options) => {
-  let transporter;
-
   const host = process.env.SMTP_HOST || process.env.EMAIL_HOST || 'smtp.gmail.com';
-  const port = parseInt(process.env.SMTP_PORT || process.env.EMAIL_PORT || '465', 10);
   const user = process.env.SMTP_USER || process.env.EMAIL_USER || 'arghyabhattacharjee876@gmail.com';
   const pass = process.env.SMTP_PASS || process.env.EMAIL_PASS || 'frorhdquqyfkuwtq';
 
-  // 1. Primary Option: Native System SMTP Transporter
-  if (host && user && pass) {
-    if (host.toLowerCase().includes('gmail') || process.env.SMTP_SERVICE?.toLowerCase() === 'gmail' || user.includes('gmail.com')) {
-      transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: { user, pass },
-        tls: {
-          rejectUnauthorized: false,
-        },
-        connectionTimeout: 15000,
-        greetingTimeout: 15000,
-        socketTimeout: 15000,
-      });
-    } else {
-      transporter = nodemailer.createTransport({
-        host,
-        port,
-        secure: port === 465,
-        auth: { user, pass },
-        tls: {
-          rejectUnauthorized: false,
-        },
-        connectionTimeout: 15000,
-        greetingTimeout: 15000,
-        socketTimeout: 15000,
-      });
-    }
-  } else {
-    // 2. Built-in Fallback: Generate Ethereal Mail test session
-    try {
-      console.log('SMTP credentials not configured. Spawning built-in Ethereal Test Mail Session...');
-      const testAccount = await nodemailer.createTestAccount();
-      
-      transporter = nodemailer.createTransport({
-        host: 'smtp.ethereal.email',
-        port: 587,
-        secure: false,
-        auth: {
-          user: testAccount.user,
-          pass: testAccount.pass,
-        },
-      });
-    } catch (err) {
-      console.warn('Fallback test account generation notice:', err.message);
-      // Absolute fallback console logging
-      console.log('\n==================================================');
-      console.log(`[BUILT-IN SYSTEM MAIL LOG]`);
-      console.log(`TO: ${options.email}`);
-      console.log(`SUBJECT: ${options.subject}`);
-      console.log(`MESSAGE:\n${options.message}`);
-      console.log('==================================================\n');
-      return { mockSent: true, messageId: 'system_log_' + Date.now() };
-    }
-  }
-
-  const fromEmail = process.env.FROM_EMAIL || user || 'noreply@novacart.com';
-  const fromName = process.env.FROM_NAME || 'NovaCart';
+  const fromEmail = process.env.FROM_EMAIL || user;
+  const fromName = process.env.FROM_NAME || 'NovaCart Support';
 
   const message = {
     from: `"${fromName}" <${fromEmail}>`,
@@ -80,21 +22,51 @@ const sendEmail = async (options) => {
     html: options.html || `<p>${options.message.replace(/\n/g, '<br>')}</p>`,
   };
 
-  try {
-    const info = await transporter.sendMail(message);
-    const previewUrl = nodemailer.getTestMessageUrl(info);
-    if (previewUrl) {
-      console.log('\n==================================================');
-      console.log(`[SYSTEM MAIL DELIVERED] TO: ${options.email}`);
-      console.log(`[PREVIEW URL]: ${previewUrl}`);
-      console.log('==================================================\n');
-      return { previewUrl, messageId: info.messageId };
+  const createTransporter = (port, secure) => {
+    const isGmail = host.toLowerCase().includes('gmail') || user.toLowerCase().includes('gmail.com');
+    
+    if (isGmail && secure) {
+      return nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user, pass },
+        tls: { rejectUnauthorized: false },
+        connectionTimeout: 12000,
+        greetingTimeout: 12000,
+        socketTimeout: 12000,
+      });
     }
-    console.log(`System mail delivered successfully to ${options.email}: ${info.messageId}`);
+
+    return nodemailer.createTransport({
+      host: isGmail ? 'smtp.gmail.com' : host,
+      port,
+      secure,
+      auth: { user, pass },
+      tls: { rejectUnauthorized: false },
+      connectionTimeout: 12000,
+      greetingTimeout: 12000,
+      socketTimeout: 12000,
+    });
+  };
+
+  // Attempt 1: Port 587 STARTTLS (Standard cloud port allowed on Render / Vercel)
+  try {
+    const transporter587 = createTransporter(587, false);
+    const info = await transporter587.sendMail(message);
+    console.log(`System mail delivered via Port 587 to ${options.email}: ${info.messageId}`);
     return info;
-  } catch (err) {
-    console.error('System mail delivery error:', err.message);
-    return { mockSent: true, error: err.message, messageId: 'fallback_' + Date.now() };
+  } catch (err587) {
+    console.warn(`Port 587 delivery attempt failed (${err587.message}). Retrying via Port 465 SSL...`);
+    
+    // Attempt 2: Port 465 SSL Fallback
+    try {
+      const transporter465 = createTransporter(465, true);
+      const info465 = await transporter465.sendMail(message);
+      console.log(`System mail delivered via Port 465 to ${options.email}: ${info465.messageId}`);
+      return info465;
+    } catch (err465) {
+      console.error(`System mail delivery error on all ports (587 & 465): ${err465.message}`);
+      return { mockSent: true, error: err465.message, messageId: 'fallback_' + Date.now() };
+    }
   }
 };
 
