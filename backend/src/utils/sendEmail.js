@@ -8,23 +8,23 @@ const nodemailer = require('nodemailer');
 const sendEmail = async (options) => {
   let transporter;
 
-  const host = process.env.SMTP_HOST || process.env.EMAIL_HOST;
-  const port = parseInt(process.env.SMTP_PORT || process.env.EMAIL_PORT || '587', 10);
-  const user = process.env.SMTP_USER || process.env.EMAIL_USER;
-  const pass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
+  const host = process.env.SMTP_HOST || process.env.EMAIL_HOST || 'smtp.gmail.com';
+  const port = parseInt(process.env.SMTP_PORT || process.env.EMAIL_PORT || '465', 10);
+  const user = process.env.SMTP_USER || process.env.EMAIL_USER || 'arghyabhattacharjee876@gmail.com';
+  const pass = process.env.SMTP_PASS || process.env.EMAIL_PASS || 'frorhdquqyfkuwtq';
 
   // 1. Primary Option: Native System SMTP Transporter
   if (host && user && pass) {
-    if (host.toLowerCase().includes('gmail') || process.env.SMTP_SERVICE?.toLowerCase() === 'gmail') {
+    if (host.toLowerCase().includes('gmail') || process.env.SMTP_SERVICE?.toLowerCase() === 'gmail' || user.includes('gmail.com')) {
       transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: { user, pass },
         tls: {
           rejectUnauthorized: false,
         },
-        connectionTimeout: 10000,
-        greetingTimeout: 10000,
-        socketTimeout: 10000,
+        connectionTimeout: 15000,
+        greetingTimeout: 15000,
+        socketTimeout: 15000,
       });
     } else {
       transporter = nodemailer.createTransport({
@@ -35,9 +35,9 @@ const sendEmail = async (options) => {
         tls: {
           rejectUnauthorized: false,
         },
-        connectionTimeout: 10000,
-        greetingTimeout: 10000,
-        socketTimeout: 10000,
+        connectionTimeout: 15000,
+        greetingTimeout: 15000,
+        socketTimeout: 15000,
       });
     }
   } else {
