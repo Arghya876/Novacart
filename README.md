@@ -124,3 +124,16 @@ graph TD
 
 ### Cons
 - **⏳ Free Cloud Host Spin-Down:** Free server tiers (e.g. Render free instance) may spin down after 15 minutes of inactivity, causing a short initial spin-up delay on cold requests.
+
+---
+
+## 📄 License & Contribution Policy
+
+Copyright (c) 2026 Arghya (Arghya876). All Rights Reserved.
+
+- **Strict Proprietary License:** Unauthorized copying, reproduction, distribution, hosting, commercial use, or modification of any part of this software is strictly prohibited.
+- **Contribution Policy:** Contributions, pull requests, or code submissions are **NOT allowed without prior explicit contact and authorization**.
+- **Contact:** If you wish to request usage permissions or discuss potential contributions, please contact the project owner first via GitHub ([@Arghya876](https://github.com/Arghya876)).
+
+See the full [LICENSE](file:///d:/Arghya/Codes/VS%20Code/Web%20Development/React/NovaCart/LICENSE) file for complete details.
+

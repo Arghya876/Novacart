@@ -2,6 +2,7 @@
   "name": "novacart-root",
   "version": "1.0.0",
   "description": "Root package for managing NovaCart full-stack application",
+  "license": "UNLICENSED",
   "scripts": {
     "install-all": "npm install --prefix backend && npm install --prefix frontend",
     "seed": "node backend/src/seeder.js",
